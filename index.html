@@ -366,6 +366,27 @@ async function loadData() {
       return numValue >= 5 ? 'Big' : 'Small';
     });
 
+    // প্রথম লোডে সব historical data এর জন্য prediction calculate করা
+    if (Object.keys(predictionHistory).length === 0) {
+      console.log("🔄 First load - calculating all historical predictions...");
+      
+      // প্রতিটি entry র জন্য তার পরের data দিয়ে prediction করা
+      list.forEach((item, index) => {
+        const periodValue = item.issue || item.period || item.issueNo || item.periodId;
+        
+        // যদি এই period এর জন্য prediction না থাকে
+        if (!predictionHistory[periodValue] && index < list.length - 1) {
+          // পরের সব entries নিয়ে pattern analyze করা
+          const futureHistory = sizeHistory.slice(index + 1);
+          if (futureHistory.length > 0) {
+            const predData = analyzePrediction(futureHistory);
+            predictionHistory[periodValue] = predData.prediction;
+            console.log(`💾 Saved historical prediction for ${periodValue}: ${predData.prediction}`);
+          }
+        }
+      });
+    }
+    
     // সবচেয়ে নতুন period check করা
     const currentLatestPeriod = list[0].issue || list[0].period || list[0].issueNo || list[0].periodId;
     
@@ -485,7 +506,7 @@ async function loadData() {
 loadData();
 
 // প্রতি 62 সেকেন্ডে আপডেট (1 মিনিট + 2 সেকেন্ড)
-setInterval(loadData, 62000);
+setInterval(loadData, 60000);
 </script>
 
 </body>
