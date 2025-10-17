@@ -254,7 +254,7 @@
       </thead>
       <tbody id="historyTable">
         <tr>
-          <td colspan="4" class="loading">Loading data...</td>
+          <td colspan="5" class="loading">Loading data...</td>
         </tr>
       </tbody>
     </table>
@@ -350,13 +350,18 @@ async function loadData() {
     table.innerHTML = "";
 
     if (list.length === 0) {
-      table.innerHTML = '<tr><td colspan="4" class="loading">No data available</td></tr>';
+      table.innerHTML = '<tr><td colspan="5" class="loading">No data available</td></tr>';
       return;
     }
 
-    const sizeHistory = [];
+    // প্রথমে সব data থেকে size history তৈরি করা
+    const sizeHistory = list.map(item => {
+      const resultNum = item.result || item.number || item.num || item.openResult || "?";
+      const numValue = parseInt(resultNum);
+      return numValue >= 5 ? 'Big' : 'Small';
+    });
 
-    list.forEach(item => {
+    list.forEach((item, index) => {
       console.log("Full Item Data:", JSON.stringify(item));
       
       const tr = document.createElement("tr");
@@ -389,14 +394,13 @@ async function loadData() {
       tdNumber.appendChild(numSpan);
       
       const tdSize = document.createElement("td");
-      const numValue = parseInt(resultNum);
-      const size = numValue >= 5 ? 'Big' : 'Small';
+      const size = sizeHistory[index];
       tdSize.textContent = size;
-      sizeHistory.push(size);
       
       const tdColor = document.createElement("td");
       tdColor.className = "color-cell";
       
+      const numValue = parseInt(resultNum);
       const colors = getColors(numValue, color.toLowerCase());
       colors.forEach(c => {
         const dot = document.createElement("span");
@@ -404,15 +408,38 @@ async function loadData() {
         tdColor.appendChild(dot);
       });
       
+      // Result column
+      const tdResult = document.createElement("td");
+      tdResult.className = "result-cell";
+      
+      if (index === 0) {
+        // সবচেয়ে নতুন entry - next prediction এর জন্য pending
+        tdResult.className = "result-cell result-pending";
+        tdResult.textContent = "Next";
+      } else {
+        // আগের round এর history থেকে prediction করে current result চেক করা
+        const previousHistory = sizeHistory.slice(index);
+        const predictionData = analyzePrediction(previousHistory);
+        
+        if (predictionData.prediction === size) {
+          tdResult.className = "result-cell result-win";
+          tdResult.textContent = "✓ WIN";
+        } else {
+          tdResult.className = "result-cell result-loss";
+          tdResult.textContent = "✗ LOSS";
+        }
+      }
+      
       tr.appendChild(tdPeriod);
       tr.appendChild(tdNumber);
       tr.appendChild(tdSize);
       tr.appendChild(tdColor);
+      tr.appendChild(tdResult);
       
       table.appendChild(tr);
     });
 
-    // প্রেডিকশন আপডেট করা
+    // প্রেডিকশন আপডেট করা (পরবর্তী round এর জন্য)
     const predictionData = analyzePrediction(sizeHistory);
     const predictionResult = document.getElementById("predictionResult");
     const patternInfo = document.getElementById("patternInfo");
@@ -424,7 +451,7 @@ async function loadData() {
   } catch (e) {
     console.error("Error loading data:", e);
     document.getElementById("historyTable").innerHTML = 
-      '<tr><td colspan="4" class="loading">Error loading data. Retrying...</td></tr>';
+      '<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
   }
 }
 
