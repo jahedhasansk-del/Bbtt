@@ -264,8 +264,9 @@
 </div>
 
 <script>
-// Prediction save করার জন্য - শুধু পরের round এর prediction
-let nextRoundPrediction = null;
+// সব predictions memory তে save করা
+const predictionHistory = {};
+let lastProcessedPeriod = null;
 
 function getColors(number, color) {
   const colors = [];
