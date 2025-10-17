@@ -361,8 +361,21 @@ async function loadData() {
       return numValue >= 5 ? 'Big' : 'Small';
     });
 
+    // প্রতিটি entry এর জন্য আমাদের prediction calculate করা
+    const predictions = [];
+    for (let i = 0; i < list.length; i++) {
+      const nextHistory = sizeHistory.slice(i + 1);
+      if (nextHistory.length > 0) {
+        const predictionData = analyzePrediction(nextHistory);
+        predictions[i] = predictionData.prediction;
+      } else {
+        predictions[i] = null;
+      }
+    }
+
     list.forEach((item, index) => {
       console.log("Full Item Data:", JSON.stringify(item));
+      console.log("Our Prediction:", predictions[index], "Actual Result:", sizeHistory[index]);
       
       const tr = document.createElement("tr");
       
@@ -408,18 +421,13 @@ async function loadData() {
         tdColor.appendChild(dot);
       });
       
-      // Result column
+      // Result column - আমাদের prediction actual result এর সাথে match করা
       const tdResult = document.createElement("td");
       tdResult.className = "result-cell";
       
-      // শেষ entry বাদে সবগুলোর জন্য WIN/LOSS চেক করা
-      if (index < list.length - 1) {
-        // পরবর্তী entries দিয়ে prediction করা হয়েছিল
-        const nextHistory = sizeHistory.slice(index + 1);
-        const predictionData = analyzePrediction(nextHistory);
-        
-        // সেই prediction এই entry র সাথে match করা
-        if (predictionData.prediction === size) {
+      if (predictions[index] !== null) {
+        // আমাদের prediction actual result এর সাথে match হচ্ছে কিনা
+        if (predictions[index] === size) {
           tdResult.className = "result-cell result-win";
           tdResult.textContent = "✓ WIN";
         } else {
@@ -427,7 +435,7 @@ async function loadData() {
           tdResult.textContent = "✗ LOSS";
         }
       } else {
-        // সবচেয়ে পুরনো entry - এর জন্য prediction করার মত আগের data নেই
+        // সবচেয়ে পুরনো entry
         tdResult.className = "result-cell result-pending";
         tdResult.textContent = "-";
       }
