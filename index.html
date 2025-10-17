@@ -5,67 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎯 WinGo 1M Live History</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f5f7fa;
-    margin: 0;
-    padding: 0;
-    color: #333;
-  }
-  h2 {
-    text-align: center;
-    background: #ffd633;
-    padding: 15px;
-    margin: 0;
-    color: #222;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    background: white;
-  }
-  th, td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-  }
-  th {
-    background: #ffcc00;
-    font-weight: bold;
-  }
-  tr:nth-child(even) {
-    background: #f9f9f9;
-  }
-  .big {
-    color: green;
-    font-weight: bold;
-  }
-  .small {
-    color: red;
-    font-weight: bold;
-  }
-  .color-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    display: inline-block;
-  }
+  body { font-family: Arial; background: #f5f5f5; margin: 0; color: #222; }
+  h2 { text-align: center; background: #ffd633; padding: 15px; margin: 0; }
+  table { width: 100%; border-collapse: collapse; background: white; }
+  th, td { padding: 10px; text-align: center; border-bottom: 1px solid #ddd; }
+  th { background: #ffcc00; }
+  tr:nth-child(even){ background: #f9f9f9; }
+  .big { color: green; font-weight: bold; }
+  .small { color: red; font-weight: bold; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
   .red { background: red; }
   .green { background: green; }
   .violet { background: violet; }
-  #last-update {
-    text-align: center;
-    margin: 10px 0;
-    color: #555;
-    font-size: 14px;
-  }
+  #last-update { text-align: center; margin: 10px 0; color: #555; font-size: 14px; }
 </style>
 </head>
 <body>
   <h2>🎯 WinGo 1 Minute — Latest 10 Results</h2>
   <div id="last-update">Loading...</div>
-
   <table>
     <thead>
       <tr>
@@ -75,61 +32,53 @@
         <th>Color</th>
       </tr>
     </thead>
-    <tbody id="tableBody">
-      <tr><td colspan="4">Loading data...</td></tr>
-    </tbody>
+    <tbody id="tableBody"><tr><td colspan="4">Loading...</td></tr></tbody>
   </table>
 
 <script>
 async function loadData() {
   const ts = Date.now();
-  const url = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=' + ts)}`;
+  const proxy = "https://api.allorigins.win/raw?url=";
+  const api = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
+  const url = proxy + encodeURIComponent(api);
 
   try {
     const res = await fetch(url);
-    const data = await res.json();
-
-    const list = data.data.list.slice(0, 10);
+    const json = await res.json();
+    const list = json.data.list.slice(0, 10);
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
 
     list.forEach(item => {
-      const tr = document.createElement("tr");
       const shortPeriod = item.issue.slice(-5);
-      const numColor = item.number >= 5 ? "green" : (item.number === 0 ? "violet" : "red");
+      const colorClass = item.color.includes("violet") ? "violet" :
+                         item.color.includes("green") ? "green" : "red";
 
-      let colorDot = "red";
-      if (item.color.includes("green")) colorDot = "green";
-      if (item.color.includes("violet")) colorDot = "violet";
-
-      tr.innerHTML = `
-        <td>${shortPeriod}</td>
-        <td style="color:${numColor}; font-weight:bold;">${item.number}</td>
-        <td class="${item.bigSmall.toLowerCase()}">${item.bigSmall}</td>
-        <td><span class="color-dot ${colorDot}"></span></td>
-      `;
-      tbody.appendChild(tr);
+      tbody.innerHTML += `
+        <tr>
+          <td>${shortPeriod}</td>
+          <td style="font-weight:bold; color:${item.number >= 5 ? "green" : "red"};">${item.number}</td>
+          <td class="${item.bigSmall.toLowerCase()}">${item.bigSmall}</td>
+          <td><span class="dot ${colorClass}"></span></td>
+        </tr>`;
     });
 
     document.getElementById("last-update").innerText =
       "Last updated: " + new Date().toLocaleTimeString();
-
   } catch (err) {
-    console.error("Error loading data:", err);
+    console.error(err);
     document.getElementById("tableBody").innerHTML =
       `<tr><td colspan="4" style="color:red;">⚠️ Failed to load data</td></tr>`;
   }
 }
 
-// প্রতি মিনিটের 01 সেকেন্ডে সঠিকভাবে আপডেট সেট করা
 function scheduleUpdate() {
   const now = new Date();
-  const seconds = now.getSeconds();
-  const msUntilNext = ((60 - seconds + 1) % 60) * 1000; // পরের মিনিটের 01 সেকেন্ড
-
+  const sec = now.getSeconds();
+  const msUntilNext = ((60 - sec + 1) % 60) * 1000; // প্রতি মিনিটের 01 সেকেন্ডে আপডেট
   setTimeout(() => {
     loadData();
-    setInterval(loadData, 61000); // প্রতি 61 সেকেন্ডে রিফ্রেশ
+    setInterval(loadData, 61000);
   }, msUntilNext);
 }
 
