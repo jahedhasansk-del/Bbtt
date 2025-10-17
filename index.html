@@ -200,45 +200,67 @@ async function loadData() {
     const res = await fetch(url);
     const data = await res.json();
 
-    const list = data.data.list.slice(0, 10);
+    console.log("API Response:", data); // ডিবাগিং এর জন্য
+
+    // API রেসপন্স স্ট্রাকচার চেক করা
+    let list = [];
+    if (data && data.data && data.data.list) {
+      list = data.data.list.slice(0, 10);
+    } else if (data && data.list) {
+      list = data.list.slice(0, 10);
+    } else if (Array.isArray(data)) {
+      list = data.slice(0, 10);
+    }
+
     const table = document.getElementById("historyTable");
     table.innerHTML = "";
 
+    if (list.length === 0) {
+      table.innerHTML = '<tr><td colspan="4" class="loading">No data available</td></tr>';
+      return;
+    }
+
     list.forEach(item => {
+      console.log("Item:", item); // প্রতিটি আইটেম দেখার জন্য
+      
       const tr = document.createElement("tr");
       
-      // Period
+      // Period - বিভিন্ন সম্ভাব্য ফিল্ড নাম চেক করা
       const tdPeriod = document.createElement("td");
       tdPeriod.className = "period-cell";
-      tdPeriod.textContent = item.issue;
+      tdPeriod.textContent = item.issue || item.period || item.issueNo || item.periodId || "N/A";
       
-      // Number
+      // Number - বিভিন্ন সম্ভাব্য ফিল্ড নাম চেক করা
+      const resultNum = item.result || item.number || item.num || item.openResult || "?";
+      
       const tdNumber = document.createElement("td");
       tdNumber.className = "number-cell";
       const numSpan = document.createElement("span");
       
       // নাম্বার অনুযায়ী রঙ
-      if (item.color === 'red') {
+      const color = item.color || item.colour || "";
+      if (color === 'red' || color === 'Red') {
         numSpan.style.color = '#ff4444';
-      } else if (item.color === 'green') {
+      } else if (color === 'green' || color === 'Green') {
         numSpan.style.color = '#4CAF50';
-      } else if (item.color === 'violet') {
+      } else if (color === 'violet' || color === 'Violet' || color === 'purple') {
         numSpan.style.color = '#9C27B0';
       }
       
-      numSpan.textContent = item.result;
+      numSpan.textContent = resultNum;
       tdNumber.appendChild(numSpan);
       
       // Big/Small
       const tdSize = document.createElement("td");
-      const size = parseInt(item.result) >= 5 ? 'Big' : 'Small';
+      const numValue = parseInt(resultNum);
+      const size = numValue >= 5 ? 'Big' : 'Small';
       tdSize.textContent = size;
       
       // Color dots
       const tdColor = document.createElement("td");
       tdColor.className = "color-cell";
       
-      const colors = getColors(parseInt(item.result), item.color);
+      const colors = getColors(numValue, color.toLowerCase());
       colors.forEach(c => {
         const dot = document.createElement("span");
         dot.className = `color-dot ${c}`;
