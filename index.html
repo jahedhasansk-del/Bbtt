@@ -264,6 +264,9 @@
 </div>
 
 <script>
+// Prediction history মেমোরিতে save করার জন্য
+const predictionHistory = {};
+
 function getColors(number, color) {
   const colors = [];
   
@@ -361,22 +364,27 @@ async function loadData() {
       return numValue >= 5 ? 'Big' : 'Small';
     });
 
-    // প্রতিটি entry এর জন্য আমাদের prediction calculate করা
-    const predictions = [];
-    for (let i = 0; i < list.length; i++) {
-      const nextHistory = sizeHistory.slice(i + 1);
-      if (nextHistory.length > 0) {
-        const predictionData = analyzePrediction(nextHistory);
-        predictions[i] = predictionData.prediction;
-      } else {
-        predictions[i] = null;
-      }
+    // নতুন entry detect করা এবং prediction save করা
+    if (list.length > 0) {
+      const latestPeriod = list[0].issue || list[0].period || list[0].issueNo || list[0].periodId;
+      
+      // যদি এই period এর জন্য prediction না থাকে, তাহলে সবগুলো entry র জন্য prediction তৈরি করা
+      list.forEach((item, index) => {
+        const period = item.issue || item.period || item.issueNo || item.periodId;
+        
+        if (!predictionHistory[period]) {
+          // এই period এর জন্য prediction calculate করা (পরের entries দিয়ে)
+          const nextHistory = sizeHistory.slice(index + 1);
+          if (nextHistory.length > 0) {
+            const predictionData = analyzePrediction(nextHistory);
+            predictionHistory[period] = predictionData.prediction;
+            console.log(`Saved prediction for ${period}: ${predictionData.prediction}`);
+          }
+        }
+      });
     }
 
     list.forEach((item, index) => {
-      console.log("Full Item Data:", JSON.stringify(item));
-      console.log("Our Prediction:", predictions[index], "Actual Result:", sizeHistory[index]);
-      
       const tr = document.createElement("tr");
       
       const tdPeriod = document.createElement("td");
@@ -421,13 +429,16 @@ async function loadData() {
         tdColor.appendChild(dot);
       });
       
-      // Result column - আমাদের prediction actual result এর সাথে match করা
+      // Result column - saved prediction দিয়ে check করা
       const tdResult = document.createElement("td");
       tdResult.className = "result-cell";
       
-      if (predictions[index] !== null) {
-        // আমাদের prediction actual result এর সাথে match হচ্ছে কিনা
-        if (predictions[index] === size) {
+      const savedPrediction = predictionHistory[periodValue];
+      
+      if (savedPrediction) {
+        console.log(`Period ${periodValue}: Prediction=${savedPrediction}, Actual=${size}`);
+        
+        if (savedPrediction === size) {
           tdResult.className = "result-cell result-win";
           tdResult.textContent = "✓ WIN";
         } else {
@@ -435,7 +446,6 @@ async function loadData() {
           tdResult.textContent = "✗ LOSS";
         }
       } else {
-        // সবচেয়ে পুরনো entry
         tdResult.className = "result-cell result-pending";
         tdResult.textContent = "-";
       }
