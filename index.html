@@ -3,62 +3,697 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>WinGo History Live</title>
+<title>WIN GO 1 MINUTE - LIVE</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
   body {
-    font-family: Arial, sans-serif;
-    background: #0b0b0b;
-    color: #00ffcc;
-    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    background: #000000;
+    color: #00ff00;
+    overflow-x: hidden;
+    position: relative;
+  }
+  
+  /* Matrix Background Effect */
+  #matrix-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.15;
+  }
+  
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 20px;
   }
-  h2 { color: #00eaff; }
-  ul {
-    list-style: none;
-    padding: 0;
+  
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
   }
-  li {
-    background: #1e1e1e;
-    margin: 8px 0;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 16px;
+  
+  .glitch-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .glitch {
+    font-size: 3em;
+    font-weight: bold;
+    color: #00ff00;
+    letter-spacing: 5px;
+    text-shadow: 
+      0 0 10px #00ff00,
+      0 0 20px #00ff00,
+      0 0 30px #00ff00,
+      0 0 40px #00ff00;
+    animation: glitch 3s infinite;
+    position: relative;
+  }
+  
+  @keyframes glitch {
+    0%, 100% {
+      text-shadow: 
+        0 0 10px #00ff00,
+        0 0 20px #00ff00,
+        0 0 30px #00ff00;
+    }
+    25% {
+      text-shadow: 
+        -2px 0 #ff0000,
+        2px 0 #00ffff,
+        0 0 20px #00ff00;
+      transform: translate(-2px, 0);
+    }
+    50% {
+      text-shadow: 
+        2px 0 #ff0000,
+        -2px 0 #00ffff,
+        0 0 20px #00ff00;
+      transform: translate(2px, 0);
+    }
+    75% {
+      text-shadow: 
+        0 0 10px #00ff00,
+        0 0 30px #00ff00;
+    }
+  }
+  
+  .subtitle {
+    color: #00ff00;
+    font-size: 0.9em;
+    margin-top: 10px;
+    opacity: 0.8;
+    letter-spacing: 3px;
+  }
+  
+  /* Scan Line Effect */
+  .scan-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: rgba(0, 255, 0, 0.3);
+    animation: scan 4s linear infinite;
+    z-index: 2;
+  }
+  
+  @keyframes scan {
+    0% { top: 0; }
+    100% { top: 100%; }
+  }
+  
+  /* Status Panel */
+  .status-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+  
+  .status-box {
+    background: rgba(0, 20, 0, 0.8);
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    padding: 15px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .status-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+    animation: scan-horizontal 3s infinite;
+  }
+  
+  @keyframes scan-horizontal {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+  
+  .status-label {
+    font-size: 0.7em;
+    color: #00ff00;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  
+  .status-value {
+    font-size: 1.3em;
+    color: #00ff00;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00ff00;
+  }
+  
+  .status-online {
+    color: #00ff00;
+    animation: pulse-green 2s infinite;
+  }
+  
+  .status-offline {
+    color: #ff0000;
+    animation: pulse-red 2s infinite;
+  }
+  
+  @keyframes pulse-green {
+    0%, 100% { 
+      text-shadow: 0 0 10px #00ff00;
+      opacity: 1;
+    }
+    50% { 
+      text-shadow: 0 0 20px #00ff00;
+      opacity: 0.7;
+    }
+  }
+  
+  @keyframes pulse-red {
+    0%, 100% { 
+      text-shadow: 0 0 10px #ff0000;
+      opacity: 1;
+    }
+    50% { 
+      text-shadow: 0 0 20px #ff0000;
+      opacity: 0.7;
+    }
+  }
+  
+  /* Data Terminal */
+  .terminal {
+    background: rgba(0, 10, 0, 0.9);
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 
+      0 0 20px rgba(0, 255, 0, 0.3),
+      inset 0 0 50px rgba(0, 255, 0, 0.05);
+    position: relative;
+  }
+  
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #00ff00;
+  }
+  
+  .terminal-dots {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+    animation: blink 2s infinite;
+  }
+  
+  .dot:nth-child(2) { animation-delay: 0.3s; }
+  .dot:nth-child(3) { animation-delay: 0.6s; }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  
+  .terminal-title {
+    font-size: 0.9em;
+    letter-spacing: 2px;
+    color: #00ff00;
+  }
+  
+  /* Data Grid */
+  .data-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .data-row {
+    background: rgba(0, 255, 0, 0.05);
+    border: 1px solid #00ff00;
+    border-left: 4px solid #00ff00;
+    padding: 15px;
+    border-radius: 3px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 2fr;
+    gap: 15px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    animation: slideIn 0.5s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .data-row:hover {
+    background: rgba(0, 255, 0, 0.1);
+    border-left-width: 6px;
+    transform: translateX(5px);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+  }
+  
+  .data-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .data-label {
+    font-size: 0.7em;
+    color: #00ff00;
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .data-value {
+    font-size: 1.1em;
+    color: #00ff00;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00ff00;
+  }
+  
+  .color-red {
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000;
+  }
+  
+  .color-green {
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+  }
+  
+  .color-violet {
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff;
+  }
+  
+  /* Loading */
+  .loading-container {
+    text-align: center;
+    padding: 40px;
+  }
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 255, 0, 0.2);
+    border-top: 3px solid #00ff00;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .loading-text {
+    color: #00ff00;
+    font-size: 1.2em;
+    letter-spacing: 3px;
+    animation: pulse-green 2s infinite;
+  }
+  
+  /* Error Message */
+  .error-panel {
+    background: rgba(50, 0, 0, 0.9);
+    border: 2px solid #ff0000;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+  }
+  
+  .error-icon {
+    font-size: 3em;
+    color: #ff0000;
+    margin-bottom: 10px;
+    animation: pulse-red 1s infinite;
+  }
+  
+  .error-text {
+    color: #ff0000;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+  }
+  
+  .retry-button {
+    background: #00ff00;
+    color: #000000;
+    border: none;
+    padding: 12px 30px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 3px;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+  }
+  
+  .retry-button:hover {
+    background: #00cc00;
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+  }
+  
+  .retry-button:active {
+    transform: scale(0.98);
+  }
+  
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #00ff00;
+    color: #00ff00;
+    opacity: 0.6;
+    font-size: 0.9em;
+    letter-spacing: 2px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .glitch {
+      font-size: 2em;
+      letter-spacing: 3px;
+    }
+    
+    .data-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    
+    .status-panel {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 </head>
 <body>
+  <canvas id="matrix-bg"></canvas>
+  <div class="scan-line"></div>
+  
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="glitch-wrapper">
+        <div class="glitch">WIN GO 1 MINUTE</div>
+      </div>
+      <div class="subtitle">[ LIVE TRACKING SYSTEM ]</div>
+    </div>
+    
+    <!-- Status Panel -->
+    <div class="status-panel">
+      <div class="status-box">
+        <div class="status-label">[ STATUS ]</div>
+        <div class="status-value" id="status">INITIALIZING...</div>
+      </div>
+      
+      <div class="status-box">
+        <div class="status-label">[ NEXT UPDATE ]</div>
+        <div class="status-value" id="countdown">--:--</div>
+      </div>
+      
+      <div class="status-box">
+        <div class="status-label">[ TOTAL SCANS ]</div>
+        <div class="status-value" id="updateCount">0</div>
+      </div>
+      
+      <div class="status-box">
+        <div class="status-label">[ LAST SYNC ]</div>
+        <div class="status-value" id="lastUpdate">--:--:--</div>
+      </div>
+    </div>
+    
+    <!-- Error Panel -->
+    <div id="errorPanel"></div>
+    
+    <!-- Terminal -->
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="terminal-title">LATEST 10 RESULTS</div>
+      </div>
+      
+      <div class="data-grid" id="dataGrid">
+        <div class="loading-container">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">SCANNING DATABASE...</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      [ SYSTEM ACTIVE ] • [ REAL-TIME MONITORING ]
+    </div>
+  </div>
 
-<h2>🎯 WinGo 1 Minute - Latest 10 Results</h2>
-<ul id="history"></ul>
-<p>Last update: <span id="time"></span></p>
-
-<script>
-async function loadData() {
-  try {
-    const ts = new Date().getTime();
-    const url = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    const list = data.data.list.slice(0, 10);
-    const history = document.getElementById("history");
-    history.innerHTML = "";
-
-    list.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `Issue: ${item.issue} | Result: ${item.result} | Color: ${item.color}`;
-      history.appendChild(li);
+  <script>
+    // Matrix Background Effect
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const chars = '01アイウエオカキクケコサシスセソタチツテト';
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+    
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = '#00ff00';
+      ctx.font = fontSize + 'px monospace';
+      
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+    
+    setInterval(drawMatrix, 35);
+    
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     });
-
-    document.getElementById("time").textContent = new Date().toLocaleTimeString();
-  } catch (e) {
-    console.error("Error loading data:", e);
-  }
-}
-
-loadData();
-setInterval(loadData, 62000); // প্রতি মিনিটে + 2 সেকেন্ডে আপডেট
-</script>
-
+    
+    // Data Fetching System
+    let updateCount = 0;
+    let countdownInterval = null;
+    
+    function updateCountdown() {
+      const now = new Date();
+      const nextMinute = new Date(now);
+      nextMinute.setMinutes(nextMinute.getMinutes() + 1);
+      nextMinute.setSeconds(2);
+      nextMinute.setMilliseconds(0);
+      
+      const diff = nextMinute - now;
+      const remainSeconds = Math.floor(diff / 1000);
+      const mins = Math.floor(remainSeconds / 60);
+      const secs = remainSeconds % 60;
+      
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    function startCountdown() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        document.getElementById('countdown').textContent = updateCountdown();
+      }, 1000);
+    }
+    
+    async function fetchData(isRetry = false) {
+      try {
+        updateCount++;
+        document.getElementById('updateCount').textContent = updateCount;
+        
+        const ts = new Date().getTime();
+        const originalUrl = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
+        
+        const endpoints = [
+          originalUrl,
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`,
+          `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`
+        ];
+        
+        let res = null;
+        let lastError = null;
+        
+        for (const endpoint of endpoints) {
+          try {
+            res = await Promise.race([
+              fetch(endpoint),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('TIMEOUT')), 10000)
+              )
+            ]);
+            if (res.ok) break;
+          } catch (err) {
+            lastError = err;
+            continue;
+          }
+        }
+        
+        if (!res || !res.ok) {
+          throw lastError || new Error('CONNECTION FAILED');
+        }
+        
+        const json = await res.json();
+        const list = json.data.list.slice(0, 10);
+        
+        const dataGrid = document.getElementById('dataGrid');
+        const errorPanel = document.getElementById('errorPanel');
+        
+        dataGrid.innerHTML = '';
+        errorPanel.innerHTML = '';
+        
+        list.forEach((item, index) => {
+          const row = document.createElement('div');
+          row.className = 'data-row';
+          row.style.animationDelay = `${index * 0.1}s`;
+          
+          const colorClass = item.color.includes('red') ? 'color-red' : 
+                            item.color.includes('green') ? 'color-green' : 'color-violet';
+          
+          row.innerHTML = `
+            <div class="data-cell">
+              <div class="data-label">PERIOD</div>
+              <div class="data-value">${item.issueNumber || item.issue}</div>
+            </div>
+            <div class="data-cell">
+              <div class="data-label">NUMBER</div>
+              <div class="data-value">${item.number}</div>
+            </div>
+            <div class="data-cell">
+              <div class="data-label">SIZE</div>
+              <div class="data-value">${item.bigSmall}</div>
+            </div>
+            <div class="data-cell">
+              <div class="data-label">COLOR</div>
+              <div class="data-value ${colorClass}">${item.color.toUpperCase()}</div>
+            </div>
+          `;
+          
+          dataGrid.appendChild(row);
+        });
+        
+        const now = new Date();
+        document.getElementById('lastUpdate').textContent = 
+          now.toLocaleTimeString('en-US', { hour12: false });
+        
+        document.getElementById('status').textContent = '● ONLINE';
+        document.getElementById('status').className = 'status-value status-online';
+        
+      } catch (e) {
+        console.error('ERROR:', e);
+        
+        const errorPanel = document.getElementById('errorPanel');
+        errorPanel.innerHTML = `
+          <div class="error-panel">
+            <div class="error-icon">⚠</div>
+            <div class="error-text">CONNECTION ERROR: ${e.message}</div>
+            <button class="retry-button" onclick="fetchData(true)">[ RETRY CONNECTION ]</button>
+          </div>
+        `;
+        
+        document.getElementById('status').textContent = '● OFFLINE';
+        document.getElementById('status').className = 'status-value status-offline';
+        
+        if (!isRetry) {
+          setTimeout(() => fetchData(true), 10000);
+        }
+      }
+    }
+    
+    // Initialize System
+    fetchData();
+    startCountdown();
+    
+    function scheduleNextUpdate() {
+      const now = new Date();
+      const nextMinute = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        now.getHours(),
+        now.getMinutes() + 1,
+        2,
+        0
+      );
+      const delay = nextMinute - now;
+      
+      setTimeout(() => {
+        fetchData();
+        scheduleNextUpdate();
+      }, delay);
+    }
+    
+    scheduleNextUpdate();
+    
+    // Network Status Monitoring
+    window.addEventListener('online', () => fetchData(true));
+    window.addEventListener('offline', () => {
+      document.getElementById('status').textContent = '● OFFLINE';
+      document.getElementById('status').className = 'status-value status-offline';
+    });
+  </script>
 </body>
 </html>
