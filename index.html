@@ -1,822 +1,286 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>WinGo Pro Terminal</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WinGo Hacker Terminal</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap');
-  
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Rajdhani', sans-serif;
-    background: #000;
-    color: #0f0;
-    overflow-x: hidden;
-    position: relative;
-    min-height: 100vh;
-  }
-  
-  .bg-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    overflow: hidden;
-  }
-  
-  #matrix-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.08;
-  }
-  
-  .grid-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-      linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: grid-move 20s linear infinite;
-  }
-  
-  @keyframes grid-move {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(50px, 50px); }
-  }
-  
-  .glow-orb {
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.15;
-    animation: float 8s ease-in-out infinite;
-  }
-  
-  .glow-orb:nth-child(1) {
-    background: #0f0;
-    top: 10%;
-    left: 10%;
-    animation-delay: 0s;
-  }
-  
-  .glow-orb:nth-child(2) {
-    background: #0ff;
-    top: 60%;
-    right: 10%;
-    animation-delay: 2s;
-  }
-  
-  .glow-orb:nth-child(3) {
-    background: #00ff88;
-    bottom: 10%;
-    left: 50%;
-    animation-delay: 4s;
-  }
-  
-  @keyframes float {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -30px) scale(1.1); }
-    66% { transform: translate(-30px, 30px) scale(0.9); }
-  }
-  
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-    min-height: 100vh;
-  }
-  
-  .header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding: 40px 20px;
-    position: relative;
-  }
-  
-  .logo {
-    font-family: 'Orbitron', monospace;
-    font-size: 3em;
-    font-weight: 900;
-    text-transform: uppercase;
-    background: linear-gradient(90deg, #0f0, #0ff, #0f0);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: gradient-flow 3s linear infinite;
-    text-shadow: 0 0 40px rgba(0, 255, 0, 0.5);
-    letter-spacing: 5px;
-    margin-bottom: 10px;
-  }
-  
-  @keyframes gradient-flow {
-    0% { background-position: 0% center; }
-    100% { background-position: 200% center; }
-  }
-  
-  .subtitle {
-    font-size: 1.2em;
-    color: #0ff;
-    letter-spacing: 3px;
-    opacity: 0.8;
-    font-weight: 300;
-  }
-  
-  .prediction-card {
-    background: linear-gradient(135deg, rgba(0, 20, 0, 0.9), rgba(0, 40, 0, 0.7));
-    border: 3px solid #0f0;
-    border-radius: 20px;
-    padding: 30px;
-    margin-bottom: 25px;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(15px);
-    box-shadow: 0 20px 60px rgba(0, 255, 0, 0.4);
-  }
-  
-  .prediction-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(0, 255, 0, 0.1), transparent);
-    animation: rotate-glow 6s linear infinite;
-  }
-  
-  @keyframes rotate-glow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .prediction-content {
-    position: relative;
-    z-index: 1;
-  }
-  
-  .period-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid rgba(0, 255, 0, 0.3);
-  }
-  
-  .period-number {
-    font-family: 'Orbitron', monospace;
-    font-size: 1.3em;
-    color: #0ff;
-    font-weight: 700;
-    letter-spacing: 2px;
-  }
-  
-  .period-short {
-    font-size: 0.9em;
-    color: #fff;
-    opacity: 0.7;
-  }
-  
-  .current-result {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-  }
-  
-  .result-badge {
-    padding: 8px 20px;
-    border-radius: 25px;
-    font-weight: 700;
-    font-size: 1.1em;
-    border: 2px solid;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    animation: pulse-badge 2s infinite;
-  }
-  
-  @keyframes pulse-badge {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-  
-  .badge-big {
-    background: rgba(0, 255, 0, 0.2);
-    border-color: #0f0;
-    color: #0f0;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-  }
-  
-  .badge-small {
-    background: rgba(255, 0, 255, 0.2);
-    border-color: #f0f;
-    color: #f0f;
-    box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
-  }
-  
-  .badge-red {
-    background: rgba(255, 0, 0, 0.2);
-    border-color: #f00;
-    color: #f00;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-  }
-  
-  .badge-green {
-    background: rgba(0, 255, 0, 0.2);
-    border-color: #0f0;
-    color: #0f0;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-  }
-  
-  .badge-violet {
-    background: rgba(138, 43, 226, 0.2);
-    border-color: #8a2be2;
-    color: #8a2be2;
-    box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
-  }
-  
-  .prediction-box {
-    background: rgba(0, 0, 0, 0.6);
-    border: 2px solid #0ff;
-    border-radius: 15px;
-    padding: 25px;
-    text-align: center;
-  }
-  
-  .prediction-label {
-    font-size: 1em;
-    color: #0ff;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    margin-bottom: 15px;
-    font-weight: 600;
-  }
-  
-  .prediction-result {
-    font-family: 'Orbitron', monospace;
-    font-size: 3em;
-    font-weight: 900;
-    color: #0f0;
-    text-shadow: 0 0 30px #0f0, 0 0 60px #0f0, 0 0 90px #0f0;
-    animation: glow-intense 1.5s infinite;
-    margin-bottom: 10px;
-  }
-  
-  @keyframes glow-intense {
-    0%, 100% { 
-      text-shadow: 0 0 30px #0f0, 0 0 60px #0f0, 0 0 90px #0f0;
-      transform: scale(1);
-    }
-    50% { 
-      text-shadow: 0 0 40px #0f0, 0 0 80px #0f0, 0 0 120px #0f0;
-      transform: scale(1.05);
-    }
-  }
-  
-  .confidence-bar {
-    width: 100%;
-    height: 8px;
-    background: rgba(0, 255, 0, 0.2);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 15px;
-  }
-  
-  .confidence-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #0f0, #0ff);
-    border-radius: 10px;
-    animation: fill-bar 2s ease-out;
-    box-shadow: 0 0 15px #0f0;
-  }
-  
-  @keyframes fill-bar {
-    0% { width: 0; }
-  }
-  
-  .terminal-window {
-    background: rgba(0, 0, 0, 0.9);
-    border: 2px solid #0f0;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 255, 0, 0.3);
-    backdrop-filter: blur(20px);
-  }
-  
-  .terminal-header {
-    background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 255, 255, 0.1));
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #0f0;
-  }
-  
-  .terminal-controls {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .control-btn {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 1px solid;
-    position: relative;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  
-  .control-btn.close {
-    background: #f00;
-    border-color: #f00;
-    box-shadow: 0 0 10px #f00;
-  }
-  
-  .control-btn.minimize {
-    background: #ff0;
-    border-color: #ff0;
-    box-shadow: 0 0 10px #ff0;
-  }
-  
-  .control-btn.maximize {
-    background: #0f0;
-    border-color: #0f0;
-    box-shadow: 0 0 10px #0f0;
-  }
-  
-  .control-btn:hover {
-    transform: scale(1.2);
-  }
-  
-  .terminal-title {
-    font-family: 'Orbitron', monospace;
-    font-weight: 700;
-    color: #0ff;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 1.1em;
-  }
-  
-  .terminal-body {
-    padding: 25px;
-  }
-  
-  .command-prompt {
-    background: rgba(0, 255, 0, 0.05);
-    border-left: 3px solid #0f0;
-    padding: 15px 20px;
-    margin-bottom: 25px;
-    font-family: 'Courier New', monospace;
-    border-radius: 5px;
-    color: #0f0;
-    font-size: 1.1em;
-    letter-spacing: 1px;
-  }
-  
-  .typing-cursor {
-    display: inline-block;
-    width: 10px;
-    height: 18px;
-    background: #0f0;
-    animation: cursor-blink 1s infinite;
-    margin-left: 5px;
-  }
-  
-  @keyframes cursor-blink {
-    0%, 49% { opacity: 1; }
-    50%, 100% { opacity: 0; }
-  }
-  
-  .history-section {
-    margin-top: 25px;
-  }
-  
-  .section-title {
-    font-size: 1.2em;
-    color: #0ff;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 15px;
-    font-weight: 700;
-    border-bottom: 2px solid rgba(0, 255, 0, 0.3);
-    padding-bottom: 10px;
-  }
-  
-  .history-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 15px;
-  }
-  
-  .history-item {
-    background: rgba(0, 30, 0, 0.5);
-    border: 1px solid rgba(0, 255, 0, 0.3);
-    border-radius: 10px;
-    padding: 15px;
-    transition: all 0.3s;
-    position: relative;
-  }
-  
-  .history-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 3px;
-    height: 100%;
-    background: #0f0;
-    transform: scaleY(0);
-    transition: 0.3s;
-    border-radius: 10px 0 0 10px;
-  }
-  
-  .history-item:hover {
-    background: rgba(0, 255, 0, 0.1);
-    border-color: #0f0;
-    transform: translateX(5px);
-  }
-  
-  .history-item:hover::before {
-    transform: scaleY(1);
-  }
-  
-  .history-period {
-    font-family: 'Courier New', monospace;
-    font-size: 0.85em;
-    color: #fff;
-    margin-bottom: 8px;
-    opacity: 0.8;
-  }
-  
-  .history-result {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  
-  .result-number {
-    font-family: 'Orbitron', monospace;
-    font-size: 1.5em;
-    font-weight: 900;
-    color: #0ff;
-  }
-  
-  .result-size {
-    padding: 4px 12px;
-    border-radius: 15px;
-    font-weight: 700;
-    font-size: 0.9em;
-    border: 2px solid;
-  }
-  
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    gap: 20px;
-  }
-  
-  .loader {
-    width: 60px;
-    height: 60px;
-    border: 4px solid rgba(0, 255, 0, 0.2);
-    border-top: 4px solid #0f0;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .loading-text {
-    font-size: 1.2em;
-    color: #0ff;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  
-  .scanline {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(transparent, rgba(0, 255, 0, 0.6), transparent);
-    animation: scan 6s linear infinite;
-    z-index: 999;
-    pointer-events: none;
-  }
-  
-  @keyframes scan {
-    0% { top: -10%; }
-    100% { top: 110%; }
-  }
-  
-  @media (max-width: 768px) {
-    .logo {
-      font-size: 2em;
-    }
-    
-    .prediction-result {
-      font-size: 2em;
-    }
-    
-    .period-number {
-      font-size: 1em;
-    }
-    
-    .history-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&family=Orbitron:wght@700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rajdhani',sans-serif;background:#000;color:#0f0;overflow-x:hidden;min-height:100vh}
+.bg-container{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden}
+#matrix-bg{position:absolute;top:0;left:0;width:100%;height:100%;opacity:.08}
+.grid-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(0,255,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,0,.03) 1px,transparent 1px);background-size:50px 50px;animation:grid-move 20s linear infinite}
+@keyframes grid-move{0%{transform:translate(0,0)}100%{transform:translate(50px,50px)}}
+.glow-orb{position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(80px);opacity:.15;animation:float 8s ease-in-out infinite}
+.glow-orb:nth-child(1){background:#0f0;top:10%;left:10%;animation-delay:0s}
+.glow-orb:nth-child(2){background:#0ff;top:60%;right:10%;animation-delay:2s}
+.glow-orb:nth-child(3){background:#00ff88;bottom:10%;left:50%;animation-delay:4s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-30px) scale(1.1)}66%{transform:translate(-30px,30px) scale(.9)}}
+.container{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:20px;min-height:100vh}
+.header{text-align:center;margin-bottom:30px;padding:40px 20px}
+.logo{font-family:'Orbitron',monospace;font-size:3em;font-weight:900;text-transform:uppercase;background:linear-gradient(90deg,#0f0,#0ff,#0f0);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradient-flow 3s linear infinite;text-shadow:0 0 40px rgba(0,255,0,.5);letter-spacing:5px;margin-bottom:10px}
+@keyframes gradient-flow{0%{background-position:0 center}100%{background-position:200% center}}
+.subtitle{font-size:1.2em;color:#0ff;letter-spacing:3px;opacity:.8;font-weight:300}
+.dashboard{display:grid;grid-template-columns:1fr;gap:20px;margin-bottom:30px}
+.stat-card{background:linear-gradient(135deg,rgba(0,20,0,.8),rgba(0,40,0,.6));border:2px solid #0f0;border-radius:15px;padding:25px;position:relative;overflow:hidden;transition:all .4s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(10px)}
+.stat-card:hover{transform:translateY(-5px);box-shadow:0 10px 40px rgba(0,255,0,.4);border-color:#0ff}
+.stat-icon{font-size:2.5em;margin-bottom:10px;filter:drop-shadow(0 0 10px currentColor)}
+.stat-label{font-size:.9em;color:#0ff;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-weight:500}
+.stat-value{font-size:2em;font-weight:700;color:#0f0;text-shadow:0 0 20px rgba(0,255,0,.8);font-family:'Orbitron',monospace}
+.status-online{display:inline-flex;align-items:center;gap:8px;color:#0f0}
+.status-dot{width:10px;height:10px;background:#0f0;border-radius:50%;box-shadow:0 0 15px #0f0;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.7}}
+.terminal-window{background:rgba(0,0,0,.9);border:2px solid #0f0;border-radius:15px;overflow:hidden;box-shadow:0 20px 60px rgba(0,255,0,.3);backdrop-filter:blur(20px)}
+.terminal-header{background:linear-gradient(135deg,rgba(0,255,0,.2),rgba(0,255,255,.1));padding:15px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #0f0}
+.terminal-controls{display:flex;gap:8px}
+.control-btn{width:14px;height:14px;border-radius:50%;border:1px solid;cursor:pointer;transition:.3s}
+.control-btn.close{background:#f00;border-color:#f00;box-shadow:0 0 10px #f00}
+.control-btn.minimize{background:#ff0;border-color:#ff0;box-shadow:0 0 10px #ff0}
+.control-btn.maximize{background:#0f0;border-color:#0f0;box-shadow:0 0 10px #0f0}
+.control-btn:hover{transform:scale(1.2)}
+.terminal-title{font-family:'Orbitron',monospace;font-weight:700;color:#0ff;text-transform:uppercase;letter-spacing:2px;font-size:1.1em}
+.terminal-body{padding:25px}
+.command-prompt{background:rgba(0,255,0,.05);border-left:3px solid #0f0;padding:15px 20px;margin-bottom:25px;font-family:'Courier New',monospace;border-radius:5px}
+.prompt-user{color:#0ff;font-weight:bold}
+.prompt-path{color:#0f0}
+.typing-cursor{display:inline-block;width:10px;height:18px;background:#0f0;animation:cursor-blink 1s infinite;margin-left:5px}
+@keyframes cursor-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.prediction-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:15px;margin-bottom:25px}
+.prediction-box{background:rgba(0,40,0,.5);border:2px solid #0ff;border-radius:10px;padding:20px;position:relative;overflow:hidden}
+.prediction-box::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,255,255,.1),transparent);animation:scan-pred 3s linear infinite}
+@keyframes scan-pred{0%{left:-100%}100%{left:100%}}
+.pred-title{font-family:'Orbitron',monospace;font-size:1.1em;color:#0ff;text-transform:uppercase;letter-spacing:2px;margin-bottom:15px;text-align:center;text-shadow:0 0 10px #0ff}
+.pred-result{font-size:2em;font-weight:900;text-align:center;color:#0f0;text-shadow:0 0 20px #0f0;font-family:'Orbitron',monospace;animation:glow-pulse 2s infinite}
+@keyframes glow-pulse{0%,100%{text-shadow:0 0 20px #0f0}50%{text-shadow:0 0 30px #0f0,0 0 60px #0f0}}
+.pred-confidence{text-align:center;color:#0ff;font-size:.9em;margin-top:10px;opacity:.8}
+.current-period{background:rgba(0,255,255,.1);border:2px solid #0ff;border-radius:10px;padding:15px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.period-id{font-family:'Courier New',monospace;color:#fff;font-size:1.1em}
+.period-result{font-family:'Orbitron',monospace;font-size:1.5em;font-weight:900;color:#0f0;text-shadow:0 0 15px #0f0}
+.data-table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:10px}
+.data-table thead{background:linear-gradient(135deg,rgba(0,255,0,.2),rgba(0,255,255,.1))}
+.data-table th{padding:18px 15px;text-align:left;font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:.9em;color:#0ff;border-bottom:2px solid #0f0}
+.data-table td{padding:15px;border-bottom:1px solid rgba(0,255,0,.2);font-size:1em;font-weight:500}
+.data-table tbody tr{background:rgba(0,30,0,.4);transition:all .3s}
+.data-table tbody tr:hover{background:rgba(0,255,0,.1);transform:translateX(5px)}
+.data-table tbody tr:nth-child(even){background:rgba(0,40,0,.3)}
+.issue-id{font-family:'Courier New',monospace;color:#fff;font-size:.95em}
+.result-num{font-family:'Orbitron',monospace;font-size:1.8em;font-weight:900;color:#0ff;text-shadow:0 0 20px #0ff}
+.color-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;font-weight:600;text-transform:uppercase;font-size:.85em;letter-spacing:1px;border:2px solid}
+.color-tag::before{content:'';width:8px;height:8px;border-radius:50%;display:inline-block}
+.tag-green{background:rgba(0,255,0,.15);border-color:#0f0;color:#0f0}
+.tag-green::before{background:#0f0;box-shadow:0 0 10px #0f0}
+.tag-red{background:rgba(255,0,0,.15);border-color:#f00;color:#f00}
+.tag-red::before{background:#f00;box-shadow:0 0 10px #f00}
+.tag-violet{background:rgba(138,43,226,.15);border-color:#8a2be2;color:#8a2be2}
+.tag-violet::before{background:#8a2be2;box-shadow:0 0 10px #8a2be2}
+.size-badge{font-weight:700;color:#0ff;font-size:.95em}
+.loading-container{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:20px}
+.loader{width:60px;height:60px;border:4px solid rgba(0,255,0,.2);border-top:4px solid #0f0;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.loading-text{font-size:1.2em;color:#0ff;letter-spacing:2px;text-transform:uppercase}
+.scanline{position:fixed;top:0;left:0;width:100%;height:3px;background:linear-gradient(transparent,rgba(0,255,0,.6),transparent);animation:scan 6s linear infinite;z-index:999;pointer-events:none}
+@keyframes scan{0%{top:-10%}100%{top:110%}}
+@media (max-width:768px){.logo{font-size:2em}.prediction-grid{grid-template-columns:1fr}.data-table{font-size:.85em}.data-table th,.data-table td{padding:10px 8px}.result-num{font-size:1.4em}}
+@media (max-width:480px){.logo{font-size:1.5em}.subtitle{font-size:.9em}.stat-value{font-size:1.5em}}
 </style>
 </head>
 <body>
-
 <div class="bg-container">
-  <canvas id="matrix-bg"></canvas>
-  <div class="grid-overlay"></div>
-  <div class="glow-orb"></div>
-  <div class="glow-orb"></div>
-  <div class="glow-orb"></div>
+<canvas id="matrix-bg"></canvas>
+<div class="grid-overlay"></div>
+<div class="glow-orb"></div>
+<div class="glow-orb"></div>
+<div class="glow-orb"></div>
 </div>
-
 <div class="scanline"></div>
-
 <div class="container">
-  <div class="header">
-    <div class="logo">⬡ WINGO PRO ⬡</div>
-    <div class="subtitle">AI Prediction Terminal</div>
-  </div>
-  
-  <div class="prediction-card">
-    <div class="prediction-content">
-      <div class="period-info">
-        <div>
-          <div class="period-number" id="next-period">Loading...</div>
-          <div class="period-short" id="next-period-short"></div>
-        </div>
-        <div class="current-result" id="current-result">
-          <span style="color: #0ff; font-size: 1.1em;">Analyzing...</span>
-        </div>
-      </div>
-      
-      <div class="prediction-box">
-        <div class="prediction-label">⚡ Next Prediction ⚡</div>
-        <div class="prediction-result" id="prediction">---</div>
-        <div class="confidence-bar">
-          <div class="confidence-fill" id="confidence" style="width: 0%"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="terminal-window">
-    <div class="terminal-header">
-      <div class="terminal-controls">
-        <div class="control-btn close"></div>
-        <div class="control-btn minimize"></div>
-        <div class="control-btn maximize"></div>
-      </div>
-      <div class="terminal-title">⚡ Pattern Analysis Engine</div>
-      <div style="width: 60px;"></div>
-    </div>
-    
-    <div class="terminal-body">
-      <div class="command-prompt">
-        root access wingo live<span class="typing-cursor"></span>
-      </div>
-      
-      <div id="data-container">
-        <div class="loading-container">
-          <div class="loader"></div>
-          <div class="loading-text">INITIALIZING AI...</div>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="header">
+<div class="logo">⬡ WINGO PRO ⬡</div>
+<div class="subtitle">Hacker Prediction Terminal</div>
 </div>
-
+<div class="dashboard">
+<div class="stat-card">
+<div class="stat-icon">🌐</div>
+<div class="stat-label">System Status</div>
+<div class="stat-value status-online">
+<span class="status-dot"></span>
+<span id="status">ONLINE</span>
+</div>
+</div>
+</div>
+<div class="terminal-window">
+<div class="terminal-header">
+<div class="terminal-controls">
+<div class="control-btn close"></div>
+<div class="control-btn minimize"></div>
+<div class="control-btn maximize"></div>
+</div>
+<div class="terminal-title">⚡ Live Prediction Stream</div>
+<div style="width:60px"></div>
+</div>
+<div class="terminal-body">
+<div class="command-prompt">
+<span class="prompt-user">root</span><span style="color:#fff">@</span><span class="prompt-path">wingo</span><span style="color:#fff">:</span><span style="color:#0ff">~</span><span style="color:#fff">$</span>
+<span style="color:#fff"> root access wingo live</span>
+<span class="typing-cursor"></span>
+</div>
+<div class="current-period" id="current-period"></div>
+<div class="prediction-grid">
+<div class="prediction-box">
+<div class="pred-title">🔮 SIGNAL 1</div>
+<div class="pred-result" id="signal1">ANALYZING...</div>
+<div class="pred-confidence" id="signal1-conf"></div>
+</div>
+<div class="prediction-box">
+<div class="pred-title">🎯 SIGNAL 2</div>
+<div class="pred-result" id="signal2">ANALYZING...</div>
+<div class="pred-confidence" id="signal2-conf"></div>
+</div>
+</div>
+<div id="data-container">
+<div class="loading-container">
+<div class="loader"></div>
+<div class="loading-text">INITIALIZING STREAM...</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 <script>
-const canvas = document.getElementById('matrix-bg');
-const ctx = canvas.getContext('2d');
+const canvas=document.getElementById('matrix-bg');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+const chars='0123456789ABCDEFアイウエオカキクケコ';
+const fontSize=16;
+const columns=canvas.width/fontSize;
+const drops=Array(Math.floor(columns)).fill(1);
+function drawMatrix(){
+ctx.fillStyle='rgba(0,0,0,0.05)';
+ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle='#0f0';
+ctx.font=fontSize+'px monospace';
+for(let i=0;i<drops.length;i++){
+const text=chars[Math.floor(Math.random()*chars.length)];
+ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
+drops[i]++;
+}
+}
+setInterval(drawMatrix,40);
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight});
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const signal1Patterns={big:[[2],[4],[5],[9]],small:[[1],[3],[4],[5],[7]]};
+const signal2Patterns={
+small:{single:[7,9],pairs:[[4,5],[6,1],[6,3],[6,5],[6,6],[0,1],[2,2],[1,8],[6,4],[0,2]]},
+big:{single:[3,4,1,8,6],pairs:[[1,4],[4,2],[4,3],[4,4],[4,7],[0,0],[1,2],[6,9],[1,5],[7,3]]}
+};
 
-const chars = '0123456789ABCDEFアイウエオカキクケコ';
-const fontSize = 16;
-const columns = canvas.width / fontSize;
-const drops = Array(Math.floor(columns)).fill(1);
-
-function drawMatrix() {
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  ctx.fillStyle = '#0f0';
-  ctx.font = fontSize + 'px monospace';
-  
-  for (let i = 0; i < drops.length; i++) {
-    const text = chars[Math.floor(Math.random() * chars.length)];
-    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-    
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-      drops[i] = 0;
-    }
-    drops[i]++;
-  }
+function getSignal1(history){
+let bigCount=0,smallCount=0;
+for(let item of history){
+if(item.bigSmall==='Big')bigCount++;
+else{
+if(bigCount>0){
+if(signal1Patterns.small.some(p=>p[0]===bigCount))return{pred:'SMALL',conf:`Pattern: ${bigCount}x Big`};
+bigCount=0;
+}
+smallCount++;
+}
+if(item.bigSmall==='Small')continue;
+else{
+if(smallCount>0){
+if(signal1Patterns.big.some(p=>p[0]===smallCount))return{pred:'BIG',conf:`Pattern: ${smallCount}x Small`};
+smallCount=0;
+}
+}
+}
+return null;
 }
 
-setInterval(drawMatrix, 40);
+function getSignal2(history){
+if(history.length<2)return null;
+const last=parseInt(history[0].number||history[0].result);
+const prev=parseInt(history[1].number||history[1].result);
+for(let pair of signal2Patterns.small.pairs){
+if(pair[0]===prev&&pair[1]===last)return{pred:'SMALL',conf:`Pattern: ${prev}→${last}`};
+}
+for(let pair of signal2Patterns.big.pairs){
+if(pair[0]===prev&&pair[1]===last)return{pred:'BIG',conf:`Pattern: ${prev}→${last}`};
+}
+if(signal2Patterns.small.single.includes(last))return{pred:'SMALL',conf:`Single: ${last}`};
+if(signal2Patterns.big.single.includes(last))return{pred:'BIG',conf:`Single: ${last}`};
+return null;
+}
 
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+async function fetchData(){
+try{
+document.getElementById('status').textContent='SYNCING';
+const ts=new Date().getTime();
+const url=`https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
+const res=await fetch(url);
+const data=await res.json();
+const list=data.data.list.slice(0,20);
+document.getElementById('status').textContent='ONLINE';
+
+const latest=list[0];
+const periodHtml=`
+<div style="flex:1">
+<div style="font-size:0.8em;color:#0ff;margin-bottom:5px">CURRENT PERIOD</div>
+<div class="period-id">2025...${latest.issue.slice(-3)}</div>
+</div>
+<div style="flex:1;text-align:center">
+<div class="period-result">${latest.number||latest.result}</div>
+</div>
+<div style="flex:1;text-align:right">
+<span class="size-badge">${latest.bigSmall}</span>
+<span class="color-tag tag-${latest.color.toLowerCase()}" style="margin-left:10px">${latest.color}</span>
+</div>
+`;
+document.getElementById('current-period').innerHTML=periodHtml;
+
+const sig1=getSignal1(list.slice(0,15));
+const sig2=getSignal2(list);
+
+if(sig1){
+document.getElementById('signal1').textContent=sig1.pred;
+document.getElementById('signal1-conf').textContent=sig1.conf;
+}else{
+document.getElementById('signal1').textContent='NO SIGNAL';
+document.getElementById('signal1-conf').textContent='Pattern not detected';
+}
+
+if(sig2){
+document.getElementById('signal2').textContent=sig2.pred;
+document.getElementById('signal2-conf').textContent=sig2.conf;
+}else{
+document.getElementById('signal2').textContent='NO SIGNAL';
+document.getElementById('signal2-conf').textContent='Pattern not detected';
+}
+
+renderData(list.slice(0,10));
+}catch(err){
+console.error(err);
+document.getElementById('status').textContent='ERROR';
+}
+}
+
+function renderData(list){
+const container=document.getElementById('data-container');
+let html='<table class="data-table"><thead><tr><th>ISSUE ID</th><th>RESULT</th><th>COLOR</th><th>SIZE</th></tr></thead><tbody>';
+list.forEach(item=>{
+const colorClass=item.color.toLowerCase()==='green'?'tag-green':item.color.toLowerCase()==='red'?'tag-red':'tag-violet';
+html+=`<tr><td><span class="issue-id">#${item.issue}</span></td><td><span class="result-num">${item.number||item.result}</span></td><td><span class="color-tag ${colorClass}">${item.color}</span></td><td><span class="size-badge">${item.bigSmall||'-'}</span></td></tr>`;
 });
-
-// Prediction patterns
-const bigPatterns = [
-  { prev: 1, next: 4 }, { prev: 4, next: 2 }, { prev: 4, next: 3 },
-  { prev: 4, next: 4 }, { prev: 4, next: 7 }, { prev: 0, next: 0 },
-  { prev: 1, next: 2 }, { prev: 6, next: 9 }, { prev: 1, next: 5 },
-  { prev: 7, next: 3 }, { prev: 3, next: null }, { prev: 4, next: null },
-  { prev: 1, next: null }, { prev: 8, next: null }, { prev: 6, next: null }
-];
-
-const smallPatterns = [
-  { prev: 4, next: 5 }, { prev: 6, next: 1 }, { prev: 6, next: 3 },
-  { prev: 6, next: 5 }, { prev: 6, next: 6 }, { prev: 0, next: 1 },
-  { prev: 2, next: 2 }, { prev: 1, next: 8 }, { prev: 6, next: 4 },
-  { prev: 0, next: 2 }, { prev: 7, next: null }, { prev: 9, next: null }
-];
-
-function analyzeBigSmallPattern(history) {
-  let bigCount = 0;
-  let smallCount = 0;
-  
-  for (let i = 0; i < Math.min(10, history.length); i++) {
-    const size = history[i].bigSmall;
-    if (size === 'Big') bigCount++;
-    else if (size === 'Small') smallCount++;
-  }
-  
-  if ([1, 3, 4, 5, 7].includes(bigCount)) return 'SMALL';
-  if ([2, 4, 5, 9].includes(smallCount)) return 'BIG';
-  
-  return null;
-}
-
-function analyzeNumberPattern(history) {
-  if (history.length < 2) return null;
-  
-  const lastNum = parseInt(history[0].number);
-  const prevNum = history.length > 1 ? parseInt(history[1].number) : null;
-  
-  for (let pattern of bigPatterns) {
-    if (pattern.prev === lastNum) {
-      if (pattern.next === null || (prevNum !== null && pattern.next === prevNum)) {
-        return 'BIG';
-      }
-    }
-  }
-  
-  for (let pattern of smallPatterns) {
-    if (pattern.prev === lastNum) {
-      if (pattern.next === null || (prevNum !== null && pattern.next === prevNum)) {
-        return 'SMALL';
-      }
-    }
-  }
-  
-  return null;
-}
-
-function makePrediction(history) {
-  let prediction = analyzeBigSmallPattern(history);
-  
-  if (!prediction) {
-    prediction = analyzeNumberPattern(history);
-  }
-  
-  return prediction || 'BIG';
-}
-
-function shortenPeriod(period) {
-  const str = period.toString();
-  if (str.length > 10) {
-    return str.substring(0, 4) + '...' + str.substring(str.length - 3);
-  }
-  return str;
-}
-
-async function fetchData() {
-  try {
-    const ts = new Date().getTime();
-    const url = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    const list = data.data.list;
-    
-    if (list.length > 0) {
-      const latest = list[0];
-      const prediction = makePrediction(list);
-      
-      const nextPeriodNum = parseInt(latest.issue) + 1;
-      document.getElementById('next-period').textContent = nextPeriodNum;
-      document.getElementById('next-period-short').textContent = shortenPeriod(nextPeriodNum);
-      
-      const sizeClass = latest.bigSmall === 'Big' ? 'badge-big' : 'badge-small';
-      let colorClass = 'badge-green';
-      if (latest.color.toLowerCase() === 'red') colorClass = 'badge-red';
-      else if (latest.color.toLowerCase() === 'violet') colorClass = 'badge-violet';
-      
-      document.getElementById('current-result').innerHTML = `
-        <span class="result-number">${latest.number}</span>
-        <span class="result-badge ${sizeClass}">${latest.bigSmall}</span>
-        <span class="result-badge ${colorClass}">${latest.color}</span>
-      `;
-      
-      document.getElementById('prediction').textContent = prediction;
-      
-      const confidence = Math.floor(75 + Math.random() * 20);
-      const confBar = document.getElementById('confidence');
-      confBar.style.width = '0%';
-      setTimeout(() => {
-        confBar.style.width = confidence + '%';
-      }, 100);
-      
-      renderHistory(list.slice(0, 10));
-    }
-  } catch (err) {
-    console.error('Fetch error:', err);
-    document.getElementById('data-container').innerHTML = `
-      <div class="loading-container">
-        <div style="font-size: 3em; color: #f00;">⚠️</div>
-        <div class="loading-text" style="color: #f00;">CONNECTION FAILED</div>
-      </div>
-    `;
-  }
-}
-
-function renderHistory(list) {
-  const container = document.getElementById('data-container');
-  
-  let html = '<div class="history-section"><div class="section-title">📊 Recent History</div><div class="history-grid">';
-  
-  list.forEach(item => {
-    const sizeClass = item.bigSmall === 'Big' ? 'badge-big' : 'badge-small';
-    let colorClass = 'badge-green';
-    if (item.color.toLowerCase() === 'red') colorClass = 'badge-red';
-    else if (item.color.toLowerCase() === 'violet') colorClass = 'badge-violet';
-    
-    html += `
-      <div class="history-item">
-        <div class="history-period">${shortenPeriod(item.issue)}</div>
-        <div class="history-result">
-          <span class="result-number">${item.number}</span>
-          <span class="result-size ${sizeClass}">${item.bigSmall}</span>
-          <span class="result-size ${colorClass}">${item.color}</span>
-        </div>
-      </div>
-    `;
-  });
-  
-  html += '</div></div>';
-  container.innerHTML = html;
+html+='</tbody></table>';
+container.innerHTML=html;
 }
 
 fetchData();
-setInterval(fetchData, 62000);
+setInterval(fetchData,62000);
+window.addEventListener('online',()=>{document.getElementById('status').textContent='ONLINE';fetchData()});
+window.addEventListener('offline',()=>document.getElementById('status').textContent='OFFLINE');
 </script>
-
 </body>
-                        </html>
+</html>
