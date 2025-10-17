@@ -264,9 +264,10 @@
 </div>
 
 <script>
-// Memory তে সব predictions save করা
+// Prediction history মেমোরিতে save করার জন্য
 const predictionHistory = {};
-let lastSeenPeriod = null;
+let lastProcessedPeriod = null;
+let nextPeriodPrediction = null;
 
 function getColors(number, color) {
   const colors = [];
@@ -365,45 +366,30 @@ async function loadData() {
       return numValue >= 5 ? 'Big' : 'Small';
     });
 
-    // প্রতিটা period এর জন্য prediction calculate করা (backtrack method)
-    // যদি আগে prediction না থাকে, তাহলে calculate করে save করি
-    list.forEach((item, index) => {
-      const periodValue = item.issue || item.period || item.issueNo || item.periodId;
-      
-      // যদি এই period এর prediction আগে save না করা থাকে
-      if (!predictionHistory[periodValue]) {
-        // এই period এর পরের সব results দিয়ে prediction calculate করা
-        const futureHistory = sizeHistory.slice(index + 1);
-        
-        if (futureHistory.length > 0) {
-          const predData = analyzePrediction(futureHistory);
-          predictionHistory[periodValue] = predData.prediction;
-          console.log(`Backtrack: Period ${periodValue} -> Prediction: ${predData.prediction}`);
-        }
-      }
-    });
-
-    // নতুন prediction calculate করা (current data দিয়ে)
-    const currentPredictionData = analyzePrediction(sizeHistory);
-    
-    // Latest period check করা
-    const latestPeriod = list[0].issue || list[0].period || list[0].issueNo || list[0].periodId;
+    // সবচেয়ে নতুন period check করা
+    const currentLatestPeriod = list[0].issue || list[0].period || list[0].issueNo || list[0].periodId;
     
     // নতুন period এসেছে কিনা check করা
-    if (latestPeriod !== lastSeenPeriod) {
-      console.log(`New period detected: ${latestPeriod}`);
+    if (lastProcessedPeriod && currentLatestPeriod !== lastProcessedPeriod) {
+      // নতুন result এসেছে!
+      console.log(`🆕 New period detected: ${currentLatestPeriod}`);
       
-      // যদি আগের prediction থাকে, তাহলে এই নতুন period এর জন্য save করি
-      if (predictionHistory['_NEXT_PREDICTION']) {
-        const savedPred = predictionHistory['_NEXT_PREDICTION'].prediction;
-        predictionHistory[latestPeriod] = savedPred;
-        console.log(`✅ Linked prediction to period ${latestPeriod}: ${savedPred}`);
+      // আগের prediction ছিল কিনা এবং সেটা সেভ করা
+      if (nextPeriodPrediction) {
+        predictionHistory[currentLatestPeriod] = nextPeriodPrediction;
+        console.log(`✅ Saved prediction for ${currentLatestPeriod}: ${nextPeriodPrediction}`);
       }
-      
-      lastSeenPeriod = latestPeriod;
     }
     
-    // Table তৈরি করা
+    // Update করা শেষ processed period
+    lastProcessedPeriod = currentLatestPeriod;
+    
+    // পরবর্তী period এর জন্য prediction calculate করা
+    const nextPredictionData = analyzePrediction(sizeHistory);
+    nextPeriodPrediction = nextPredictionData.prediction;
+    console.log(`🔮 Next prediction ready: ${nextPeriodPrediction}`);
+
+    // Table এ data show করা
     list.forEach((item, index) => {
       const tr = document.createElement("tr");
       
@@ -435,8 +421,8 @@ async function loadData() {
       tdNumber.appendChild(numSpan);
       
       const tdSize = document.createElement("td");
-      const size = sizeHistory[index];
-      tdSize.textContent = size;
+      const actualSize = sizeHistory[index];
+      tdSize.textContent = actualSize;
       
       const tdColor = document.createElement("td");
       tdColor.className = "color-cell";
@@ -449,16 +435,16 @@ async function loadData() {
         tdColor.appendChild(dot);
       });
       
-      // Result column - এই period এর জন্য prediction ছিল কিনা check করা
+      // Result column - এই period এর জন্য saved prediction আছে কিনা check করা
       const tdResult = document.createElement("td");
-      tdResult.className = "result-cell";
       
-      // যদি এই period এর জন্য আগে prediction save করা থাকে
-      if (predictionHistory[periodValue]) {
-        const savedPrediction = predictionHistory[periodValue];
-        console.log(`Period ${periodValue}: Saved Prediction=${savedPrediction}, Actual=${size}`);
+      const savedPrediction = predictionHistory[periodValue];
+      
+      if (savedPrediction) {
+        // Prediction ছিল, এখন result এর সাথে মিলিয়ে দেখা
+        console.log(`📊 Period ${periodValue}: Predicted=${savedPrediction}, Actual=${actualSize}`);
         
-        if (savedPrediction === size) {
+        if (savedPrediction === actualSize) {
           tdResult.className = "result-cell result-win";
           tdResult.textContent = "✓ WIN";
         } else {
@@ -466,7 +452,7 @@ async function loadData() {
           tdResult.textContent = "✗ LOSS";
         }
       } else {
-        // এখনো prediction verify হয়নি
+        // এখনো prediction করা হয়নি বা result pending
         tdResult.className = "result-cell result-pending";
         tdResult.textContent = "-";
       }
@@ -480,21 +466,12 @@ async function loadData() {
       table.appendChild(tr);
     });
 
-    // Next round এর জন্য prediction box আপডেট করা
+    // পরবর্তী round এর prediction display করা
     const predictionResult = document.getElementById("predictionResult");
     const patternInfo = document.getElementById("patternInfo");
     
-    predictionResult.innerHTML = `<span class="prediction-${currentPredictionData.prediction.toLowerCase()}">${currentPredictionData.prediction}</span>`;
-    patternInfo.textContent = `📊 ${currentPredictionData.pattern}`;
-    
-    // Current prediction টা memory তে রাখা (যেকোনো unique key দিয়ে)
-    // পরের বার যখন নতুন period আসবে, তখন এটা use করব
-    predictionHistory['_NEXT_PREDICTION'] = {
-      prediction: currentPredictionData.prediction,
-      forPeriod: 'next'
-    };
-    
-    console.log(`✅ Current prediction saved: ${currentPredictionData.prediction} (will check on next update)`);
+    predictionResult.innerHTML = `<span class="prediction-${nextPredictionData.prediction.toLowerCase()}">${nextPredictionData.prediction}</span>`;
+    patternInfo.textContent = `📊 ${nextPredictionData.pattern} | Confidence: ${nextPredictionData.confidence}`;
 
     document.getElementById("time").textContent = new Date().toLocaleTimeString();
   } catch (e) {
