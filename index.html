@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WinGo History Live</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #0b0b0b;
+    color: #00ffcc;
+    text-align: center;
+    padding: 20px;
+  }
+  h2 { color: #00eaff; }
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  li {
+    background: #1e1e1e;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 16px;
+  }
+</style>
+</head>
+<body>
+
+<h2>🎯 WinGo 1 Minute - Latest 10 Results</h2>
+<ul id="history"></ul>
+<p>Last update: <span id="time"></span></p>
+
+<script>
+async function loadData() {
+  try {
+    const ts = new Date().getTime();
+    const url = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const list = data.data.list.slice(0, 10);
+    const history = document.getElementById("history");
+    history.innerHTML = "";
+
+    list.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `Issue: ${item.issue} | Result: ${item.result} | Color: ${item.color}`;
+      history.appendChild(li);
+    });
+
+    document.getElementById("time").textContent = new Date().toLocaleTimeString();
+  } catch (e) {
+    console.error("Error loading data:", e);
+  }
+}
+
+loadData();
+setInterval(loadData, 62000); // প্রতি মিনিটে + 2 সেকেন্ডে আপডেট
+</script>
+
+</body>
+</html>
