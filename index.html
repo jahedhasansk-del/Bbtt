@@ -46,7 +46,7 @@ body{font-family:'Rajdhani',sans-serif;background:#000;color:#0f0;overflow-x:hid
 .prompt-path{color:#0f0}
 .typing-cursor{display:inline-block;width:10px;height:18px;background:#0f0;animation:cursor-blink 1s infinite;margin-left:5px}
 @keyframes cursor-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
-.prediction-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:15px;margin-bottom:25px}
+.prediction-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px;margin-bottom:25px}
 .prediction-box{background:rgba(0,40,0,.5);border:2px solid #0ff;border-radius:10px;padding:20px;position:relative;overflow:hidden}
 .prediction-box::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,255,255,.1),transparent);animation:scan-pred 3s linear infinite}
 @keyframes scan-pred{0%{left:-100%}100%{left:100%}}
@@ -171,30 +171,33 @@ drops[i]++;
 setInterval(drawMatrix,40);
 window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight});
 
-const signal1Patterns={big:[[2],[4],[5],[9]],small:[[1],[3],[4],[5],[7]]};
-const signal2Patterns={
-small:{single:[7,9],pairs:[[4,5],[6,1],[6,3],[6,5],[6,6],[0,1],[2,2],[1,8],[6,4],[0,2]]},
-big:{single:[3,4,1,8,6],pairs:[[1,4],[4,2],[4,3],[4,4],[4,7],[0,0],[1,2],[6,9],[1,5],[7,3]]}
-};
-
 function getSignal1(history){
 let bigCount=0,smallCount=0;
-for(let item of history){
-if(item.bigSmall==='Big')bigCount++;
-else{
+for(let i=history.length-1;i>=0;i--){
+const item=history[i];
+if(item.bigSmall==='Big'){
+if(smallCount>0){
+if([2,4,5,9].includes(smallCount)){
+return{pred:'BIG',conf:`Pattern: ${smallCount}x Small → BIG`};
+}
+smallCount=0;
+}
+bigCount++;
+}else if(item.bigSmall==='Small'){
 if(bigCount>0){
-if(signal1Patterns.small.some(p=>p[0]===bigCount))return{pred:'SMALL',conf:`Pattern: ${bigCount}x Big`};
+if([1,3,4,5,7].includes(bigCount)){
+return{pred:'SMALL',conf:`Pattern: ${bigCount}x Big → SMALL`};
+}
 bigCount=0;
 }
 smallCount++;
 }
-if(item.bigSmall==='Small')continue;
-else{
-if(smallCount>0){
-if(signal1Patterns.big.some(p=>p[0]===smallCount))return{pred:'BIG',conf:`Pattern: ${smallCount}x Small`};
-smallCount=0;
 }
+if(bigCount>0&&[1,3,4,5,7].includes(bigCount)){
+return{pred:'SMALL',conf:`Pattern: ${bigCount}x Big → SMALL`};
 }
+if(smallCount>0&&[2,4,5,9].includes(smallCount)){
+return{pred:'BIG',conf:`Pattern: ${smallCount}x Small → BIG`};
 }
 return null;
 }
@@ -203,14 +206,26 @@ function getSignal2(history){
 if(history.length<2)return null;
 const last=parseInt(history[0].number||history[0].result);
 const prev=parseInt(history[1].number||history[1].result);
-for(let pair of signal2Patterns.small.pairs){
-if(pair[0]===prev&&pair[1]===last)return{pred:'SMALL',conf:`Pattern: ${prev}→${last}`};
+const smallPairs=[[4,5],[6,1],[6,3],[6,5],[6,6],[0,1],[2,2],[1,8],[6,4],[0,2]];
+const smallSingle=[7,9];
+const bigPairs=[[1,4],[4,2],[4,3],[4,4],[4,7],[0,0],[1,2],[6,9],[1,5],[7,3]];
+const bigSingle=[3,4,1,8,6];
+for(let pair of smallPairs){
+if(pair[0]===prev&&pair[1]===last){
+return{pred:'SMALL',conf:`Pattern: ${prev}→${last} → SMALL`};
 }
-for(let pair of signal2Patterns.big.pairs){
-if(pair[0]===prev&&pair[1]===last)return{pred:'BIG',conf:`Pattern: ${prev}→${last}`};
 }
-if(signal2Patterns.small.single.includes(last))return{pred:'SMALL',conf:`Single: ${last}`};
-if(signal2Patterns.big.single.includes(last))return{pred:'BIG',conf:`Single: ${last}`};
+for(let pair of bigPairs){
+if(pair[0]===prev&&pair[1]===last){
+return{pred:'BIG',conf:`Pattern: ${prev}→${last} → BIG`};
+}
+}
+if(smallSingle.includes(last)){
+return{pred:'SMALL',conf:`Single: ${last} → SMALL`};
+}
+if(bigSingle.includes(last)){
+return{pred:'BIG',conf:`Single: ${last} → BIG`};
+}
 return null;
 }
 
@@ -244,25 +259,29 @@ const sig1=getSignal1(list.slice(0,15));
 const sig2=getSignal2(list);
 
 if(sig1){
-document.getElementById('signal1').textContent=sig1.pred;
+document.getElementById('signal1').textContent='➡️ '+sig1.pred;
 document.getElementById('signal1-conf').textContent=sig1.conf;
 }else{
 document.getElementById('signal1').textContent='NO SIGNAL';
-document.getElementById('signal1-conf').textContent='Pattern not detected';
+document.getElementById('signal1-conf').textContent='Waiting for pattern...';
 }
 
 if(sig2){
-document.getElementById('signal2').textContent=sig2.pred;
+document.getElementById('signal2').textContent='➡️ '+sig2.pred;
 document.getElementById('signal2-conf').textContent=sig2.conf;
 }else{
 document.getElementById('signal2').textContent='NO SIGNAL';
-document.getElementById('signal2-conf').textContent='Pattern not detected';
+document.getElementById('signal2-conf').textContent='Waiting for pattern...';
 }
 
 renderData(list.slice(0,10));
 }catch(err){
 console.error(err);
 document.getElementById('status').textContent='ERROR';
+document.getElementById('signal1').textContent='ERROR';
+document.getElementById('signal1-conf').textContent='Failed to fetch data';
+document.getElementById('signal2').textContent='ERROR';
+document.getElementById('signal2-conf').textContent='Failed to fetch data';
 }
 }
 
@@ -284,3 +303,4 @@ window.addEventListener('offline',()=>document.getElementById('status').textCont
 </script>
 </body>
 </html>
+```
