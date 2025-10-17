@@ -162,6 +162,28 @@
   .green { background: #4CAF50; }
   .violet { background: #9C27B0; }
   
+  .result-cell {
+    font-weight: bold;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 5px;
+  }
+  
+  .result-win {
+    color: #4CAF50;
+    background: #e8f5e9;
+  }
+  
+  .result-loss {
+    color: #ff4444;
+    background: #ffebee;
+  }
+  
+  .result-pending {
+    color: #ff9800;
+    background: #fff3e0;
+  }
+  
   .update-time {
     text-align: center;
     color: #ffffff;
@@ -227,6 +249,7 @@
           <th>Number</th>
           <th>Big Small</th>
           <th>Color</th>
+          <th>Result</th>
         </tr>
       </thead>
       <tbody id="historyTable">
