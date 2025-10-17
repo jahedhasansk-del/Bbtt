@@ -412,15 +412,13 @@ async function loadData() {
       const tdResult = document.createElement("td");
       tdResult.className = "result-cell";
       
-      if (index === 0) {
-        // সবচেয়ে নতুন entry - next prediction এর জন্য pending
-        tdResult.className = "result-cell result-pending";
-        tdResult.textContent = "Next";
-      } else {
-        // আগের round এর history থেকে prediction করে current result চেক করা
-        const previousHistory = sizeHistory.slice(index);
-        const predictionData = analyzePrediction(previousHistory);
+      // শেষ entry বাদে সবগুলোর জন্য WIN/LOSS চেক করা
+      if (index < list.length - 1) {
+        // পরবর্তী entries দিয়ে prediction করা হয়েছিল
+        const nextHistory = sizeHistory.slice(index + 1);
+        const predictionData = analyzePrediction(nextHistory);
         
+        // সেই prediction এই entry র সাথে match করা
         if (predictionData.prediction === size) {
           tdResult.className = "result-cell result-win";
           tdResult.textContent = "✓ WIN";
@@ -428,6 +426,10 @@ async function loadData() {
           tdResult.className = "result-cell result-loss";
           tdResult.textContent = "✗ LOSS";
         }
+      } else {
+        // সবচেয়ে পুরনো entry - এর জন্য prediction করার মত আগের data নেই
+        tdResult.className = "result-cell result-pending";
+        tdResult.textContent = "-";
       }
       
       tr.appendChild(tdPeriod);
