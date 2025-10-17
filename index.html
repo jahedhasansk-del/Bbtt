@@ -96,6 +96,7 @@
 let updateCount = 0;
 let countdownInterval = null;
 
+// Pattern rules
 const patternRules = {
   big: { counts: [1,3,4,5,7], prediction: 'SMALL' },
   small: { counts: [2,4,5,9], prediction: 'BIG' }
@@ -169,6 +170,7 @@ async function fetchData(isRetry=false){
     const res=await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
     const json=await res.json();
 
+    // ✅ নতুন ও সঠিক অর্ডারে ডাটা
     const list=json.data.list.filter(x=>x.bigSmall).slice(-10).reverse();
     updatePrediction(list);
 
