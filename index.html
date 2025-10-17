@@ -365,6 +365,24 @@ async function loadData() {
       return numValue >= 5 ? 'Big' : 'Small';
     });
 
+    // প্রতিটা period এর জন্য prediction calculate করা (backtrack method)
+    // যদি আগে prediction না থাকে, তাহলে calculate করে save করি
+    list.forEach((item, index) => {
+      const periodValue = item.issue || item.period || item.issueNo || item.periodId;
+      
+      // যদি এই period এর prediction আগে save না করা থাকে
+      if (!predictionHistory[periodValue]) {
+        // এই period এর পরের সব results দিয়ে prediction calculate করা
+        const futureHistory = sizeHistory.slice(index + 1);
+        
+        if (futureHistory.length > 0) {
+          const predData = analyzePrediction(futureHistory);
+          predictionHistory[periodValue] = predData.prediction;
+          console.log(`Backtrack: Period ${periodValue} -> Prediction: ${predData.prediction}`);
+        }
+      }
+    });
+
     // নতুন prediction calculate করা (current data দিয়ে)
     const currentPredictionData = analyzePrediction(sizeHistory);
     
@@ -374,6 +392,14 @@ async function loadData() {
     // নতুন period এসেছে কিনা check করা
     if (latestPeriod !== lastSeenPeriod) {
       console.log(`New period detected: ${latestPeriod}`);
+      
+      // যদি আগের prediction থাকে, তাহলে এই নতুন period এর জন্য save করি
+      if (predictionHistory['_NEXT_PREDICTION']) {
+        const savedPred = predictionHistory['_NEXT_PREDICTION'].prediction;
+        predictionHistory[latestPeriod] = savedPred;
+        console.log(`✅ Linked prediction to period ${latestPeriod}: ${savedPred}`);
+      }
+      
       lastSeenPeriod = latestPeriod;
     }
     
@@ -461,16 +487,14 @@ async function loadData() {
     predictionResult.innerHTML = `<span class="prediction-${currentPredictionData.prediction.toLowerCase()}">${currentPredictionData.prediction}</span>`;
     patternInfo.textContent = `📊 ${currentPredictionData.pattern}`;
     
-    // পরবর্তী period এর জন্য এই prediction save করা
-    // পরবর্তী period number calculate করা (সাধারণত +1)
-    const nextPeriodNum = parseInt(latestPeriod) + 1;
-    const nextPeriod = nextPeriodNum.toString();
+    // Current prediction টা memory তে রাখা (যেকোনো unique key দিয়ে)
+    // পরের বার যখন নতুন period আসবে, তখন এটা use করব
+    predictionHistory['_NEXT_PREDICTION'] = {
+      prediction: currentPredictionData.prediction,
+      forPeriod: 'next'
+    };
     
-    // শুধুমাত্র যদি এই prediction আগে save না করা থাকে
-    if (!predictionHistory[nextPeriod]) {
-      predictionHistory[nextPeriod] = currentPredictionData.prediction;
-      console.log(`✅ Saved prediction for next period ${nextPeriod}: ${currentPredictionData.prediction}`);
-    }
+    console.log(`✅ Current prediction saved: ${currentPredictionData.prediction} (will check on next update)`);
 
     document.getElementById("time").textContent = new Date().toLocaleTimeString();
   } catch (e) {
