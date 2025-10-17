@@ -264,8 +264,8 @@
 </div>
 
 <script>
-// Prediction history মেমোরিতে save করার জন্য
-const predictionHistory = {};
+// Prediction এবং result permanently save করার জন্য
+const savedData = {};
 let lastProcessedPeriod = null;
 let nextPeriodPrediction = null;
 
@@ -340,7 +340,7 @@ async function loadData() {
     const res = await fetch(url);
     const data = await res.json();
 
-    console.log("API Response:", data);
+    console.log("📥 API Response:", data);
 
     let list = [];
     if (data && data.data && data.data.list) {
@@ -352,84 +352,122 @@ async function loadData() {
     }
 
     const table = document.getElementById("historyTable");
-    table.innerHTML = "";
 
     if (list.length === 0) {
       table.innerHTML = '<tr><td colspan="5" class="loading">No data available</td></tr>';
       return;
     }
 
-    // প্রথমে সব data থেকে size history তৈরি করা
-    const sizeHistory = list.map(item => {
+    // প্রতিটি entry র complete data save করা
+    list.forEach((item, index) => {
+      const periodValue = item.issue || item.period || item.issueNo || item.periodId;
+      const resultNum = item.result || item.number || item.num || item.openResult || "?";
+      const numValue = parseInt(resultNum);
+      const actualSize = numValue >= 5 ? 'Big' : 'Small';
+      const color = item.color || item.colour || "";
+      
+      // যদি এই period এর data না থাকে, তাহলে সেভ করা
+      if (!savedData[periodValue]) {
+        savedData[periodValue] = {
+          period: periodValue,
+          number: resultNum,
+          actualSize: actualSize,
+          color: color,
+          prediction: null,
+          result: null
+        };
+        console.log(`💾 Saved period data: ${periodValue}`);
+      }
+    });
+
+    // সব period এর জন্য prediction calculate করা (শুধু একবার)
+    const allPeriods = Object.keys(savedData).sort().reverse();
+    
+    allPeriods.forEach((period, index) => {
+      // যদি এই period এর prediction না থাকে
+      if (savedData[period] && !savedData[period].prediction) {
+        // পরের সব period এর actual size নিয়ে history তৈরি করা
+        const futureHistory = [];
+        for (let i = index + 1; i < allPeriods.length; i++) {
+          const futurePeriod = allPeriods[i];
+          if (savedData[futurePeriod]) {
+            futureHistory.push(savedData[futurePeriod].actualSize);
+          }
+        }
+        
+        // যদি future data থাকে তাহলে prediction করা
+        if (futureHistory.length > 0) {
+          const predData = analyzePrediction(futureHistory);
+          savedData[period].prediction = predData.prediction;
+          
+          // Result calculate করা
+          if (savedData[period].actualSize === savedData[period].prediction) {
+            savedData[period].result = 'WIN';
+          } else {
+            savedData[period].result = 'LOSS';
+          }
+          
+          console.log(`🎯 Period ${period}: Predicted=${savedData[period].prediction}, Actual=${savedData[period].actualSize}, Result=${savedData[period].result}`);
+        }
+      }
+    });
+
+    // নতুন period detect করা
+    const currentLatestPeriod = list[0].issue || list[0].period || list[0].issueNo || list[0].periodId;
+    
+    if (lastProcessedPeriod && currentLatestPeriod !== lastProcessedPeriod) {
+      console.log(`🆕 New period detected: ${currentLatestPeriod}`);
+      
+      // নতুন period এর জন্য আগের prediction সেভ করা
+      if (nextPeriodPrediction && savedData[currentLatestPeriod]) {
+        savedData[currentLatestPeriod].prediction = nextPeriodPrediction;
+        
+        // Result calculate করা
+        if (savedData[currentLatestPeriod].actualSize === nextPeriodPrediction) {
+          savedData[currentLatestPeriod].result = 'WIN';
+        } else {
+          savedData[currentLatestPeriod].result = 'LOSS';
+        }
+        
+        console.log(`✅ New result: ${currentLatestPeriod} = ${savedData[currentLatestPeriod].result}`);
+      }
+    }
+    
+    lastProcessedPeriod = currentLatestPeriod;
+
+    // পরবর্তী prediction calculate করা (current history দিয়ে)
+    const currentHistory = list.map(item => {
       const resultNum = item.result || item.number || item.num || item.openResult || "?";
       const numValue = parseInt(resultNum);
       return numValue >= 5 ? 'Big' : 'Small';
     });
-
-    // প্রথম লোডে সব historical data এর জন্য prediction calculate করা
-    if (Object.keys(predictionHistory).length === 0) {
-      console.log("🔄 First load - calculating all historical predictions...");
-      
-      // প্রতিটি entry র জন্য তার পরের data দিয়ে prediction করা
-      list.forEach((item, index) => {
-        const periodValue = item.issue || item.period || item.issueNo || item.periodId;
-        
-        // যদি এই period এর জন্য prediction না থাকে
-        if (!predictionHistory[periodValue] && index < list.length - 1) {
-          // পরের সব entries নিয়ে pattern analyze করা
-          const futureHistory = sizeHistory.slice(index + 1);
-          if (futureHistory.length > 0) {
-            const predData = analyzePrediction(futureHistory);
-            predictionHistory[periodValue] = predData.prediction;
-            console.log(`💾 Saved historical prediction for ${periodValue}: ${predData.prediction}`);
-          }
-        }
-      });
-    }
     
-    // সবচেয়ে নতুন period check করা
-    const currentLatestPeriod = list[0].issue || list[0].period || list[0].issueNo || list[0].periodId;
-    
-    // নতুন period এসেছে কিনা check করা
-    if (lastProcessedPeriod && currentLatestPeriod !== lastProcessedPeriod) {
-      // নতুন result এসেছে!
-      console.log(`🆕 New period detected: ${currentLatestPeriod}`);
-      
-      // আগের prediction ছিল কিনা এবং সেটা সেভ করা
-      if (nextPeriodPrediction) {
-        predictionHistory[currentLatestPeriod] = nextPeriodPrediction;
-        console.log(`✅ Saved prediction for ${currentLatestPeriod}: ${nextPeriodPrediction}`);
-      }
-    }
-    
-    // Update করা শেষ processed period
-    lastProcessedPeriod = currentLatestPeriod;
-    
-    // পরবর্তী period এর জন্য prediction calculate করা
-    const nextPredictionData = analyzePrediction(sizeHistory);
+    const nextPredictionData = analyzePrediction(currentHistory);
     nextPeriodPrediction = nextPredictionData.prediction;
-    console.log(`🔮 Next prediction ready: ${nextPeriodPrediction}`);
+    console.log(`🔮 Next prediction: ${nextPeriodPrediction}`);
 
-    // Table এ data show করা
-    list.forEach((item, index) => {
+    // Table render করা
+    table.innerHTML = "";
+    
+    list.forEach((item) => {
+      const periodValue = item.issue || item.period || item.issueNo || item.periodId;
+      const itemData = savedData[periodValue];
+      
+      if (!itemData) return;
+      
       const tr = document.createElement("tr");
       
+      // Period
       const tdPeriod = document.createElement("td");
       tdPeriod.className = "period-cell";
+      tdPeriod.textContent = itemData.period;
       
-      const periodValue = item.issue || item.period || item.issueNo || item.periodId || 
-                         item.issueNumber || item.gameNo || item.drawNo || item.id || 
-                         item.Issue || item.Period || item.IssueNo || item.PeriodId;
-      
-      tdPeriod.textContent = periodValue || "N/A";
-      
-      const resultNum = item.result || item.number || item.num || item.openResult || "?";
-      
+      // Number
       const tdNumber = document.createElement("td");
       tdNumber.className = "number-cell";
       const numSpan = document.createElement("span");
       
-      const color = item.color || item.colour || "";
+      const color = itemData.color;
       if (color === 'red' || color === 'Red') {
         numSpan.style.color = '#ff4444';
       } else if (color === 'green' || color === 'Green') {
@@ -438,17 +476,18 @@ async function loadData() {
         numSpan.style.color = '#9C27B0';
       }
       
-      numSpan.textContent = resultNum;
+      numSpan.textContent = itemData.number;
       tdNumber.appendChild(numSpan);
       
+      // Big/Small
       const tdSize = document.createElement("td");
-      const actualSize = sizeHistory[index];
-      tdSize.textContent = actualSize;
+      tdSize.textContent = itemData.actualSize;
       
+      // Color
       const tdColor = document.createElement("td");
       tdColor.className = "color-cell";
       
-      const numValue = parseInt(resultNum);
+      const numValue = parseInt(itemData.number);
       const colors = getColors(numValue, color.toLowerCase());
       colors.forEach(c => {
         const dot = document.createElement("span");
@@ -456,24 +495,16 @@ async function loadData() {
         tdColor.appendChild(dot);
       });
       
-      // Result column - এই period এর জন্য saved prediction আছে কিনা check করা
+      // Result
       const tdResult = document.createElement("td");
       
-      const savedPrediction = predictionHistory[periodValue];
-      
-      if (savedPrediction) {
-        // Prediction ছিল, এখন result এর সাথে মিলিয়ে দেখা
-        console.log(`📊 Period ${periodValue}: Predicted=${savedPrediction}, Actual=${actualSize}`);
-        
-        if (savedPrediction === actualSize) {
-          tdResult.className = "result-cell result-win";
-          tdResult.textContent = "✓ WIN";
-        } else {
-          tdResult.className = "result-cell result-loss";
-          tdResult.textContent = "✗ LOSS";
-        }
+      if (itemData.result === 'WIN') {
+        tdResult.className = "result-cell result-win";
+        tdResult.textContent = "✓ WIN";
+      } else if (itemData.result === 'LOSS') {
+        tdResult.className = "result-cell result-loss";
+        tdResult.textContent = "✗ LOSS";
       } else {
-        // এখনো prediction করা হয়নি বা result pending
         tdResult.className = "result-cell result-pending";
         tdResult.textContent = "-";
       }
@@ -487,7 +518,7 @@ async function loadData() {
       table.appendChild(tr);
     });
 
-    // পরবর্তী round এর prediction display করা
+    // পরবর্তী round এর prediction display
     const predictionResult = document.getElementById("predictionResult");
     const patternInfo = document.getElementById("patternInfo");
     
@@ -495,8 +526,9 @@ async function loadData() {
     patternInfo.textContent = `📊 ${nextPredictionData.pattern} | Confidence: ${nextPredictionData.confidence}`;
 
     document.getElementById("time").textContent = new Date().toLocaleTimeString();
+    
   } catch (e) {
-    console.error("Error loading data:", e);
+    console.error("❌ Error loading data:", e);
     document.getElementById("historyTable").innerHTML = 
       '<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
   }
@@ -505,8 +537,8 @@ async function loadData() {
 // প্রথমবার লোড
 loadData();
 
-// প্রতি 62 সেকেন্ডে আপডেট (1 মিনিট + 2 সেকেন্ড)
-setInterval(loadData, 60000);
+// প্রতি 62 সেকেন্ডে আপডেট
+setInterval(loadData, 62000);
 </script>
 
 </body>
