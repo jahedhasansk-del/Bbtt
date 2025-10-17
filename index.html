@@ -221,14 +221,20 @@ async function loadData() {
     }
 
     list.forEach(item => {
-      console.log("Item:", item); // প্রতিটি আইটেম দেখার জন্য
+      console.log("Full Item Data:", JSON.stringify(item)); // সম্পূর্ণ ডাটা দেখার জন্য
       
       const tr = document.createElement("tr");
       
-      // Period - বিভিন্ন সম্ভাব্য ফিল্ড নাম চেক করা
+      // Period - সব সম্ভাব্য ফিল্ড চেক করা
       const tdPeriod = document.createElement("td");
       tdPeriod.className = "period-cell";
-      tdPeriod.textContent = item.issue || item.period || item.issueNo || item.periodId || "N/A";
+      
+      // সব সম্ভাব্য period ফিল্ড চেক করা
+      const periodValue = item.issue || item.period || item.issueNo || item.periodId || 
+                         item.issueNumber || item.gameNo || item.drawNo || item.id || 
+                         item.Issue || item.Period || item.IssueNo || item.PeriodId;
+      
+      tdPeriod.textContent = periodValue || "N/A";
       
       // Number - বিভিন্ন সম্ভাব্য ফিল্ড নাম চেক করা
       const resultNum = item.result || item.number || item.num || item.openResult || "?";
