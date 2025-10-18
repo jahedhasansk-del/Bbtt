@@ -343,6 +343,21 @@ function loadPredictionHistory() {
       predictionHistory = JSON.parse(saved);
       console.log("📂 Loaded prediction history:", Object.keys(predictionHistory).length, "entries");
     }
+    
+    const savedLastPeriod = localStorage.getItem('wingoLastPeriod');
+    if (savedLastPeriod) {
+      lastProcessedPeriod = savedLastPeriod;
+    }
+    
+    const savedNextPrediction = localStorage.getItem('wingoNextPrediction');
+    if (savedNextPrediction) {
+      nextPeriodPrediction = savedNextPrediction;
+    }
+    
+    const savedPredictedPeriod = localStorage.getItem('wingoPredictedForPeriod');
+    if (savedPredictedPeriod) {
+      predictedForNextPeriod = savedPredictedPeriod;
+    }
   } catch (e) {
     console.error("Error loading history:", e);
   }
@@ -352,6 +367,15 @@ function loadPredictionHistory() {
 function savePredictionHistory() {
   try {
     localStorage.setItem('wingoPredictionHistory', JSON.stringify(predictionHistory));
+    if (lastProcessedPeriod) {
+      localStorage.setItem('wingoLastPeriod', lastProcessedPeriod);
+    }
+    if (nextPeriodPrediction) {
+      localStorage.setItem('wingoNextPrediction', nextPeriodPrediction);
+    }
+    if (predictedForNextPeriod) {
+      localStorage.setItem('wingoPredictedForPeriod', predictedForNextPeriod);
+    }
     console.log("💾 Saved prediction history:", Object.keys(predictionHistory).length, "entries");
   } catch (e) {
     console.error("Error saving history:", e);
@@ -458,20 +482,27 @@ async function loadData() {
     // সবচেয়ে নতুন period check করা
     const currentLatestPeriod = list[0].issue || list[0].period || list[0].issueNo || list[0].periodId;
     
+    console.log(`📍 Current Latest Period: ${currentLatestPeriod}`);
+    console.log(`📍 Last Processed Period: ${lastProcessedPeriod}`);
+    console.log(`📍 Predicted For Period: ${predictedForNextPeriod}`);
+    
     // নতুন period এসেছে কিনা check করা
     if (lastProcessedPeriod && currentLatestPeriod !== lastProcessedPeriod) {
       // নতুন result এসেছে!
-      console.log(`🆕 New period detected: ${currentLatestPeriod}`);
+      console.log(`🆕 New period detected: ${currentLatestPeriod} (Previous: ${lastProcessedPeriod})`);
       
-      // আগের prediction ছিল এবং সেটা এই নতুন period এর জন্যই ছিল
+      // এই নতুন period এর actual result
+      const newResultNum = list[0].result || list[0].number || list[0].num || list[0].openResult;
+      const newActualSize = parseInt(newResultNum) >= 5 ? 'Big' : 'Small';
+      
+      console.log(`📊 New Result - Period: ${currentLatestPeriod}, Number: ${newResultNum}, Size: ${newActualSize}`);
+      
+      // যদি আমরা prediction করে রেখেছিলাম
       if (nextPeriodPrediction) {
-        // এই নতুন period এর actual result
-        const newResultNum = list[0].result || list[0].number || list[0].num || list[0].openResult;
-        const newActualSize = parseInt(newResultNum) >= 5 ? 'Big' : 'Small';
-        
-        // Prediction save করা
+        // Prediction save করা - নতুন period এর জন্য
         predictionHistory[currentLatestPeriod] = nextPeriodPrediction;
-        console.log(`✅ Saved prediction for ${currentLatestPeriod}: ${nextPeriodPrediction}, Actual: ${newActualSize}`);
+        console.log(`✅ Saved! Period: ${currentLatestPeriod}, Predicted: ${nextPeriodPrediction}, Actual: ${newActualSize}, Result: ${nextPeriodPrediction === newActualSize ? 'SUCCESS' : 'FIELD'}`);
+        
         savePredictionHistory(); // localStorage এ save করা
       }
     }
@@ -482,7 +513,17 @@ async function loadData() {
     // পরবর্তী period এর জন্য prediction calculate করা
     const nextPredictionData = analyzePrediction(sizeHistory);
     nextPeriodPrediction = nextPredictionData.prediction;
-    console.log(`🔮 Next prediction ready: ${nextPeriodPrediction}`);
+    
+    // পরবর্তী period কি হবে সেটা বের করা
+    // Current period থেকে 1 বাড়িয়ে next period বানাবো
+    const currentPeriodStr = currentLatestPeriod.toString();
+    const currentPeriodNum = parseInt(currentPeriodStr);
+    predictedForNextPeriod = (currentPeriodNum + 1).toString();
+    
+    console.log(`🔮 Next Prediction - For Period: ${predictedForNextPeriod}, Prediction: ${nextPeriodPrediction}`);
+    
+    // Save করা
+    savePredictionHistory();
 
     // Table এ data show করা
     list.forEach((item, index) => {
@@ -572,7 +613,42 @@ async function loadData() {
     const patternInfo = document.getElementById("patternInfo");
     
     predictionResult.innerHTML = `<span class="prediction-${nextPredictionData.prediction.toLowerCase()}">${nextPredictionData.prediction}</span>`;
-    patternInfo.textContent = `📊 ${nextPredictionData.pattern} | Confidence: ${nextPredictionData.confidence}`;
+    patternInfo.textContent = `📊 ${nextPredictionData.pattern} | Confidence: ${nextPredictionData.confidence} | For Period: ${predictedForNextPeriod}`;
+
+    // WIN/LOSS statistics calculate করা
+    let winCount = 0;
+    let lossCount = 0;
+    let pendingCount = 0;
+    
+    list.forEach((item, index) => {
+      const periodValue = item.issue || item.period || item.issueNo || item.periodId || 
+                         item.issueNumber || item.gameNo || item.drawNo || item.id;
+      const savedPrediction = predictionHistory[periodValue];
+      
+      if (savedPrediction) {
+        const resultNum = item.result || item.number || item.num || item.openResult;
+        const numValue = parseInt(resultNum);
+        const actualSize = numValue >= 5 ? 'Big' : 'Small';
+        
+        if (savedPrediction === actualSize) {
+          winCount++;
+        } else {
+          lossCount++;
+        }
+      } else if (index === 0) {
+        pendingCount = 1;
+      }
+    });
+    
+    // Statistics display করা
+    document.getElementById('winCount').textContent = winCount;
+    document.getElementById('lossCount').textContent = lossCount;
+    document.getElementById('pendingCount').textContent = pendingCount;
+    
+    // Accuracy calculate করা
+    const total = winCount + lossCount;
+    const accuracy = total > 0 ? Math.round((winCount / total) * 100) : 0;
+    document.getElementById('accuracy').textContent = accuracy + '%';
 
     document.getElementById("time").textContent = new Date().toLocaleTimeString();
   } catch (e) {
