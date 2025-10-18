@@ -220,6 +220,17 @@
     background: #fff3e0;
   }
   
+  .stat-item {
+    text-align: center;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+  
   .update-time {
     text-align: center;
     color: #ffffff;
@@ -276,19 +287,19 @@
       <div class="pattern-info" id="patternInfo"></div>
       <div class="stats-info" id="statsInfo">
         <div class="stat-item">
-          <div class="stat-label">WIN</div>
+          <div class="stat-label">Success</div>
           <div class="stat-value stat-win" id="winCount">0</div>
         </div>
         <div class="stat-item">
-          <div class="stat-label">LOSS</div>
+          <div class="stat-label">Field</div>
           <div class="stat-value stat-loss" id="lossCount">0</div>
         </div>
         <div class="stat-item">
-          <div class="stat-label">PENDING</div>
+          <div class="stat-label">Pending</div>
           <div class="stat-value stat-pending" id="pendingCount">0</div>
         </div>
         <div class="stat-item">
-          <div class="stat-label">ACCURACY</div>
+          <div class="stat-label">Accuracy</div>
           <div class="stat-value" id="accuracy" style="color: #2196F3;">0%</div>
         </div>
       </div>
@@ -530,16 +541,16 @@ async function loadData() {
         
         if (savedPrediction === actualSize) {
           tdResult.className = "result-cell result-win";
-          tdResult.textContent = "✓ WIN";
+          tdResult.textContent = "Success";
         } else {
           tdResult.className = "result-cell result-loss";
-          tdResult.textContent = "✗ LOSS";
+          tdResult.textContent = "Field";
         }
       } else {
         // প্রথম entry তে (সবচেয়ে নতুন) যদি prediction না থাকে তাহলে pending দেখাবে
         if (index === 0) {
           tdResult.className = "result-cell result-pending";
-          tdResult.textContent = "⏳ PENDING";
+          tdResult.textContent = "PENDING";
         } else {
           // পুরনো entries যেগুলার জন্য prediction ছিল না
           tdResult.className = "result-cell result-pending";
