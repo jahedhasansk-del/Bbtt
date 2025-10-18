@@ -411,8 +411,12 @@ async function loadData() {
   try {
     const ts = new Date().getTime();
     const url = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
+    
+    console.log(`\n🌐 Fetching API...`);
     const res = await fetch(url);
     const data = await res.json();
+    
+    console.log(`📦 API Response:`, data);
 
     let list = [];
     if (data && data.data && data.data.list) {
@@ -421,6 +425,11 @@ async function loadData() {
       list = data.list.slice(0, 10);
     } else if (Array.isArray(data)) {
       list = data.slice(0, 10);
+    }
+    
+    console.log(`📋 List Length: ${list.length}`);
+    if (list.length > 0) {
+      console.log(`📋 First Item:`, list[0]);
     }
 
     const table = document.getElementById("historyTable");
@@ -432,17 +441,18 @@ async function loadData() {
     }
 
     const topSlot = list[0];
-    const topPeriod = String(topSlot.issue || topSlot.period || topSlot.issueNo || topSlot.periodId);
-    const topNumber = topSlot.result || topSlot.number || topSlot.num || topSlot.openResult;
+    const topPeriod = String(topSlot.issue || topSlot.period || topSlot.issueNo || topSlot.periodId || topSlot.issueNumber || '');
+    const topNumber = String(topSlot.result || topSlot.number || topSlot.num || topSlot.openResult || '');
     const topSize = parseInt(topNumber) >= 5 ? 'Big' : 'Small';
 
     console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     console.log(`⏰ UPDATE TIME: ${new Date().toLocaleTimeString()}`);
     console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     console.log(`📍 TOP SLOT INFO:`);
-    console.log(`   Period: ${topPeriod}`);
+    console.log(`   Period: "${topPeriod}" (type: ${typeof topPeriod})`);
     console.log(`   Number: ${topNumber}`);
     console.log(`   Actual Size: ${topSize}`);
+    console.log(`   Last Checked Period: "${lastCheckedPeriod}"`);
 
     const sizeHistory = list.map(item => {
       const resultNum = item.result || item.number || item.num || item.openResult || "?";
@@ -458,7 +468,10 @@ async function loadData() {
     console.log(`   Pattern: ${currentPrediction.pattern}`);
 
     if (lastCheckedPeriod !== topPeriod) {
-      console.log(`\n🆕 NEW PERIOD DETECTED! ${lastCheckedPeriod} → ${topPeriod}`);
+      console.log(`\n🆕 NEW PERIOD DETECTED!`);
+      console.log(`   Old: "${lastCheckedPeriod}"`);
+      console.log(`   New: "${topPeriod}"`);
+      console.log(`   Are Different: ${lastCheckedPeriod !== topPeriod}`);
       
       if (previousPrediction) {
         console.log(`\n📋 PREVIOUS PREDICTION (checking now):`);
@@ -471,7 +484,7 @@ async function loadData() {
         console.log(`   ✅ RESULT: ${isMatch ? '🎉 WIN!' : '❌ LOSS!'}`);
         
         const resultEntry = {
-          period: String(topPeriod),
+          period: topPeriod,
           predicted: previousPrediction.prediction,
           actual: topSize,
           result: isMatch ? 'win' : 'loss',
@@ -484,17 +497,23 @@ async function loadData() {
           resultHistory = resultHistory.slice(0, 50);
         }
         
-        console.log(`\n💾 Result History Length: ${resultHistory.length}`);
-        console.log(`   Latest Entry: Period ${resultEntry.period} - ${resultEntry.result.toUpperCase()}`);
+        console.log(`\n💾 SAVED TO RESULT HISTORY!`);
+        console.log(`   Result History Length: ${resultHistory.length}`);
+        console.log(`   Latest Entry:`, resultEntry);
+        console.log(`   All Periods in History:`, resultHistory.map(r => r.period));
       } else {
-        console.log(`\n⚠️ No previous prediction to check yet`);
+        console.log(`\n⚠️ No previous prediction to check yet (first run)`);
       }
 
       previousPrediction = {...currentPrediction};
       lastCheckedPeriod = topPeriod;
-      console.log(`\n🔄 Previous Prediction updated to: ${previousPrediction.prediction}`);
+      console.log(`\n🔄 UPDATED:`);
+      console.log(`   Previous Prediction: ${previousPrediction.prediction}`);
+      console.log(`   Last Checked Period: "${lastCheckedPeriod}"`);
     } else {
-      console.log(`\n♻️ Same period - no check needed`);
+      console.log(`\n♻️ SAME PERIOD - NO CHECK NEEDED`);
+      console.log(`   Current Period: "${topPeriod}"`);
+      console.log(`   Already Checked: "${lastCheckedPeriod}"`);
     }
     
     console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
@@ -540,7 +559,7 @@ async function loadData() {
       
       const tdPeriod = document.createElement("td");
       tdPeriod.className = "period-cell";
-      const periodValue = String(item.issue || item.period || item.issueNo || item.periodId || item.issueNumber || item.gameNo || item.drawNo || item.id);
+      const periodValue = String(item.issue || item.period || item.issueNo || item.periodId || item.issueNumber || item.gameNo || item.drawNo || item.id || '');
       tdPeriod.textContent = periodValue || "N/A";
       
       const resultNum = item.result || item.number || item.num || item.openResult || "?";
@@ -578,10 +597,21 @@ async function loadData() {
       
       const tdResult = document.createElement("td");
       
-      const matchedResult = resultHistory.find(r => String(r.period) === String(periodValue));
+      const matchedResult = resultHistory.find(r => {
+        const match = String(r.period) === String(periodValue);
+        if (index === 0) {
+          console.log(`🔍 Checking period ${periodValue}:`, {
+            historyPeriod: r.period,
+            currentPeriod: periodValue,
+            match: match,
+            result: r.result
+          });
+        }
+        return match;
+      });
       
       if (matchedResult) {
-        console.log(`✓ Match found for period ${periodValue}: ${matchedResult.result}`);
+        console.log(`✅ FOUND MATCH for period ${periodValue}: ${matchedResult.result.toUpperCase()}`);
         if (matchedResult.result === 'win') {
           tdResult.className = "result-cell result-win";
           tdResult.textContent = "✅ WIN";
@@ -590,6 +620,10 @@ async function loadData() {
           tdResult.textContent = "❌ LOSS";
         }
       } else {
+        if (index === 0 && resultHistory.length > 0) {
+          console.log(`❌ NO MATCH for period ${periodValue}`);
+          console.log(`   Available periods:`, resultHistory.map(r => r.period));
+        }
         tdResult.textContent = "-";
       }
       
@@ -631,4 +665,4 @@ setInterval(loadData, 60000);
 </script>
 
 </body>
-</html>
+ </html>
