@@ -632,24 +632,49 @@ setInterval(drawMatrix,50);
   };
 
   const _a=(d)=>{
-    let cs=0,cb=0;
+    let cs=0,cb=0,sc=0,bc=0;
+    
+    // Count consecutive and total frequency
     for(let i=0;i<d.length;i++){
-      if(d[i]===_0x4a[1]){cs++;cb=0;}
-      else if(d[i]===_0x4a[0]){cb++;cs=0;}
+      if(d[i]===_0x4a[1]){
+        cs++;cb=0;sc++;
+      }else if(d[i]===_0x4a[0]){
+        cb++;cs=0;bc++;
+      }
     }
     
+    // Advanced pattern detection
     let conf=50;
     let pred='';
     
-    if(_k.s1.includes(cs)){
+    // Rule 1: Strong consecutive pattern (3+ same)
+    if(cs>=3){
       pred=_0x4a[0];
-      conf=75+Math.random()*20;
-    }else if(_k.s2.includes(cb)){
+      conf=70+Math.min(cs*5,25);
+    }else if(cb>=3){
       pred=_0x4a[1];
-      conf=75+Math.random()*20;
-    }else{
-      pred=cs>cb?_0x4a[0]:_0x4a[1];
-      conf=40+Math.random()*20;
+      conf=70+Math.min(cb*5,25);
+    }
+    // Rule 2: Frequency imbalance in last 10
+    else if(sc>=7){
+      pred=_0x4a[0];
+      conf=60+((sc-7)*5);
+    }else if(bc>=7){
+      pred=_0x4a[1];
+      conf=60+((bc-7)*5);
+    }
+    // Rule 3: Recent 2 consecutive
+    else if(cs===2){
+      pred=_0x4a[0];
+      conf=55;
+    }else if(cb===2){
+      pred=_0x4a[1];
+      conf=55;
+    }
+    // Rule 4: Default (less frequent)
+    else{
+      pred=sc>bc?_0x4a[0]:_0x4a[1];
+      conf=45;
     }
     
     return {p:pred,c:Math.round(conf)};
@@ -815,12 +840,4 @@ setInterval(drawMatrix,50);
       const _em=_d('5b204552524f52205d');
       document.getElementById("tb").innerHTML=`<tr><td colspan="5" class="loading">${_em}</td></tr>`;
     }
-  };
-
-  _l();
-  _s();
-})()
-</script>
-
-</body>
-</html>
+  
