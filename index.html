@@ -301,6 +301,14 @@
     50% { opacity: 0.7; }
   }
   
+  .next-update-info {
+    font-size: 14px;
+    color: #ffffff;
+    margin-top: 8px;
+    opacity: 0.9;
+    display: none;
+  }
+  
   .loading {
     text-align: center;
     padding: 20px;
@@ -429,17 +437,297 @@
   </p>
 </div>
 
-<button class="refresh-btn" onclick="_0x3f2a9c()">
+<button class="refresh-btn" onclick="manualRefresh()">
   <span class="refresh-icon" id="refreshIcon">🔄</span>
   <span>Refresh</span>
 </button>
 
 <script>
-const _0x4e8b=['aHR0cHM6Ly9kcmF3LmFyLWxvdHRlcnkwMS5jb20vV2luR28vV2luR29fMU0vR2V0SGlzdG9yeUlzc3VlUGFnZS5qc29u','ZGF0YQ==','bGlzdA==','aXNzdWU=','cGVyaW9k','cmVzdWx0','bnVtYmVy','Y29sb3I=','cmVk','Z3JlZW4=','dmlvbGV0'];const _0x2d4f=function(_0x5a3e,_0x1b8c){_0x5a3e=_0x5a3e-0x0;let _0x4d2a=_0x4e8b[_0x5a3e];if(_0x2d4f['init']===undefined){(function(){let _0x3c8f;try{const _0x8a2b=Function('return\x20(function()\x20'+'{}.constructor(\x22return\x20this\x22)(\x20)'+');');_0x3c8f=_0x8a2b();}catch(_0x1d5e){_0x3c8f=window;}const _0x5e9a='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';_0x3c8f['atob']||(_0x3c8f['atob']=function(_0x2f1b){const _0x4a8d=String(_0x2f1b)['replace'](/=+$/,'');let _0x6b3c='';for(let _0x7e2a=0x0,_0x8f4b,_0x9c5d,_0xa1e6=0x0;_0x9c5d=_0x4a8d['charAt'](_0xa1e6++);~_0x9c5d&&(_0x8f4b=_0x7e2a%0x4?_0x8f4b*0x40+_0x9c5d:_0x9c5d,_0x7e2a++%0x4)?_0x6b3c+=String['fromCharCode'](0xff&_0x8f4b>>(-0x2*_0x7e2a&0x6)):0x0){_0x9c5d=_0x5e9a['indexOf'](_0x9c5d);}return _0x6b3c;});}());_0x2d4f['decode']=function(_0xb2f7){const _0xc3g8=atob(_0xb2f7);let _0xd4h9=[];for(let _0xe5i1=0x0,_0xf6j2=_0xc3g8['length'];_0xe5i1<_0xf6j2;_0xe5i1++){_0xd4h9+='%'+('00'+_0xc3g8['charCodeAt'](_0xe5i1)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0xd4h9);};_0x2d4f['cache']={};_0x2d4f['init']=!![];}const _0xa7k3=_0x2d4f['cache'][_0x5a3e];return _0xa7k3!==undefined?_0xa7k3:(_0x4d2a=_0x2d4f['decode'](_0x4d2a),_0x2d4f['cache'][_0x5a3e]=_0x4d2a,_0x4d2a);};
+let previousPrediction = null;
+let currentPrediction = null;
+let resultHistory = [];
+let lastCheckedPeriod = null;
+let clockTimer;
 
-let _0x1a2b3c=null,_0x4d5e6f=null,_0x7g8h9i=[],_0xjk1l2m=null,_0xno3p4q;function _0x5r6s7t(){const _0x8u=new Date();const _0x9v=String(_0x8u.getHours()).padStart(2,'0');const _0xa1=String(_0x8u.getMinutes()).padStart(2,'0');const _0xb2=String(_0x8u.getSeconds()).padStart(2,'0');const _0xc3=document.getElementById('realTime');if(_0xc3){_0xc3.innerHTML=`${_0x9v}:${_0xa1}:<span class="seconds-highlight">${_0xb2}</span>`;}if(_0x8u.getSeconds()===59){_0xd4e5f6();}}function _0xg7h8i9(){_0x5r6s7t();clearInterval(_0xno3p4q);_0xno3p4q=setInterval(_0x5r6s7t,1000);}function _0x3f2a9c(){const _0xj1=document.getElementById('refreshIcon');if(_0xj1){_0xj1.classList.add('spinning');setTimeout(()=>{_0xj1.classList.remove('spinning');},500);}_0xd4e5f6();}function _0xk2l3m4(_0xn5,_0xo6){const _0xp7=[];if(_0xo6==='red'){_0xp7.push('red');}else if(_0xo6==='green'){_0xp7.push('green');}else if(_0xo6==='violet'){_0xp7.push('violet');}if(_0xn5===0){_0xp7.push('violet');_0xp7.push('red');}else if(_0xn5===5){_0xp7.push('violet');_0xp7.push('green');}return _0xp7;}function _0xq8r9s1(_0xt2){const _0xu3=[2,4,5,9];const _0xv4=[1,3,4,5,7];let _0xw5=0;let _0xx6=0;for(let _0xy7=0;_0xy7<_0xt2.length;_0xy7++){if(_0xt2[_0xy7]==='Small'){_0xw5++;_0xx6=0;}else if(_0xt2[_0xy7]==='Big'){_0xx6++;_0xw5=0;}}if(_0xu3.includes(_0xw5)){return{prediction:'Big',pattern:`${_0xw5} consecutive Small`,patternMatched:true};}else if(_0xv4.includes(_0xx6)){return{prediction:'Small',pattern:`${_0xx6} consecutive Big`,patternMatched:true};}else{return{prediction:_0xw5>_0xx6?'Big':'Small',pattern:`${_0xw5} Small, ${_0xx6} Big`,patternMatched:false};}}async function _0xd4e5f6(){try{const _0xz8=new Date().getTime();const _0xa9b=_0x2d4f(0x0);const _0xc1d=`${_0xa9b}?ts=${_0xz8}`;const _0xe2f=await fetch(_0xc1d);const _0xg3h=await _0xe2f.json();let _0xi4j=[];const _0xk5l=_0x2d4f(0x1);const _0xm6n=_0x2d4f(0x2);if(_0xg3h&&_0xg3h[_0xk5l]&&_0xg3h[_0xk5l][_0xm6n]){_0xi4j=_0xg3h[_0xk5l][_0xm6n].slice(0,10);}else if(_0xg3h&&_0xg3h[_0xm6n]){_0xi4j=_0xg3h[_0xm6n].slice(0,10);}else if(Array.isArray(_0xg3h)){_0xi4j=_0xg3h.slice(0,10);}const _0xo7p=document.getElementById("historyTable");_0xo7p.innerHTML="";if(_0xi4j.length===0){_0xo7p.innerHTML='<tr><td colspan="5" class="loading">No data available</td></tr>';return;}const _0xq8r=_0xi4j[0];const _0xs9t=_0x2d4f(0x3);const _0xu1v=_0x2d4f(0x4);const _0xw2x=String(_0xq8r[_0xs9t]||_0xq8r[_0xu1v]||_0xq8r.issueNo||_0xq8r.periodId||_0xq8r.issueNumber||'');const _0xy3z=_0x2d4f(0x5);const _0xa4b=_0x2d4f(0x6);const _0xc5d=String(_0xq8r[_0xy3z]||_0xq8r[_0xa4b]||_0xq8r.num||_0xq8r.openResult||'');const _0xe6f=parseInt(_0xc5d)>=5?'Big':'Small';const _0xg7h=_0xi4j.map(_0xi8=>{const _0xj9k=_0xi8[_0xy3z]||_0xi8[_0xa4b]||_0xi8.num||_0xi8.openResult||"?";const _0xl1m=parseInt(_0xj9k);return _0xl1m>=5?'Big':'Small';});const _0xn2o=_0xq8r9s1(_0xg7h);_0x4d5e6f=_0xn2o;if(_0xjk1l2m!==_0xw2x){if(_0x1a2b3c){const _0xp3q=_0x1a2b3c.prediction===_0xe6f;const _0xr4s={period:_0xw2x,predicted:_0x1a2b3c.prediction,actual:_0xe6f,result:_0xp3q?'win':'loss',number:_0xc5d};_0x7g8h9i.unshift(_0xr4s);if(_0x7g8h9i.length>50){_0x7g8h9i=_0x7g8h9i.slice(0,50);}}_0x1a2b3c={..._0x4d5e6f};_0xjk1l2m=_0xw2x;}const _0xt5u=document.getElementById("previousPredictionResult");const _0xv6w=document.getElementById("previousPatternInfo");if(_0x1a2b3c){_0xt5u.innerHTML=`<span class="prediction-${_0x1a2b3c.prediction.toLowerCase()}">${_0x1a2b3c.prediction}</span>`;_0xv6w.textContent=`📊 ${_0x1a2b3c.pattern}`;if(_0x1a2b3c.patternMatched){_0xv6w.style.background='#fff3cd';_0xv6w.style.color='#856404';}else{_0xv6w.style.background='#f8f9fa';_0xv6w.style.color='#555';}}const _0xx7y=document.getElementById("currentPredictionResult");const _0xz8a=document.getElementById("currentPatternInfo");_0xx7y.innerHTML=`<span class="prediction-${_0x4d5e6f.prediction.toLowerCase()}">${_0x4d5e6f.prediction}</span>`;_0xz8a.textContent=`📊 ${_0x4d5e6f.pattern}`;if(_0x4d5e6f.patternMatched){_0xz8a.style.background='#d4edda';_0xz8a.style.color='#155724';}else{_0xz8a.style.background='#f8f9fa';_0xz8a.style.color='#555';}let _0xb9c=0;let _0xd1e=0;_0x7g8h9i.forEach(_0xf2g=>{if(_0xf2g.result==='win')_0xb9c++;if(_0xf2g.result==='loss')_0xd1e++;});const _0xh3i=_0x2d4f(0x7);_0xi4j.forEach((_0xj4k,_0xl5m)=>{const _0xn6=document.createElement("tr");const _0xo7=document.createElement("td");_0xo7.className="period-cell";const _0xp8=_0x2d4f(0x3);const _0xq9=_0x2d4f(0x4);const _0xr1=String(_0xj4k[_0xp8]||_0xj4k[_0xq9]||_0xj4k.issueNo||_0xj4k.periodId||_0xj4k.issueNumber||_0xj4k.gameNo||_0xj4k.drawNo||_0xj4k.id||'');_0xo7.textContent=_0xr1||"N/A";const _0xs2=_0x2d4f(0x5);const _0xt3=_0x2d4f(0x6);const _0xu4=_0xj4k[_0xs2]||_0xj4k[_0xt3]||_0xj4k.num||_0xj4k.openResult||"?";const _0xv5=document.createElement("td");_0xv5.className="number-cell";const _0xw6=document.createElement("span");const _0xx7=(_0xj4k[_0xh3i]||_0xj4k.colour||"").toLowerCase();if(_0xx7===_0x2d4f(0x8)){_0xw6.style.color='#ff4444';}else if(_0xx7===_0x2d4f(0x9)){_0xw6.style.color='#4CAF50';}else if(_0xx7===_0x2d4f(0xa)||_0xx7==='purple'){_0xw6.style.color='#9C27B0';}_0xw6.textContent=_0xu4;_0xv5.appendChild(_0xw6);const _0xy8=document.createElement("td");const _0xz9=_0xg7h[_0xl5m];_0xy8.textContent=_0xz9;const _0xa1=document.createElement("td");_0xa1.className="color-cell";const _0xb2=parseInt(_0xu4);const _0xc3=_0xk2l3m4(_0xb2,_0xx7);_0xc3.forEach(_0xd4=>{const _0xe5=document.createElement("span");_0xe5.className=`color-dot ${_0xd4}`;_0xa1.appendChild(_0xe5);});const _0xf6=document.createElement("td");const _0xg7=_0x7g8h9i.find(_0xh8=>String(_0xh8.period)===String(_0xr1));if(_0xg7){if(_0xg7.result==='win'){_0xf6.className="result-cell result-win";_0xf6.textContent="✅ WIN";}else{_0xf6.className="result-cell result-loss";_0xf6.textContent="❌ LOSS";}}else{_0xf6.textContent="-";}_0xn6.appendChild(_0xo7);_0xn6.appendChild(_0xv5);_0xn6.appendChild(_0xy8);_0xn6.appendChild(_0xa1);_0xn6.appendChild(_0xf6);_0xo7p.appendChild(_0xn6);});const _0xi9=_0xb9c+_0xd1e;const _0xj1=_0xi9>0?Math.round((_0xb9c/_0xi9)*100):0;document.getElementById('winCount').textContent=_0xb9c;document.getElementById('lossCount').textContent=_0xd1e;document.getElementById('totalCount').textContent=_0xi9;document.getElementById('winRate').textContent=_0xj1+'%';}catch(_0xk2){console.error("❌ Error:",_0xk2);document.getElementById("historyTable").innerHTML='<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';}}
-_0xd4e5f6();_0xg7h8i9();
-</scri>
+function updateClock() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+  const timeEl = document.getElementById('realTime');
+  
+  if (timeEl) {
+    timeEl.innerHTML = `${hours}:${minutes}:<span class="seconds-highlight">${seconds}</span>`;
+  }
+  
+  // গোপনে 59 সেকেন্ডে আপডেট (ইউজার বুঝবে না)
+  if (now.getSeconds() === 59) {
+    loadData();
+  }
+}
+
+function startClock() {
+  updateClock(); // তাৎক্ষণিক আপডেট
+  clearInterval(clockTimer);
+  clockTimer = setInterval(updateClock, 1000); // প্রতি সেকেন্ডে
+}
+
+function manualRefresh() {
+  const icon = document.getElementById('refreshIcon');
+  if (icon) {
+    icon.classList.add('spinning');
+    setTimeout(() => {
+      icon.classList.remove('spinning');
+    }, 500);
+  }
+  
+  loadData();
+}
+
+function getColors(number, color) {
+  const colors = [];
+  
+  if (color === 'red') {
+    colors.push('red');
+  } else if (color === 'green') {
+    colors.push('green');
+  } else if (color === 'violet') {
+    colors.push('violet');
+  }
+  
+  if (number === 0) {
+    colors.push('violet');
+    colors.push('red');
+  } else if (number === 5) {
+    colors.push('violet');
+    colors.push('green');
+  }
+  
+  return colors;
+}
+
+function analyzePrediction(history) {
+  const smallTriggers = [2, 4, 5, 9];
+  const bigTriggers = [1, 3, 4, 5, 7];
+  
+  let consecutiveSmall = 0;
+  let consecutiveBig = 0;
+  
+  for (let i = 0; i < history.length; i++) {
+    if (history[i] === 'Small') {
+      consecutiveSmall++;
+      consecutiveBig = 0;
+    } else if (history[i] === 'Big') {
+      consecutiveBig++;
+      consecutiveSmall = 0;
+    }
+  }
+  
+  if (smallTriggers.includes(consecutiveSmall)) {
+    return {
+      prediction: 'Big',
+      pattern: `${consecutiveSmall} consecutive Small`,
+      patternMatched: true
+    };
+  } else if (bigTriggers.includes(consecutiveBig)) {
+    return {
+      prediction: 'Small',
+      pattern: `${consecutiveBig} consecutive Big`,
+      patternMatched: true
+    };
+  } else {
+    return {
+      prediction: consecutiveSmall > consecutiveBig ? 'Big' : 'Small',
+      pattern: `${consecutiveSmall} Small, ${consecutiveBig} Big`,
+      patternMatched: false
+    };
+  }
+}
+
+async function loadData() {
+  try {
+    const ts = new Date().getTime();
+    const url = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
+    
+    const res = await fetch(url);
+    const data = await res.json();
+
+    let list = [];
+    if (data && data.data && data.data.list) {
+      list = data.data.list.slice(0, 10);
+    } else if (data && data.list) {
+      list = data.list.slice(0, 10);
+    } else if (Array.isArray(data)) {
+      list = data.slice(0, 10);
+    }
+
+    const table = document.getElementById("historyTable");
+    table.innerHTML = "";
+
+    if (list.length === 0) {
+      table.innerHTML = '<tr><td colspan="5" class="loading">No data available</td></tr>';
+      return;
+    }
+
+    const topSlot = list[0];
+    const topPeriod = String(topSlot.issue || topSlot.period || topSlot.issueNo || topSlot.periodId || topSlot.issueNumber || '');
+    const topNumber = String(topSlot.result || topSlot.number || topSlot.num || topSlot.openResult || '');
+    const topSize = parseInt(topNumber) >= 5 ? 'Big' : 'Small';
+
+    const sizeHistory = list.map(item => {
+      const resultNum = item.result || item.number || item.num || item.openResult || "?";
+      const numValue = parseInt(resultNum);
+      return numValue >= 5 ? 'Big' : 'Small';
+    });
+
+    const predictionData = analyzePrediction(sizeHistory);
+    currentPrediction = predictionData;
+
+    if (lastCheckedPeriod !== topPeriod) {
+      if (previousPrediction) {
+        const isMatch = previousPrediction.prediction === topSize;
+        
+        const resultEntry = {
+          period: topPeriod,
+          predicted: previousPrediction.prediction,
+          actual: topSize,
+          result: isMatch ? 'win' : 'loss',
+          number: topNumber
+        };
+        
+        resultHistory.unshift(resultEntry);
+        
+        if (resultHistory.length > 50) {
+          resultHistory = resultHistory.slice(0, 50);
+        }
+      }
+
+      previousPrediction = {...currentPrediction};
+      lastCheckedPeriod = topPeriod;
+    }
+
+    const prevResult = document.getElementById("previousPredictionResult");
+    const prevPattern = document.getElementById("previousPatternInfo");
+    
+    if (previousPrediction) {
+      prevResult.innerHTML = `<span class="prediction-${previousPrediction.prediction.toLowerCase()}">${previousPrediction.prediction}</span>`;
+      prevPattern.textContent = `📊 ${previousPrediction.pattern}`;
+      if (previousPrediction.patternMatched) {
+        prevPattern.style.background = '#fff3cd';
+        prevPattern.style.color = '#856404';
+      } else {
+        prevPattern.style.background = '#f8f9fa';
+        prevPattern.style.color = '#555';
+      }
+    }
+
+    const currResult = document.getElementById("currentPredictionResult");
+    const currPattern = document.getElementById("currentPatternInfo");
+    
+    currResult.innerHTML = `<span class="prediction-${currentPrediction.prediction.toLowerCase()}">${currentPrediction.prediction}</span>`;
+    currPattern.textContent = `📊 ${currentPrediction.pattern}`;
+    if (currentPrediction.patternMatched) {
+      currPattern.style.background = '#d4edda';
+      currPattern.style.color = '#155724';
+    } else {
+      currPattern.style.background = '#f8f9fa';
+      currPattern.style.color = '#555';
+    }
+
+    let winCount = 0;
+    let lossCount = 0;
+
+    resultHistory.forEach(entry => {
+      if (entry.result === 'win') winCount++;
+      if (entry.result === 'loss') lossCount++;
+    });
+
+    list.forEach((item, index) => {
+      const tr = document.createElement("tr");
+      
+      const tdPeriod = document.createElement("td");
+      tdPeriod.className = "period-cell";
+      const periodValue = String(item.issue || item.period || item.issueNo || item.periodId || item.issueNumber || item.gameNo || item.drawNo || item.id || '');
+      tdPeriod.textContent = periodValue || "N/A";
+      
+      const resultNum = item.result || item.number || item.num || item.openResult || "?";
+      
+      const tdNumber = document.createElement("td");
+      tdNumber.className = "number-cell";
+      const numSpan = document.createElement("span");
+      
+      const color = (item.color || item.colour || "").toLowerCase();
+      if (color === 'red') {
+        numSpan.style.color = '#ff4444';
+      } else if (color === 'green') {
+        numSpan.style.color = '#4CAF50';
+      } else if (color === 'violet' || color === 'purple') {
+        numSpan.style.color = '#9C27B0';
+      }
+      
+      numSpan.textContent = resultNum;
+      tdNumber.appendChild(numSpan);
+      
+      const tdSize = document.createElement("td");
+      const actualSize = sizeHistory[index];
+      tdSize.textContent = actualSize;
+      
+      const tdColor = document.createElement("td");
+      tdColor.className = "color-cell";
+      
+      const numValue = parseInt(resultNum);
+      const colors = getColors(numValue, color);
+      colors.forEach(c => {
+        const dot = document.createElement("span");
+        dot.className = `color-dot ${c}`;
+        tdColor.appendChild(dot);
+      });
+      
+      const tdResult = document.createElement("td");
+      
+      const matchedResult = resultHistory.find(r => String(r.period) === String(periodValue));
+      
+      if (matchedResult) {
+        if (matchedResult.result === 'win') {
+          tdResult.className = "result-cell result-win";
+          tdResult.textContent = "✅ WIN";
+        } else {
+          tdResult.className = "result-cell result-loss";
+          tdResult.textContent = "❌ LOSS";
+        }
+      } else {
+        tdResult.textContent = "-";
+      }
+      
+      tr.appendChild(tdPeriod);
+      tr.appendChild(tdNumber);
+      tr.appendChild(tdSize);
+      tr.appendChild(tdColor);
+      tr.appendChild(tdResult);
+      
+      table.appendChild(tr);
+    });
+
+    const total = winCount + lossCount;
+    const winRate = total > 0 ? Math.round((winCount / total) * 100) : 0;
+    
+    document.getElementById('winCount').textContent = winCount;
+    document.getElementById('lossCount').textContent = lossCount;
+    document.getElementById('totalCount').textContent = total;
+    document.getElementById('winRate').textContent = winRate + '%';
+    
+  } catch (e) {
+    console.error("❌ Error:", e);
+    document.getElementById("historyTable").innerHTML = 
+      '<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
+  }
+}
+
+// সিস্টেম শুরু করুন
+loadData(); // প্রথম লোড
+startClock(); // রিয়েল টাইম ক্লক শুরু (গোপনে 59 সেকেন্ডে আপডেট হবে)
+</script>
 
 </body>
-</html>
+       </html>
