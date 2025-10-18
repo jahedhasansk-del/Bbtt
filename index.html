@@ -439,10 +439,18 @@
   const _0x4a=['\x42\x69\x67','\x53\x6d\x61\x6c\x6c','\x77\x69\x6e','\x6c\x6f\x73\x73'];
   let _p=null,_c=null,_h=[],_lp=null,_ct;
   
+  const _e=s=>s.split('').reverse().join('');
+  const _d=h=>{let s='';for(let i=0;i<h.length;i+=2){s+=String.fromCharCode(parseInt(h.substr(i,2),16));}return s;};
+  const _b=s=>btoa(s).split('').reverse().join('');
+  const _ub=s=>atob(s.split('').reverse().join(''));
+  
   const _k={
     s1:[2,4,5,9],
     s2:[1,3,4,5,7],
-    u:'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json',
+    u1:_d('68747470733a2f2f647261772e61722d6c6f74746572793031'),
+    u2:_d('2e636f6d2f57696e476f2f57696e476f5f314d2f'),
+    u3:_d('476574486973746f7279497373756550616765'),
+    u4:_d('2e6a736f6e'),
     i:1000,
     m:59
   };
@@ -505,11 +513,16 @@
   const _l=async()=>{
     try{
       const t=new Date().getTime();
-      const r=await fetch(`${_k.u}?ts=${t}`);
+      const _u=_k.u1+_k.u2+_k.u3+_k.u4;
+      const _q=`?${_d('7473')}=${t}`;
+      const _f=_u+_q;
+      const r=await fetch(_f);
       const d=await r.json();
       let ls=[];
-      if(d&&d.data&&d.data.list){ls=d.data.list.slice(0,10);}
-      else if(d&&d.list){ls=d.list.slice(0,10);}
+      const _pk=['data','list'];
+      const _sk=['list'];
+      if(d&&d[_pk[0]]&&d[_pk[0]][_pk[1]]){ls=d[_pk[0]][_pk[1]].slice(0,10);}
+      else if(d&&d[_sk[0]]){ls=d[_sk[0]].slice(0,10);}
       else if(Array.isArray(d)){ls=d.slice(0,10);}
 
       const tb=document.getElementById("tb");
@@ -520,12 +533,17 @@
         return;
       }
 
-      const tp=String(ls[0].issue||ls[0].period||ls[0].issueNo||ls[0].periodId||ls[0].issueNumber||'');
-      const tn=String(ls[0].result||ls[0].number||ls[0].num||ls[0].openResult||'');
+      const _f1=['issue','period','issueNo','periodId','issueNumber'];
+      const _f2=['result','number','num','openResult'];
+      const _f3=['color','colour'];
+      const _f4=['gameNo','drawNo','id'];
+      
+      const tp=String(ls[0][_f1[0]]||ls[0][_f1[1]]||ls[0][_f1[2]]||ls[0][_f1[3]]||ls[0][_f1[4]]||'');
+      const tn=String(ls[0][_f2[0]]||ls[0][_f2[1]]||ls[0][_f2[2]]||ls[0][_f2[3]]||'');
       const ts=_x(tn);
 
       const sh=ls.map(i=>{
-        const rn=i.result||i.number||i.num||i.openResult||"?";
+        const rn=i[_f2[0]]||i[_f2[1]]||i[_f2[2]]||i[_f2[3]]||"?";
         return _x(rn);
       });
 
@@ -579,14 +597,14 @@
         const tr=document.createElement("tr");
         const tdp=document.createElement("td");
         tdp.className="period-cell";
-        const pv=String(it.issue||it.period||it.issueNo||it.periodId||it.issueNumber||it.gameNo||it.drawNo||it.id||'');
+        const pv=String(it[_f1[0]]||it[_f1[1]]||it[_f1[2]]||it[_f1[3]]||it[_f1[4]]||it[_f4[0]]||it[_f4[1]]||it[_f4[2]]||'');
         tdp.textContent=pv||"N/A";
         
-        const rn=it.result||it.number||it.num||it.openResult||"?";
+        const rn=it[_f2[0]]||it[_f2[1]]||it[_f2[2]]||it[_f2[3]]||"?";
         const tdn=document.createElement("td");
         tdn.className="number-cell";
         const ns=document.createElement("span");
-        const co=(it.color||it.colour||"").toLowerCase();
+        const co=(it[_f3[0]]||it[_f3[1]]||"").toLowerCase();
         if(co==='red'){ns.style.color='#ff4444';}
         else if(co==='green'){ns.style.color='#4CAF50';}
         else if(co==='violet'||co==='purple'){ns.style.color='#9C27B0';}
@@ -635,7 +653,8 @@
       document.getElementById('tc').textContent=to;
       document.getElementById('wr').textContent=wrt+'%';
     }catch(e){
-      document.getElementById("tb").innerHTML='<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
+      const _em=_d('4572726f72206c6f6164696e6720646174612e205265747279696e672e2e2e');
+      document.getElementById("tb").innerHTML=`<tr><td colspan="5" class="loading">${_em}</td></tr>`;
     }
   };
 
