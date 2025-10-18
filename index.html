@@ -456,7 +456,6 @@ async function loadData() {
     console.log(`\n🔮 CURRENT PREDICTION (for next round):`);
     console.log(`   Prediction: ${currentPrediction.prediction}`);
     console.log(`   Pattern: ${currentPrediction.pattern}`);
-    console.log(`   Pattern Matched: ${currentPrediction.patternMatched ? 'YES' : 'NO'}`);
 
     if (lastCheckedPeriod !== topPeriod) {
       console.log(`\n🆕 NEW PERIOD DETECTED! ${lastCheckedPeriod} → ${topPeriod}`);
@@ -475,7 +474,6 @@ async function loadData() {
           period: topPeriod,
           predicted: previousPrediction.prediction,
           actual: topSize,
-          pattern: previousPrediction.pattern,
           result: isMatch ? 'win' : 'loss',
           number: topNumber
         };
@@ -511,9 +509,6 @@ async function loadData() {
         prevPattern.style.background = '#f8f9fa';
         prevPattern.style.color = '#555';
       }
-    } else {
-      prevResult.innerHTML = '<div style="font-size: 14px; color: #999;">Waiting...</div>';
-      prevPattern.textContent = '';
     }
 
     const currResult = document.getElementById("currentPredictionResult");
@@ -612,8 +607,6 @@ async function loadData() {
     document.getElementById('winRate').textContent = winRate + '%';
 
     document.getElementById("time").textContent = new Date().toLocaleTimeString();
-    
-    console.log(`📊 Stats - Win: ${winCount}, Loss: ${lossCount}, Total: ${total}, Win Rate: ${winRate}%`);
     
   } catch (e) {
     console.error("❌ Error loading data:", e);
