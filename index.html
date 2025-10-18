@@ -62,7 +62,6 @@
     font-size: 16px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    animation: typing 3s steps(40) infinite;
     white-space: nowrap;
   }
   
@@ -154,12 +153,8 @@
     height: 100%;
     background: linear-gradient(90deg, #ff0055, #ffaa00, #00ff41);
     border-radius: 5px;
-    animation: fillBar 2s ease-out;
+    transition: width 0.5s ease-out;
     position: relative;
-  }
-  
-  @keyframes fillBar {
-    0% { width: 0%; }
   }
   
   .confidence-fill::after {
@@ -189,6 +184,11 @@
   .confidence-high {
     color: #00ff41;
     text-shadow: 0 0 10px #00ff41;
+  }
+  
+  .confidence-medium {
+    color: #ffaa00;
+    text-shadow: 0 0 10px #ffaa00;
   }
   
   .confidence-low {
@@ -602,6 +602,7 @@ function drawMatrix(){
 }
 setInterval(drawMatrix,50);
 
+// Main Application Logic
 (function() {
   const _0x4a=['\x42\x69\x67','\x53\x6d\x61\x6c\x6c','\x77\x69\x6e','\x6c\x6f\x73\x73'];
   let _p=null,_c=null,_h=[],_lp=null,_ct;
@@ -609,8 +610,6 @@ setInterval(drawMatrix,50);
   const _d=h=>{let s='';for(let i=0;i<h.length;i+=2){s+=String.fromCharCode(parseInt(h.substr(i,2),16));}return s;};
   
   const _k={
-    s1:[2,4,5,9],
-    s2:[1,3,4,5,7],
     u1:_d('68747470733a2f2f647261772e61722d6c6f74746572793031'),
     u2:_d('2e636f6d2f57696e476f2f57696e476f5f314d2f'),
     u3:_d('476574486973746f7279497373756550616765'),
@@ -634,7 +633,6 @@ setInterval(drawMatrix,50);
   const _a=(d)=>{
     let cs=0,cb=0,sc=0,bc=0;
     
-    // Count consecutive and total frequency
     for(let i=0;i<d.length;i++){
       if(d[i]===_0x4a[1]){
         cs++;cb=0;sc++;
@@ -643,36 +641,28 @@ setInterval(drawMatrix,50);
       }
     }
     
-    // Advanced pattern detection
     let conf=50;
     let pred='';
     
-    // Rule 1: Strong consecutive pattern (3+ same)
     if(cs>=3){
       pred=_0x4a[0];
       conf=70+Math.min(cs*5,25);
     }else if(cb>=3){
       pred=_0x4a[1];
       conf=70+Math.min(cb*5,25);
-    }
-    // Rule 2: Frequency imbalance in last 10
-    else if(sc>=7){
+    }else if(sc>=7){
       pred=_0x4a[0];
       conf=60+((sc-7)*5);
     }else if(bc>=7){
       pred=_0x4a[1];
       conf=60+((bc-7)*5);
-    }
-    // Rule 3: Recent 2 consecutive
-    else if(cs===2){
+    }else if(cs===2){
       pred=_0x4a[0];
       conf=55;
     }else if(cb===2){
       pred=_0x4a[1];
       conf=55;
-    }
-    // Rule 4: Default (less frequent)
-    else{
+    }else{
       pred=sc>bc?_0x4a[0]:_0x4a[1];
       conf=45;
     }
@@ -767,6 +757,8 @@ setInterval(drawMatrix,50);
       
       if(_c.c>=70){
         cl.innerHTML='<span class="confidence-high">HIGH CONFIDENCE</span>';
+      }else if(_c.c>=55){
+        cl.innerHTML='<span class="confidence-medium">MEDIUM CONFIDENCE</span>';
       }else{
         cl.innerHTML='<span class="confidence-low">LOW CONFIDENCE</span>';
       }
@@ -826,18 +818,4 @@ setInterval(drawMatrix,50);
         tr.appendChild(tdn);
         tr.appendChild(tds);
         tr.appendChild(tdc);
-        tr.appendChild(tdr);
-        tb.appendChild(tr);
-      });
-
-      const to=wc+lc;
-      const wrt=to>0?Math.round((wc/to)*100):0;
-      document.getElementById('wc').textContent=wc;
-      document.getElementById('lc').textContent=lc;
-      document.getElementById('tc').textContent=to;
-      document.getElementById('wr').textContent=wrt+'%';
-    }catch(e){
-      const _em=_d('5b204552524f52205d');
-      document.getElementById("tb").innerHTML=`<tr><td colspan="5" class="loading">${_em}</td></tr>`;
-    }
-  
+        tr.
