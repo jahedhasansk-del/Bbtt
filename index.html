@@ -268,6 +268,7 @@
 let predictionHistory = {};
 let lastProcessedPeriod = null;
 let nextPeriodPrediction = null;
+let predictedForNextPeriod = null; // পরবর্তী কোন period এর জন্য prediction করা হয়েছে
 
 // localStorage থেকে পুরনো history load করা
 function loadPredictionHistory() {
@@ -276,6 +277,21 @@ function loadPredictionHistory() {
     if (saved) {
       predictionHistory = JSON.parse(saved);
       console.log("📂 Loaded prediction history:", Object.keys(predictionHistory).length, "entries");
+    }
+    
+    const savedLastPeriod = localStorage.getItem('wingoLastPeriod');
+    if (savedLastPeriod) {
+      lastProcessedPeriod = savedLastPeriod;
+    }
+    
+    const savedNextPrediction = localStorage.getItem('wingoNextPrediction');
+    if (savedNextPrediction) {
+      nextPeriodPrediction = savedNextPrediction;
+    }
+    
+    const savedPredictedPeriod = localStorage.getItem('wingoPredictedForPeriod');
+    if (savedPredictedPeriod) {
+      predictedForNextPeriod = savedPredictedPeriod;
     }
   } catch (e) {
     console.error("Error loading history:", e);
@@ -286,6 +302,15 @@ function loadPredictionHistory() {
 function savePredictionHistory() {
   try {
     localStorage.setItem('wingoPredictionHistory', JSON.stringify(predictionHistory));
+    if (lastProcessedPeriod) {
+      localStorage.setItem('wingoLastPeriod', lastProcessedPeriod);
+    }
+    if (nextPeriodPrediction) {
+      localStorage.setItem('wingoNextPrediction', nextPeriodPrediction);
+    }
+    if (predictedForNextPeriod) {
+      localStorage.setItem('wingoPredictedForPeriod', predictedForNextPeriod);
+    }
     console.log("💾 Saved prediction history:", Object.keys(predictionHistory).length, "entries");
   } catch (e) {
     console.error("Error saving history:", e);
@@ -395,17 +420,22 @@ async function loadData() {
     // নতুন period এসেছে কিনা check করা
     if (lastProcessedPeriod && currentLatestPeriod !== lastProcessedPeriod) {
       // নতুন result এসেছে!
-      console.log(`🆕 New period detected: ${currentLatestPeriod}`);
+      console.log(`🆕 New period detected: ${currentLatestPeriod} (Previous: ${lastProcessedPeriod})`);
       
-      // আগের prediction ছিল এবং সেটা এই নতুন period এর জন্যই ছিল
-      if (nextPeriodPrediction) {
+      // যদি আমরা এই period এর জন্য prediction করে রেখেছিলাম
+      if (predictedForNextPeriod && predictedForNextPeriod === currentLatestPeriod && nextPeriodPrediction) {
         // এই নতুন period এর actual result
         const newResultNum = list[0].result || list[0].number || list[0].num || list[0].openResult;
         const newActualSize = parseInt(newResultNum) >= 5 ? 'Big' : 'Small';
         
         // Prediction save করা
         predictionHistory[currentLatestPeriod] = nextPeriodPrediction;
-        console.log(`✅ Saved prediction for ${currentLatestPeriod}: ${nextPeriodPrediction}, Actual: ${newActualSize}`);
+        console.log(`✅ Matched! Saved prediction for ${currentLatestPeriod}: Predicted=${nextPeriodPrediction}, Actual=${newActualSize}`);
+        
+        // Reset prediction variables
+        nextPeriodPrediction = null;
+        predictedForNextPeriod = null;
+        
         savePredictionHistory(); // localStorage এ save করা
       }
     }
@@ -413,10 +443,18 @@ async function loadData() {
     // Update করা শেষ processed period
     lastProcessedPeriod = currentLatestPeriod;
     
+    // পরবর্তী period number calculate করা (assuming period increases by 1)
+    const currentPeriodNum = parseInt(currentLatestPeriod);
+    const nextPeriodNum = currentPeriodNum + 1;
+    predictedForNextPeriod = nextPeriodNum.toString();
+    
     // পরবর্তী period এর জন্য prediction calculate করা
     const nextPredictionData = analyzePrediction(sizeHistory);
     nextPeriodPrediction = nextPredictionData.prediction;
-    console.log(`🔮 Next prediction ready: ${nextPeriodPrediction}`);
+    console.log(`🔮 Next prediction for period ${predictedForNextPeriod}: ${nextPeriodPrediction}`);
+    
+    // Save করা
+    savePredictionHistory();
 
     // Table এ data show করা
     list.forEach((item, index) => {
@@ -506,7 +544,7 @@ async function loadData() {
     const patternInfo = document.getElementById("patternInfo");
     
     predictionResult.innerHTML = `<span class="prediction-${nextPredictionData.prediction.toLowerCase()}">${nextPredictionData.prediction}</span>`;
-    patternInfo.textContent = `📊 ${nextPredictionData.pattern} | Confidence: ${nextPredictionData.confidence}`;
+    patternInfo.textContent = `📊 ${nextPredictionData.pattern} | Confidence: ${nextPredictionData.confidence} | For Period: ${predictedForNextPeriod}`;
 
     document.getElementById("time").textContent = new Date().toLocaleTimeString();
   } catch (e) {
