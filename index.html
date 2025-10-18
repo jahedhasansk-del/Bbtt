@@ -273,19 +273,39 @@
     to { transform: rotate(360deg); }
   }
   
-  .countdown-timer {
+  .time-display {
     background: rgba(255, 255, 255, 0.2);
-    padding: 10px 20px;
+    padding: 15px 30px;
     border-radius: 25px;
     display: inline-block;
     margin-top: 10px;
     backdrop-filter: blur(10px);
   }
   
-  .countdown-number {
-    font-size: 18px;
+  .current-time {
+    font-size: 32px;
     font-weight: bold;
     color: #ffd700;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+  }
+  
+  .seconds-highlight {
+    color: #ff4444;
+    font-size: 36px;
+    animation: pulse 1s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  .next-update-info {
+    font-size: 14px;
+    color: #ffffff;
+    margin-top: 8px;
+    opacity: 0.9;
   }
   
   .loading {
@@ -328,12 +348,12 @@
       font-size: 14px;
     }
     
-    .countdown-timer {
-      padding: 8px 15px;
+    .current-time {
+      font-size: 24px;
     }
     
-    .countdown-number {
-      font-size: 16px;
+    .time-display {
+      padding: 10px 20px;
     }
   }
 </style>
@@ -410,10 +430,9 @@
   </div>
   
   <p class="update-time">
-    Last update: <span id="time">--:--:--</span>
-    <br>
-    <span class="countdown-timer">
-      Next update in: <span class="countdown-number" id="countdown">59</span>s
+    <span class="time-display">
+      <div class="current-time" id="realTime">00:00:00</div>
+      <div class="next-update-info" id="updateInfo">Waiting for :59...</div>
     </span>
   </p>
 </div>
@@ -428,42 +447,56 @@ let previousPrediction = null;
 let currentPrediction = null;
 let resultHistory = [];
 let lastCheckedPeriod = null;
-let countdown = 59;
-let countdownTimer;
-let autoRefreshTimer;
+let clockTimer;
 
-function updateCountdown() {
-  const countdownEl = document.getElementById('countdown');
-  if (countdownEl) {
-    countdownEl.textContent = countdown;
+function updateClock() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+  const timeEl = document.getElementById('realTime');
+  const infoEl = document.getElementById('updateInfo');
+  
+  if (timeEl) {
+    // সেকেন্ডটা হাইলাইট করুন
+    timeEl.innerHTML = `${hours}:${minutes}:<span class="seconds-highlight">${seconds}</span>`;
   }
   
-  if (countdown <= 0) {
-    countdown = 59;
+  // যখন 59 সেকেন্ড হবে
+  if (now.getSeconds() === 59) {
+    if (infoEl) {
+      infoEl.textContent = '🔄 Updating now...';
+      infoEl.style.color = '#4CAF50';
+    }
     loadData();
+    console.log('⏰ Auto-refresh at :59 seconds -', now.toLocaleTimeString());
   } else {
-    countdown--;
+    const secondsUntil59 = 59 - now.getSeconds();
+    if (infoEl) {
+      infoEl.textContent = `Next update in ${secondsUntil59}s (at :59)`;
+      infoEl.style.color = '#ffffff';
+    }
   }
 }
 
-function startCountdown() {
-  countdown = 59;
-  clearInterval(countdownTimer);
-  countdownTimer = setInterval(updateCountdown, 1000);
+function startClock() {
+  updateClock(); // তাৎক্ষণিক আপডেট
+  clearInterval(clockTimer);
+  clockTimer = setInterval(updateClock, 1000); // প্রতি সেকেন্ডে
 }
 
 function manualRefresh() {
   const icon = document.getElementById('refreshIcon');
-  icon.classList.add('spinning');
+  if (icon) {
+    icon.classList.add('spinning');
+    setTimeout(() => {
+      icon.classList.remove('spinning');
+    }, 500);
+  }
   
-  setTimeout(() => {
-    icon.classList.remove('spinning');
-  }, 500);
-  
-  countdown = 59;
   loadData();
-  
-  console.log('🔄 Manual refresh triggered');
+  console.log('🔄 Manual refresh at', new Date().toLocaleTimeString());
 }
 
 function getColors(number, color) {
@@ -531,11 +564,8 @@ async function loadData() {
     const ts = new Date().getTime();
     const url = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
     
-    console.log(`\n🌐 Fetching API...`);
     const res = await fetch(url);
     const data = await res.json();
-    
-    console.log(`📦 API Response:`, data);
 
     let list = [];
     if (data && data.data && data.data.list) {
@@ -544,11 +574,6 @@ async function loadData() {
       list = data.list.slice(0, 10);
     } else if (Array.isArray(data)) {
       list = data.slice(0, 10);
-    }
-    
-    console.log(`📋 List Length: ${list.length}`);
-    if (list.length > 0) {
-      console.log(`📋 First Item:`, list[0]);
     }
 
     const table = document.getElementById("historyTable");
@@ -564,15 +589,6 @@ async function loadData() {
     const topNumber = String(topSlot.result || topSlot.number || topSlot.num || topSlot.openResult || '');
     const topSize = parseInt(topNumber) >= 5 ? 'Big' : 'Small';
 
-    console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-    console.log(`⏰ UPDATE TIME: ${new Date().toLocaleTimeString()}`);
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-    console.log(`📍 TOP SLOT INFO:`);
-    console.log(`   Period: "${topPeriod}" (type: ${typeof topPeriod})`);
-    console.log(`   Number: ${topNumber}`);
-    console.log(`   Actual Size: ${topSize}`);
-    console.log(`   Last Checked Period: "${lastCheckedPeriod}"`);
-
     const sizeHistory = list.map(item => {
       const resultNum = item.result || item.number || item.num || item.openResult || "?";
       const numValue = parseInt(resultNum);
@@ -581,26 +597,10 @@ async function loadData() {
 
     const predictionData = analyzePrediction(sizeHistory);
     currentPrediction = predictionData;
-    
-    console.log(`\n🔮 CURRENT PREDICTION (for next round):`);
-    console.log(`   Prediction: ${currentPrediction.prediction}`);
-    console.log(`   Pattern: ${currentPrediction.pattern}`);
 
     if (lastCheckedPeriod !== topPeriod) {
-      console.log(`\n🆕 NEW PERIOD DETECTED!`);
-      console.log(`   Old: "${lastCheckedPeriod}"`);
-      console.log(`   New: "${topPeriod}"`);
-      console.log(`   Are Different: ${lastCheckedPeriod !== topPeriod}`);
-      
       if (previousPrediction) {
-        console.log(`\n📋 PREVIOUS PREDICTION (checking now):`);
-        console.log(`   Was Predicted: ${previousPrediction.prediction}`);
-        console.log(`   Actual Result: ${topSize}`);
-        
         const isMatch = previousPrediction.prediction === topSize;
-        
-        console.log(`   🔍 Comparison: "${previousPrediction.prediction}" === "${topSize}" = ${isMatch}`);
-        console.log(`   ✅ RESULT: ${isMatch ? '🎉 WIN!' : '❌ LOSS!'}`);
         
         const resultEntry = {
           period: topPeriod,
@@ -615,27 +615,11 @@ async function loadData() {
         if (resultHistory.length > 50) {
           resultHistory = resultHistory.slice(0, 50);
         }
-        
-        console.log(`\n💾 SAVED TO RESULT HISTORY!`);
-        console.log(`   Result History Length: ${resultHistory.length}`);
-        console.log(`   Latest Entry:`, resultEntry);
-        console.log(`   All Periods in History:`, resultHistory.map(r => r.period));
-      } else {
-        console.log(`\n⚠️ No previous prediction to check yet (first run)`);
       }
 
       previousPrediction = {...currentPrediction};
       lastCheckedPeriod = topPeriod;
-      console.log(`\n🔄 UPDATED:`);
-      console.log(`   Previous Prediction: ${previousPrediction.prediction}`);
-      console.log(`   Last Checked Period: "${lastCheckedPeriod}"`);
-    } else {
-      console.log(`\n♻️ SAME PERIOD - NO CHECK NEEDED`);
-      console.log(`   Current Period: "${topPeriod}"`);
-      console.log(`   Already Checked: "${lastCheckedPeriod}"`);
     }
-    
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
 
     const prevResult = document.getElementById("previousPredictionResult");
     const prevPattern = document.getElementById("previousPatternInfo");
@@ -716,21 +700,9 @@ async function loadData() {
       
       const tdResult = document.createElement("td");
       
-      const matchedResult = resultHistory.find(r => {
-        const match = String(r.period) === String(periodValue);
-        if (index === 0) {
-          console.log(`🔍 Checking period ${periodValue}:`, {
-            historyPeriod: r.period,
-            currentPeriod: periodValue,
-            match: match,
-            result: r.result
-          });
-        }
-        return match;
-      });
+      const matchedResult = resultHistory.find(r => String(r.period) === String(periodValue));
       
       if (matchedResult) {
-        console.log(`✅ FOUND MATCH for period ${periodValue}: ${matchedResult.result.toUpperCase()}`);
         if (matchedResult.result === 'win') {
           tdResult.className = "result-cell result-win";
           tdResult.textContent = "✅ WIN";
@@ -739,10 +711,6 @@ async function loadData() {
           tdResult.textContent = "❌ LOSS";
         }
       } else {
-        if (index === 0 && resultHistory.length > 0) {
-          console.log(`❌ NO MATCH for period ${periodValue}`);
-          console.log(`   Available periods:`, resultHistory.map(r => r.period));
-        }
         tdResult.textContent = "-";
       }
       
@@ -762,11 +730,20 @@ async function loadData() {
     document.getElementById('lossCount').textContent = lossCount;
     document.getElementById('totalCount').textContent = total;
     document.getElementById('winRate').textContent = winRate + '%';
-
-    document.getElementById("time").textContent = new Date().toLocaleTimeString();
     
-    console.log(`\n📊 STATISTICS:`);
-    console.log(`   Win: ${winCount} | Loss: ${lossCount} | Total: ${total} | Win Rate: ${winRate}%`);
-    console.log(`   Result History has ${resultHistory.length} entries`);
-    if (resultHistory.length > 0) {
-      cons
+  } catch (e) {
+    console.error("❌ Error:", e);
+    document.getElementById("historyTable").innerHTML = 
+      '<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
+  }
+}
+
+// সিস্টেম শুরু করুন
+loadData(); // প্রথম লোড
+startClock(); // রিয়েল টাইম ক্লক শুরু
+
+console.log('✅ System started - Will auto-refresh at every :59 seconds');
+</script>
+
+</body>
+</html>
