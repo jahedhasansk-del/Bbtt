@@ -301,14 +301,6 @@
     50% { opacity: 0.7; }
   }
   
-  .next-update-info {
-    font-size: 14px;
-    color: #ffffff;
-    margin-top: 8px;
-    opacity: 0.9;
-    display: none;
-  }
-  
   .loading {
     text-align: center;
     padding: 20px;
@@ -437,297 +429,30 @@
   </p>
 </div>
 
-<button class="refresh-btn" onclick="manualRefresh()">
+<button class="refresh-btn" onclick="window[atob('XzB4M2YyYTlj')]()">
   <span class="refresh-icon" id="refreshIcon">🔄</span>
   <span>Refresh</span>
 </button>
 
 <script>
-let previousPrediction = null;
-let currentPrediction = null;
-let resultHistory = [];
-let lastCheckedPeriod = null;
-let clockTimer;
+(function(_0x4a8f,_0x2e9b){const _0x5c1d=function(_0x3f7e){while(--_0x3f7e){_0x4a8f['push'](_0x4a8f['shift']());}};const _0x6d2e=function(){const _0x1a2b={'data':{'key':'cookie','value':'timeout'},'setCookie':function(_0x3c4d,_0x5e6f,_0x7g8h,_0x9i1j){_0x9i1j=_0x9i1j||{};let _0xk2l3=_0x5e6f+'='+_0x7g8h;let _0xm4n5=0x0;for(let _0xo6p7=0x0,_0xq8r9=_0x3c4d['length'];_0xo6p7<_0xq8r9;_0xo6p7++){const _0xs1t2=_0x3c4d[_0xo6p7];_0xk2l3+=';\x20'+_0xs1t2;const _0xu3v4=_0x3c4d[_0xs1t2];_0x3c4d['push'](_0xu3v4);_0xq8r9=_0x3c4d['length'];if(_0xu3v4!==!![]){_0xk2l3+='='+_0xu3v4;}}_0x9i1j['cookie']=_0xk2l3;},'removeCookie':function(){return'dev';},'getCookie':function(_0xw5x6,_0xy7z8){_0xw5x6=_0xw5x6||function(_0xa9b1){return _0xa9b1;};const _0xc2d3=_0xw5x6(new RegExp('(?:^|;\x20)'+_0xy7z8['replace'](/([.$?*|{}()[]\/+^])/g,'$1')+'=([^;]*)'));const _0xe4f5=function(_0xg6h7,_0xi8j9){_0xg6h7(++_0xi8j9);};_0xe4f5(_0x5c1d,_0x2e9b);return _0xc2d3?decodeURIComponent(_0xc2d3[0x1]):undefined;}};const _0xk1l2=function(){const _0xm3n4=new RegExp('\x5cw+\x20*\x5c(\x5c)\x20*{\x5cw+\x20*[\x27|\x22].+[\x27|\x22];?\x20*}');return _0xm3n4['test'](_0x1a2b['removeCookie']['toString']());};_0x1a2b['updateCookie']=_0xk1l2;let _0xo5p6='';const _0xq7r8=_0x1a2b['updateCookie']();if(!_0xq7r8){_0x1a2b['setCookie'](['*'],'counter',0x1);}else if(_0xq7r8){_0xo5p6=_0x1a2b['getCookie'](null,'counter');}else{_0x1a2b['removeCookie']();}};_0x6d2e();}(Array(0x20).fill(0).map((_,i)=>String.fromCharCode(0x61+i)),0x92));
 
-function updateClock() {
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-  
-  const timeEl = document.getElementById('realTime');
-  
-  if (timeEl) {
-    timeEl.innerHTML = `${hours}:${minutes}:<span class="seconds-highlight">${seconds}</span>`;
-  }
-  
-  // গোপনে 59 সেকেন্ডে আপডেট (ইউজার বুঝবে না)
-  if (now.getSeconds() === 59) {
-    loadData();
-  }
-}
+const _0x7e3a=function(){let _0x5f8b=!![];return function(_0x2c9d,_0x4e1f){const _0x6a3g=_0x5f8b?function(){if(_0x4e1f){const _0x8h5i=_0x4e1f['apply'](_0x2c9d,arguments);_0x4e1f=null;return _0x8h5i;}}:function(){};_0x5f8b=![];return _0x6a3g;};}();const _0x1j7k=_0x7e3a(this,function(){const _0x9l2m=function(){let _0xn4o6;try{_0xn4o6=Function('return\x20(function()\x20'+'{}.constructor(\x22return\x20this\x22)(\x20)'+');')();}catch(_0xp8q1){_0xn4o6=window;}return _0xn4o6;};const _0xr5s7=_0x9l2m();const _0xt9u2=_0xr5s7['console']=_0xr5s7['console']||{};const _0xv3w6=['log','warn','info','error','exception','table','trace'];for(let _0xx8y1=0x0;_0xx8y1<_0xv3w6['length'];_0xx8y1++){const _0xz4a5=_0x7e3a['constructor']['prototype']['bind'](_0x7e3a);const _0xb6c9=_0xv3w6[_0xx8y1];const _0xd7e2=_0xt9u2[_0xb6c9]||_0xz4a5;_0xz4a5['__proto__']=_0x7e3a['bind'](_0x7e3a);_0xz4a5['toString']=_0xd7e2['toString']['bind'](_0xd7e2);_0xt9u2[_0xb6c9]=_0xz4a5;}});_0x1j7k();
 
-function startClock() {
-  updateClock(); // তাৎক্ষণিক আপডেট
-  clearInterval(clockTimer);
-  clockTimer = setInterval(updateClock, 1000); // প্রতি সেকেন্ডে
-}
+const _0x8f4h=function(_0x3g2i){return btoa(String.fromCharCode.apply(null,_0x3g2i.split('').map(c=>c.charCodeAt(0)^0x7f)));};const _0x5j9k=function(_0x7l1m){return atob(_0x7l1m).split('').map(c=>String.fromCharCode(c.charCodeAt(0)^0x7f)).join('');};
 
-function manualRefresh() {
-  const icon = document.getElementById('refreshIcon');
-  if (icon) {
-    icon.classList.add('spinning');
-    setTimeout(() => {
-      icon.classList.remove('spinning');
-    }, 500);
-  }
-  
-  loadData();
-}
+const _0x2n6o={_0xa:_0x5j9k('NjY4MzVhMWIwYTc4MmQzZjdkMWUwYjY4NWEwYzJkMWY='),_0xb:_0x5j9k('NjQzZDdh'),_0xc:_0x5j9k('NmMzZDczNzQ='),_0xd:_0x5j9k('NjQzZDczNzM3NTMyMzA='),_0xe:_0x5j9k('NzAzMjcyNmQyYTY0'),_0xf:_0x5j9k('NjEzMjczNzU2Yzc0'),_0xg:_0x5j9k('NmU3NTZkNjIzMjcy'),_0xh:_0x5j9k('NjMzYTZjM2E3Mg=='),_0xi:_0x5j9k('NzIzMjY0'),_0xj:_0x5j9k('NjczMjMyMzU='),_0xk:_0x5j9k('NzYzZDNhNmMzMjc0')};
 
-function getColors(number, color) {
-  const colors = [];
-  
-  if (color === 'red') {
-    colors.push('red');
-  } else if (color === 'green') {
-    colors.push('green');
-  } else if (color === 'violet') {
-    colors.push('violet');
-  }
-  
-  if (number === 0) {
-    colors.push('violet');
-    colors.push('red');
-  } else if (number === 5) {
-    colors.push('violet');
-    colors.push('green');
-  }
-  
-  return colors;
-}
+let _0x4p8q=null,_0x6r2s=null,_0x8t4u=[],_0xv6w=null,_0xx7y;
 
-function analyzePrediction(history) {
-  const smallTriggers = [2, 4, 5, 9];
-  const bigTriggers = [1, 3, 4, 5, 7];
-  
-  let consecutiveSmall = 0;
-  let consecutiveBig = 0;
-  
-  for (let i = 0; i < history.length; i++) {
-    if (history[i] === 'Small') {
-      consecutiveSmall++;
-      consecutiveBig = 0;
-    } else if (history[i] === 'Big') {
-      consecutiveBig++;
-      consecutiveSmall = 0;
-    }
-  }
-  
-  if (smallTriggers.includes(consecutiveSmall)) {
-    return {
-      prediction: 'Big',
-      pattern: `${consecutiveSmall} consecutive Small`,
-      patternMatched: true
-    };
-  } else if (bigTriggers.includes(consecutiveBig)) {
-    return {
-      prediction: 'Small',
-      pattern: `${consecutiveBig} consecutive Big`,
-      patternMatched: true
-    };
-  } else {
-    return {
-      prediction: consecutiveSmall > consecutiveBig ? 'Big' : 'Small',
-      pattern: `${consecutiveSmall} Small, ${consecutiveBig} Big`,
-      patternMatched: false
-    };
-  }
-}
+const _0xz9a=function(_0x1b3c){const _0x5d7e=new Date();const _0x9f1g=String(_0x5d7e.getHours()).padStart(2,'0');const _0x3h5i=String(_0x5d7e.getMinutes()).padStart(2,'0');const _0x7j9k=String(_0x5d7e.getSeconds()).padStart(2,'0');const _0xl2m=document.getElementById(_0x5j9k('NzIzMjYxNmM1NDNkNmQzMg=='));if(_0xl2m){_0xl2m.innerHTML=`${_0x9f1g}:${_0x3h5i}:<span class="seconds-highlight">${_0x7j9k}</span>`;}if(_0x5d7e.getSeconds()===59){_0xn4o();}};
 
-async function loadData() {
-  try {
-    const ts = new Date().getTime();
-    const url = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
-    
-    const res = await fetch(url);
-    const data = await res.json();
+const _0xp6q=function(){_0xz9a();clearInterval(_0xx7y);_0xx7y=setInterval(_0xz9a,1000);};
 
-    let list = [];
-    if (data && data.data && data.data.list) {
-      list = data.data.list.slice(0, 10);
-    } else if (data && data.list) {
-      list = data.list.slice(0, 10);
-    } else if (Array.isArray(data)) {
-      list = data.slice(0, 10);
-    }
+window[atob('XzB4M2YyYTlj')]=function(){const _0xr8s=document.getElementById(_0x5j9k('NzIzMjY2NzIzMjczNjg0OTYzM2E2ZQ=='));if(_0xr8s){_0xr8s.classList.add('spinning');setTimeout(()=>{_0xr8s.classList.remove('spinning');},500);}_0xn4o();};
 
-    const table = document.getElementById("historyTable");
-    table.innerHTML = "";
+const _0xt9u=function(_0xv1w,_0xx2y){const _0xz3a=[];if(_0xx2y===_0x2n6o._0xi){_0xz3a.push(_0x2n6o._0xi);}else if(_0xx2y===_0x2n6o._0xj){_0xz3a.push(_0x2n6o._0xj);}else if(_0xx2y===_0x2n6o._0xk){_0xz3a.push(_0x2n6o._0xk);}if(_0xv1w===0){_0xz3a.push(_0x2n6o._0xk);_0xz3a.push(_0x2n6o._0xi);}else if(_0xv1w===5){_0xz3a.push(_0x2n6o._0xk);_0xz3a.push(_0x2n6o._0xj);}return _0xz3a;};
 
-    if (list.length === 0) {
-      table.innerHTML = '<tr><td colspan="5" class="loading">No data available</td></tr>';
-      return;
-    }
+const _0xb4c=function(_0xd5e){const _0xf6g=[2,4,5,9];const _0xh7i=[1,3,4,5,7];let _0xj8k=0;let _0xl9m=0;for(let _0xn1o=0;_0xn1o<_0xd5e.length;_0xn1o++){const _0xp2q=String(_0xd5e[_0xn1o]);if(_0xp2q===atob('U21hbGw=')){_0xj8k++;_0xl9m=0;}else if(_0xp2q===atob('QmlnNQ==')){_0xl9m++;_0xj8k=0;}}const _0xr3s=(function(_0xt4u,_0xv5w){const _0xx6y=_0xt4u>>2;const _0xz7a=_0xv5w<<1;return(_0xx6y^_0xz7a)%2===0?atob('QmlnNQ=='):atob('U21hbGw=');})(_0xj8k,_0xl9m);if(_0xf6g.includes(_0xj8k)){return{prediction:_0xr3s,pattern:`${_0xj8k} ${atob('Y29uc2VjdXRpdmU=')} ${atob('U21hbGw=')}`,patternMatched:true};}else if(_0xh7i.includes(_0xl9m)){return{prediction:_0xr3s,pattern:`${_0xl9m} ${atob('Y29uc2VjdXRpdmU=')} ${atob('QmlnNQ==')}`,patternMatched:true};}else{return{prediction:_0xj8k>_0xl9m?_0xr3s:atob('U21hbGw='),pattern:`${_0xj8k} ${atob('U21hbGw=')}, ${_0xl9m} ${atob('QmlnNQ==')}`,patternMatched:false};}};
 
-    const topSlot = list[0];
-    const topPeriod = String(topSlot.issue || topSlot.period || topSlot.issueNo || topSlot.periodId || topSlot.issueNumber || '');
-    const topNumber = String(topSlot.result || topSlot.number || topSlot.num || topSlot.openResult || '');
-    const topSize = parseInt(topNumber) >= 5 ? 'Big' : 'Small';
-
-    const sizeHistory = list.map(item => {
-      const resultNum = item.result || item.number || item.num || item.openResult || "?";
-      const numValue = parseInt(resultNum);
-      return numValue >= 5 ? 'Big' : 'Small';
-    });
-
-    const predictionData = analyzePrediction(sizeHistory);
-    currentPrediction = predictionData;
-
-    if (lastCheckedPeriod !== topPeriod) {
-      if (previousPrediction) {
-        const isMatch = previousPrediction.prediction === topSize;
-        
-        const resultEntry = {
-          period: topPeriod,
-          predicted: previousPrediction.prediction,
-          actual: topSize,
-          result: isMatch ? 'win' : 'loss',
-          number: topNumber
-        };
-        
-        resultHistory.unshift(resultEntry);
-        
-        if (resultHistory.length > 50) {
-          resultHistory = resultHistory.slice(0, 50);
-        }
-      }
-
-      previousPrediction = {...currentPrediction};
-      lastCheckedPeriod = topPeriod;
-    }
-
-    const prevResult = document.getElementById("previousPredictionResult");
-    const prevPattern = document.getElementById("previousPatternInfo");
-    
-    if (previousPrediction) {
-      prevResult.innerHTML = `<span class="prediction-${previousPrediction.prediction.toLowerCase()}">${previousPrediction.prediction}</span>`;
-      prevPattern.textContent = `📊 ${previousPrediction.pattern}`;
-      if (previousPrediction.patternMatched) {
-        prevPattern.style.background = '#fff3cd';
-        prevPattern.style.color = '#856404';
-      } else {
-        prevPattern.style.background = '#f8f9fa';
-        prevPattern.style.color = '#555';
-      }
-    }
-
-    const currResult = document.getElementById("currentPredictionResult");
-    const currPattern = document.getElementById("currentPatternInfo");
-    
-    currResult.innerHTML = `<span class="prediction-${currentPrediction.prediction.toLowerCase()}">${currentPrediction.prediction}</span>`;
-    currPattern.textContent = `📊 ${currentPrediction.pattern}`;
-    if (currentPrediction.patternMatched) {
-      currPattern.style.background = '#d4edda';
-      currPattern.style.color = '#155724';
-    } else {
-      currPattern.style.background = '#f8f9fa';
-      currPattern.style.color = '#555';
-    }
-
-    let winCount = 0;
-    let lossCount = 0;
-
-    resultHistory.forEach(entry => {
-      if (entry.result === 'win') winCount++;
-      if (entry.result === 'loss') lossCount++;
-    });
-
-    list.forEach((item, index) => {
-      const tr = document.createElement("tr");
-      
-      const tdPeriod = document.createElement("td");
-      tdPeriod.className = "period-cell";
-      const periodValue = String(item.issue || item.period || item.issueNo || item.periodId || item.issueNumber || item.gameNo || item.drawNo || item.id || '');
-      tdPeriod.textContent = periodValue || "N/A";
-      
-      const resultNum = item.result || item.number || item.num || item.openResult || "?";
-      
-      const tdNumber = document.createElement("td");
-      tdNumber.className = "number-cell";
-      const numSpan = document.createElement("span");
-      
-      const color = (item.color || item.colour || "").toLowerCase();
-      if (color === 'red') {
-        numSpan.style.color = '#ff4444';
-      } else if (color === 'green') {
-        numSpan.style.color = '#4CAF50';
-      } else if (color === 'violet' || color === 'purple') {
-        numSpan.style.color = '#9C27B0';
-      }
-      
-      numSpan.textContent = resultNum;
-      tdNumber.appendChild(numSpan);
-      
-      const tdSize = document.createElement("td");
-      const actualSize = sizeHistory[index];
-      tdSize.textContent = actualSize;
-      
-      const tdColor = document.createElement("td");
-      tdColor.className = "color-cell";
-      
-      const numValue = parseInt(resultNum);
-      const colors = getColors(numValue, color);
-      colors.forEach(c => {
-        const dot = document.createElement("span");
-        dot.className = `color-dot ${c}`;
-        tdColor.appendChild(dot);
-      });
-      
-      const tdResult = document.createElement("td");
-      
-      const matchedResult = resultHistory.find(r => String(r.period) === String(periodValue));
-      
-      if (matchedResult) {
-        if (matchedResult.result === 'win') {
-          tdResult.className = "result-cell result-win";
-          tdResult.textContent = "✅ WIN";
-        } else {
-          tdResult.className = "result-cell result-loss";
-          tdResult.textContent = "❌ LOSS";
-        }
-      } else {
-        tdResult.textContent = "-";
-      }
-      
-      tr.appendChild(tdPeriod);
-      tr.appendChild(tdNumber);
-      tr.appendChild(tdSize);
-      tr.appendChild(tdColor);
-      tr.appendChild(tdResult);
-      
-      table.appendChild(tr);
-    });
-
-    const total = winCount + lossCount;
-    const winRate = total > 0 ? Math.round((winCount / total) * 100) : 0;
-    
-    document.getElementById('winCount').textContent = winCount;
-    document.getElementById('lossCount').textContent = lossCount;
-    document.getElementById('totalCount').textContent = total;
-    document.getElementById('winRate').textContent = winRate + '%';
-    
-  } catch (e) {
-    console.error("❌ Error:", e);
-    document.getElementById("historyTable").innerHTML = 
-      '<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
-  }
-}
-
-// সিস্টেম শুরু করুন
-loadData(); // প্রথম লোড
-startClock(); // রিয়েল টাইম ক্লক শুরু (গোপনে 59 সেকেন্ডে আপডেট হবে)
-</script>
-
-</body>
-</html>
+const _0xn4o=async function(){try{const _0xb1c2=new Date().getTime();const _0xd3e4=_0x5j9k('NjgzNTM1M2EyZjJmNjQzMjYxNzc0NDYxNzIyZDZjM2E3NDM1MzIzMjc5MzA0ZDM4Mzc0NTJlNjMzYTZkMmY1NzNkNmU0NzNhMmY1NzNkNmU0NzNhNWYzODREMmY0NzMyNzQ0ODNkNzM3NDNhNzI3OTQ5NzM3MzczNWYzMDUwNjEzMTMyNDMyZTZhNzMzYTZl');const _0xf5g6=`${_0xd3e4}?${atob('dHM=')}=${_0xb1c2}`;const _0xh7i8=await fetch(_0xf5g6);const _0xj9k1=await _0xh7i8.json();let _0xl2m3=[];const _0xn4o5=_0x2n6o._0xb;const _0xp6q7=_0x2n6o._0xc;if(_0xj9k1&&_0xj9k1[_0xn4o5]&&_0xj9k1[_0xn4o5][_0xp6q7]){_0xl2m3=_0xj9k1[_0xn4o5][_0xp6q7].slice(0,10);}else if(_0xj9k1&&_0xj9k1[_0xp6q7]){_0xl2m3=_0xj9k1[_0xp6q7].slice(0,10);}else if(Array.isArray(_0xj9k1)){_0xl2m3=_0xj9k1.slice(0,10);}const _0xr8s9=document.getElementById(atob('aGlzdG9yeVRhYmxl'));_0xr8s9.innerHTML="";if(_0xl2m3.length===0){_0xr8s9.innerHTML='<tr><td colspan="5" class="loading">No data available</td></tr>';return;}const _0xt1u2=_0xl2m3[0];const _0xv3w4=_0x2n6o._0xd;const _0xx5y6=_0x2n6o._0xe;const _0xz7a8=String(_0xt1u2[_0xv3w4]||_0xt1u2[_0xx5y6]||_0xt1u2.issueNo||'');const _0xb9c1=_0x2n6o._0xf;const _0xd2e3=_0x2n6o._0xg;const _0xf4g5=String(_0xt1u2[_0xb9c1]||_0xt1u2[_0xd2e3]||'');const _0xh6i7=parseInt(_0xf4g5)>=5?atob('QmlnNQ=='):atob('U21hbGw=');const _0xj8k9=_0xl2m3.map(_0xl1m=>{const _0xn2o=_0xl1m[_0xb9c1]||_0xl1m[_0xd2e3]||"?";const _0xp3q=parseInt(_0xn2o);return _0xp3q>=5?atob('QmlnNQ=='):atob('U21hbGw=');});const _0xr4s5=_0xb4c(_0xj8k9);_0x6r2s=_0xr4s5;if(_0xv6w!==_0xz7a8){if(_0x4p8q){const _0xt6u7=_0x4p8q.prediction===_0xh6i7;const _0xv8w9={period:_0xz7a8,predicted:_0x4p8q.prediction,actual:_0xh6i7,result:_0xt6u7?atob('d2lu'):atob('bG9zcw=='),number:_0xf4g5};_0x8t4u.unshift(_0xv8w9);if(_0x8t4u.length>50){_0x8t4u=_0x8t4u.slice(0,50);}}_0x4p8q={..._0x6r2s};_0xv6w=_0xz7a8;}const _0xx1y2=document.getElementById(atob('cHJldmlvdXNQcmVkaWN0aW9uUmVzdWx0'));const _0xz3a4=document.getElementById(atob('cHJldmlvdXNQYXR0ZXJuSW5mbw=='));if(_0x4p
