@@ -31,36 +31,48 @@
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
   }
   
+  .predictions-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+  
   .prediction-container {
     background: #ffffff;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    margin-bottom: 25px;
   }
   
   .prediction-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 15px;
+    padding: 12px;
     text-align: center;
+  }
+  
+  .current-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .previous-header {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   }
   
   .prediction-header h3 {
     color: #ffffff;
-    font-size: 20px;
+    font-size: 16px;
     margin: 0;
   }
   
   .prediction-content {
-    padding: 25px;
+    padding: 20px;
     text-align: center;
   }
   
   .prediction-result {
-    font-size: 48px;
+    font-size: 36px;
     font-weight: bold;
-    margin-bottom: 15px;
-    animation: pulse 2s ease-in-out infinite;
+    margin-bottom: 10px;
   }
   
   .prediction-big {
@@ -72,21 +84,26 @@
   }
   
   .pattern-info {
-    font-size: 16px;
+    font-size: 13px;
     color: #555;
     background: #f8f9fa;
-    padding: 12px;
-    border-radius: 8px;
-    margin-top: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+  
+  .stats-container {
+    background: #ffffff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    margin-bottom: 25px;
+    padding: 20px;
   }
   
   .stats-info {
     display: flex;
     justify-content: space-around;
-    margin-top: 15px;
-    padding: 15px;
-    background: linear-gradient(135deg, #e8f5e9 0%, #ffebee 100%);
-    border-radius: 8px;
   }
   
   .stat-item {
@@ -101,7 +118,7 @@
   }
   
   .stat-value {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
   }
   
@@ -111,11 +128,6 @@
   
   .stat-loss {
     color: #ff4444;
-  }
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.05); }
   }
   
   .table-container {
@@ -227,6 +239,10 @@
   }
   
   @media (max-width: 600px) {
+    .predictions-wrapper {
+      grid-template-columns: 1fr;
+    }
+    
     th, td {
       padding: 8px 4px;
       font-size: 12px;
@@ -246,7 +262,7 @@
     }
     
     .prediction-result {
-      font-size: 36px;
+      font-size: 28px;
     }
   }
 </style>
@@ -256,33 +272,53 @@
 <div class="container">
   <h2>🎯 WinGo 1 Minute - Latest 10 Results</h2>
   
-  <!-- Prediction Box -->
-  <div class="prediction-container">
-    <div class="prediction-header">
-      <h3>🔮 Next Round Prediction</h3>
-    </div>
-    <div class="prediction-content">
-      <div class="prediction-result" id="predictionResult">
-        <div class="loading">Analyzing pattern...</div>
+  <!-- Dual Prediction Boxes -->
+  <div class="predictions-wrapper">
+    <!-- Previous Prediction -->
+    <div class="prediction-container">
+      <div class="prediction-header previous-header">
+        <h3>📋 Previous Prediction</h3>
       </div>
-      <div class="pattern-info" id="patternInfo"></div>
-      <div class="stats-info" id="statsInfo">
-        <div class="stat-item">
-          <div class="stat-label">Win</div>
-          <div class="stat-value stat-win" id="winCount">0</div>
+      <div class="prediction-content">
+        <div class="prediction-result" id="previousPredictionResult">
+          <div class="loading" style="font-size: 14px;">Waiting...</div>
         </div>
-        <div class="stat-item">
-          <div class="stat-label">Loss</div>
-          <div class="stat-value stat-loss" id="lossCount">0</div>
+        <div class="pattern-info" id="previousPatternInfo"></div>
+      </div>
+    </div>
+    
+    <!-- Current Prediction -->
+    <div class="prediction-container">
+      <div class="prediction-header current-header">
+        <h3>🔮 Current Prediction</h3>
+      </div>
+      <div class="prediction-content">
+        <div class="prediction-result" id="currentPredictionResult">
+          <div class="loading" style="font-size: 14px;">Analyzing...</div>
         </div>
-        <div class="stat-item">
-          <div class="stat-label">Total</div>
-          <div class="stat-value" id="totalCount" style="color: #2196F3;">0</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">Win Rate</div>
-          <div class="stat-value" id="winRate" style="color: #ff9800;">0%</div>
-        </div>
+        <div class="pattern-info" id="currentPatternInfo"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Statistics -->
+  <div class="stats-container">
+    <div class="stats-info">
+      <div class="stat-item">
+        <div class="stat-label">Win</div>
+        <div class="stat-value stat-win" id="winCount">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Loss</div>
+        <div class="stat-value stat-loss" id="lossCount">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Total</div>
+        <div class="stat-value" id="totalCount" style="color: #2196F3;">0</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Win Rate</div>
+        <div class="stat-value" id="winRate" style="color: #ff9800;">0%</div>
       </div>
     </div>
   </div>
@@ -310,9 +346,11 @@
 </div>
 
 <script>
-// Memory-based storage for results
+// Memory-based storage
+let previousPrediction = null; // আগের prediction
+let currentPrediction = null;  // বর্তমান prediction
 let resultHistory = [];
-let lastCheckedData = null;
+let lastTopPeriod = null; // শেষ যে top period check করা হয়েছে
 
 function getColors(number, color) {
   const colors = [];
@@ -325,7 +363,6 @@ function getColors(number, color) {
     colors.push('violet');
   }
   
-  // 0 এবং 5 এর জন্য violet এবং red/green দুটোই
   if (number === 0) {
     colors.push('violet');
     colors.push('red');
@@ -338,11 +375,9 @@ function getColors(number, color) {
 }
 
 function analyzePrediction(history) {
-  // প্যাটার্ন ম্যাচিং রুলস
   const smallTriggers = [2, 4, 5, 9];
   const bigTriggers = [1, 3, 4, 5, 7];
   
-  // সর্বশেষ থেকে শুরু করে Small এবং Big কাউন্ট করা
   let consecutiveSmall = 0;
   let consecutiveBig = 0;
   
@@ -356,80 +391,24 @@ function analyzePrediction(history) {
     }
   }
   
-  // প্রেডিকশন লজিক
   if (smallTriggers.includes(consecutiveSmall)) {
     return {
       prediction: 'Big',
       pattern: `${consecutiveSmall} consecutive Small`,
-      patternMatched: true,
-      triggerType: 'small'
+      patternMatched: true
     };
   } else if (bigTriggers.includes(consecutiveBig)) {
     return {
       prediction: 'Small',
       pattern: `${consecutiveBig} consecutive Big`,
-      patternMatched: true,
-      triggerType: 'big'
+      patternMatched: true
     };
   } else {
     return {
       prediction: consecutiveSmall > consecutiveBig ? 'Big' : 'Small',
-      pattern: `Current: ${consecutiveSmall} Small, ${consecutiveBig} Big`,
-      patternMatched: false,
-      triggerType: 'none'
+      pattern: `${consecutiveSmall} Small, ${consecutiveBig} Big`,
+      patternMatched: false
     };
-  }
-}
-
-function checkAndRecordResult(list) {
-  if (list.length < 2) return;
-  
-  // দ্বিতীয় সর্বশেষ entry (index 1) থেকে pattern বের করা
-  const historyForPattern = list.slice(1).map(item => {
-    const resultNum = item.result || item.number || item.num || item.openResult || "?";
-    const numValue = parseInt(resultNum);
-    return numValue >= 5 ? 'Big' : 'Small';
-  });
-  
-  // Pattern analysis
-  const patternData = analyzePrediction(historyForPattern);
-  
-  // সর্বশেষ result (index 0)
-  const latestResult = list[0];
-  const latestNum = latestResult.result || latestResult.number || latestResult.num || latestResult.openResult;
-  const latestSize = parseInt(latestNum) >= 5 ? 'Big' : 'Small';
-  const latestPeriod = latestResult.issue || latestResult.period || latestResult.issueNo || latestResult.periodId;
-  
-  // Check করা এই entry আগে process হয়েছে কিনা
-  const alreadyProcessed = resultHistory.some(r => r.period === latestPeriod);
-  
-  if (!alreadyProcessed && patternData.patternMatched) {
-    // Pattern matched এবং নতুন entry
-    const isWin = patternData.prediction === latestSize;
-    
-    const resultEntry = {
-      period: latestPeriod,
-      predicted: patternData.prediction,
-      actual: latestSize,
-      pattern: patternData.pattern,
-      result: isWin ? 'win' : 'loss'
-    };
-    
-    resultHistory.unshift(resultEntry); // নতুন entry সামনে add
-    
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-    console.log(`📝 NEW RESULT RECORDED`);
-    console.log(`Period: ${latestPeriod}`);
-    console.log(`Pattern: ${patternData.pattern}`);
-    console.log(`Predicted: ${patternData.prediction}`);
-    console.log(`Actual: ${latestSize} (Number: ${latestNum})`);
-    console.log(`Result: ${isWin ? '✅ WIN' : '❌ LOSS'}`);
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-    
-    // শুধুমাত্র সর্বশেষ 50টি result রাখা
-    if (resultHistory.length > 50) {
-      resultHistory = resultHistory.slice(0, 50);
-    }
   }
 }
 
@@ -457,20 +436,102 @@ async function loadData() {
       return;
     }
 
-    // Result check এবং record করা
-    checkAndRecordResult(list);
+    // Top slot (index 0) - যার সাথে previous prediction check করা হবে
+    const topSlot = list[0];
+    const topPeriod = topSlot.issue || topSlot.period || topSlot.issueNo || topSlot.periodId;
+    const topNumber = topSlot.result || topSlot.number || topSlot.num || topSlot.openResult;
+    const topSize = parseInt(topNumber) >= 5 ? 'Big' : 'Small';
 
-    // সর্বশেষ data থেকে size history
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.log(`📍 Top Slot: Period ${topPeriod}, Number: ${topNumber}, Size: ${topSize}`);
+
+    // নতুন top period এসেছে কিনা check
+    if (lastTopPeriod !== topPeriod) {
+      console.log(`🆕 NEW TOP PERIOD: ${lastTopPeriod} → ${topPeriod}`);
+      
+      // Previous prediction ছিল কিনা check
+      if (previousPrediction && previousPrediction.patternMatched) {
+        const isWin = previousPrediction.prediction === topSize;
+        
+        const resultEntry = {
+          period: topPeriod,
+          predicted: previousPrediction.prediction,
+          actual: topSize,
+          pattern: previousPrediction.pattern,
+          result: isWin ? 'win' : 'loss',
+          number: topNumber
+        };
+        
+        resultHistory.unshift(resultEntry);
+        
+        console.log(`✅ RESULT RECORDED:`);
+        console.log(`   Period: ${topPeriod}`);
+        console.log(`   Previous Predicted: ${previousPrediction.prediction}`);
+        console.log(`   Actual: ${topSize} (Number: ${topNumber})`);
+        console.log(`   Result: ${isWin ? '🎉 WIN' : '❌ LOSS'}`);
+        
+        if (resultHistory.length > 50) {
+          resultHistory = resultHistory.slice(0, 50);
+        }
+      }
+      
+      // Previous prediction update করা
+      previousPrediction = currentPrediction ? {...currentPrediction} : null;
+      lastTopPeriod = topPeriod;
+      
+      console.log(`📋 Previous Prediction Updated: ${previousPrediction ? previousPrediction.prediction : 'None'}`);
+    }
+
+    // Size history তৈরি করা
     const sizeHistory = list.map(item => {
       const resultNum = item.result || item.number || item.num || item.openResult || "?";
       const numValue = parseInt(resultNum);
       return numValue >= 5 ? 'Big' : 'Small';
     });
 
-    // পরবর্তী prediction
-    const nextPredictionData = analyzePrediction(sizeHistory);
+    // Current prediction করা
+    const predictionData = analyzePrediction(sizeHistory);
+    currentPrediction = predictionData;
+    
+    console.log(`🔮 Current Prediction: ${currentPrediction.prediction}`);
+    console.log(`   Pattern: ${currentPrediction.pattern}`);
+    console.log(`   Matched: ${currentPrediction.patternMatched ? 'YES' : 'NO'}`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
 
-    // Statistics calculate
+    // Previous Prediction Display
+    const prevResult = document.getElementById("previousPredictionResult");
+    const prevPattern = document.getElementById("previousPatternInfo");
+    
+    if (previousPrediction) {
+      prevResult.innerHTML = `<span class="prediction-${previousPrediction.prediction.toLowerCase()}">${previousPrediction.prediction}</span>`;
+      prevPattern.textContent = `📊 ${previousPrediction.pattern}`;
+      if (previousPrediction.patternMatched) {
+        prevPattern.style.background = '#fff3cd';
+        prevPattern.style.color = '#856404';
+      } else {
+        prevPattern.style.background = '#f8f9fa';
+        prevPattern.style.color = '#555';
+      }
+    } else {
+      prevResult.innerHTML = '<div style="font-size: 14px; color: #999;">Waiting...</div>';
+      prevPattern.textContent = '';
+    }
+
+    // Current Prediction Display
+    const currResult = document.getElementById("currentPredictionResult");
+    const currPattern = document.getElementById("currentPatternInfo");
+    
+    currResult.innerHTML = `<span class="prediction-${currentPrediction.prediction.toLowerCase()}">${currentPrediction.prediction}</span>`;
+    currPattern.textContent = `📊 ${currentPrediction.pattern}`;
+    if (currentPrediction.patternMatched) {
+      currPattern.style.background = '#d4edda';
+      currPattern.style.color = '#155724';
+    } else {
+      currPattern.style.background = '#f8f9fa';
+      currPattern.style.color = '#555';
+    }
+
+    // Statistics
     let winCount = 0;
     let lossCount = 0;
 
@@ -479,16 +540,13 @@ async function loadData() {
       if (entry.result === 'loss') lossCount++;
     });
 
-    // Table এ data show
+    // Table populate
     list.forEach((item, index) => {
       const tr = document.createElement("tr");
       
       const tdPeriod = document.createElement("td");
       tdPeriod.className = "period-cell";
-      
-      const periodValue = item.issue || item.period || item.issueNo || item.periodId || 
-                         item.issueNumber || item.gameNo || item.drawNo || item.id;
-      
+      const periodValue = item.issue || item.period || item.issueNo || item.periodId || item.issueNumber || item.gameNo || item.drawNo || item.id;
       tdPeriod.textContent = periodValue || "N/A";
       
       const resultNum = item.result || item.number || item.num || item.openResult || "?";
@@ -524,14 +582,15 @@ async function loadData() {
         tdColor.appendChild(dot);
       });
       
-      // Result column - শুধু সবচেয়ে নতুন result দেখানো
+      // Result column - শুধু top slot এর জন্য
       const tdResult = document.createElement("td");
       
-      // শুধুমাত্র সবচেয়ে recent result (প্রথম entry যেখানে result আছে)
-      if (index === 0 && resultHistory.length > 0) {
-        const latestResult = resultHistory[0];
-        if (latestResult.period === periodValue) {
-          if (latestResult.result === 'win') {
+      if (index === 0) {
+        // Top slot - check করা previous prediction এর সাথে মিলেছে কিনা
+        const matchedResult = resultHistory.find(r => r.period === periodValue);
+        
+        if (matchedResult) {
+          if (matchedResult.result === 'win') {
             tdResult.className = "result-cell result-win";
             tdResult.textContent = "✅ WIN";
           } else {
@@ -554,22 +613,6 @@ async function loadData() {
       table.appendChild(tr);
     });
 
-    // Prediction display
-    const predictionResult = document.getElementById("predictionResult");
-    const patternInfo = document.getElementById("patternInfo");
-    
-    predictionResult.innerHTML = `<span class="prediction-${nextPredictionData.prediction.toLowerCase()}">${nextPredictionData.prediction}</span>`;
-    
-    if (nextPredictionData.patternMatched) {
-      patternInfo.textContent = `🎯 Pattern: ${nextPredictionData.pattern} → Predicting ${nextPredictionData.prediction}`;
-      patternInfo.style.background = '#fff3cd';
-      patternInfo.style.color = '#856404';
-    } else {
-      patternInfo.textContent = `📊 ${nextPredictionData.pattern} (No pattern trigger)`;
-      patternInfo.style.background = '#f8f9fa';
-      patternInfo.style.color = '#555';
-    }
-
     // Statistics update
     const total = winCount + lossCount;
     const winRate = total > 0 ? Math.round((winCount / total) * 100) : 0;
@@ -581,7 +624,7 @@ async function loadData() {
 
     document.getElementById("time").textContent = new Date().toLocaleTimeString();
     
-    console.log(`📊 Overall Stats - Win: ${winCount}, Loss: ${lossCount}, Total: ${total}, Win Rate: ${winRate}%`);
+    console.log(`📊 Stats - Win: ${winCount}, Loss: ${lossCount}, Total: ${total}, Win Rate: ${winRate}%`);
     
   } catch (e) {
     console.error("❌ Error loading data:", e);
@@ -598,4 +641,4 @@ setInterval(loadData, 60000);
 </script>
 
 </body>
-</html>
+       </html>
