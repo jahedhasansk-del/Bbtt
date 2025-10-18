@@ -445,6 +445,16 @@ async function loadData() {
     console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     console.log(`📍 Top Slot: Period ${topPeriod}, Number: ${topNumber}, Size: ${topSize}`);
 
+    // Size history তৈরি করা (current prediction এর জন্য)
+    const sizeHistory = list.map(item => {
+      const resultNum = item.result || item.number || item.num || item.openResult || "?";
+      const numValue = parseInt(resultNum);
+      return numValue >= 5 ? 'Big' : 'Small';
+    });
+
+    // Current prediction করা (আগে)
+    const predictionData = analyzePrediction(sizeHistory);
+    
     // নতুন top period এসেছে কিনা check
     if (lastTopPeriod !== topPeriod) {
       console.log(`🆕 NEW TOP PERIOD: ${lastTopPeriod} → ${topPeriod}`);
@@ -475,11 +485,23 @@ async function loadData() {
         }
       }
       
-      // Previous prediction update করা
+      // Previous prediction update করা - current কে previous বানানো
       previousPrediction = currentPrediction ? {...currentPrediction} : null;
+      // Current prediction update করা
+      currentPrediction = predictionData;
       lastTopPeriod = topPeriod;
       
       console.log(`📋 Previous Prediction Updated: ${previousPrediction ? previousPrediction.prediction : 'None'}`);
+      console.log(`🔮 Current Prediction Updated: ${currentPrediction.prediction}`);
+    } else {
+      // একই period - শুধু current update
+      currentPrediction = predictionData;
+      
+      // প্রথমবার load এর সময় previous set করা
+      if (!previousPrediction) {
+        previousPrediction = {...predictionData};
+        console.log(`🎬 Initial Previous Prediction Set: ${previousPrediction.prediction}`);
+      }
     }
 
     // Size history তৈরি করা
@@ -641,4 +663,4 @@ setInterval(loadData, 60000);
 </script>
 
 </body>
-       </html>
+                    </html>
