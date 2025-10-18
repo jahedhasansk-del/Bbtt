@@ -417,15 +417,29 @@ async function loadData() {
     // সবচেয়ে নতুন period
     const latestPeriod = list[0].issue || list[0].period || list[0].issueNo || list[0].periodId;
     
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     console.log(`🔍 Latest Period: ${latestPeriod}`);
     console.log(`🔍 Last Processed: ${lastProcessedPeriod}`);
-    console.log(`🔍 Current Prediction: ${currentPrediction}`);
+    console.log(`🔍 Current Prediction Was: ${currentPrediction}`);
 
-    // নতুন period আসলে prediction save করা
-    if (lastProcessedPeriod && latestPeriod !== lastProcessedPeriod && currentPrediction) {
-      console.log(`🆕 NEW PERIOD DETECTED!`);
-      console.log(`✅ Saving prediction for ${latestPeriod}: ${currentPrediction}`);
-      predictionHistory[latestPeriod] = currentPrediction;
+    // নতুন period এসেছে কিনা check
+    if (lastProcessedPeriod && latestPeriod !== lastProcessedPeriod) {
+      console.log(`🆕 NEW PERIOD DETECTED! ${lastProcessedPeriod} -> ${latestPeriod}`);
+      
+      // আগের prediction এই নতুন period এর জন্যই ছিল
+      if (currentPrediction) {
+        predictionHistory[latestPeriod] = currentPrediction;
+        
+        // নতুন period এর actual result
+        const newResultNum = list[0].result || list[0].number || list[0].num || list[0].openResult;
+        const newActualSize = parseInt(newResultNum) >= 5 ? 'Big' : 'Small';
+        
+        const isSuccess = currentPrediction === newActualSize;
+        console.log(`💾 SAVED: Period ${latestPeriod}`);
+        console.log(`   Predicted: ${currentPrediction}`);
+        console.log(`   Actual: ${newActualSize} (Number: ${newResultNum})`);
+        console.log(`   Result: ${isSuccess ? '✅ SUCCESS' : '❌ FIELD'}`);
+      }
     }
 
     // Latest period update করা
@@ -442,7 +456,8 @@ async function loadData() {
     const nextPredictionData = analyzePrediction(sizeHistory);
     currentPrediction = nextPredictionData.prediction;
     
-    console.log(`🔮 Current Prediction (for next period): ${currentPrediction}`);
+    console.log(`🔮 NEW PREDICTION: ${currentPrediction} (for next period after ${latestPeriod})`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
 
     // Statistics calculate করা
     let winCount = 0;
