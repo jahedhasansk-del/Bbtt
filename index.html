@@ -432,7 +432,7 @@ async function loadData() {
     }
 
     const topSlot = list[0];
-    const topPeriod = topSlot.issue || topSlot.period || topSlot.issueNo || topSlot.periodId;
+    const topPeriod = String(topSlot.issue || topSlot.period || topSlot.issueNo || topSlot.periodId);
     const topNumber = topSlot.result || topSlot.number || topSlot.num || topSlot.openResult;
     const topSize = parseInt(topNumber) >= 5 ? 'Big' : 'Small';
 
@@ -540,7 +540,7 @@ async function loadData() {
       
       const tdPeriod = document.createElement("td");
       tdPeriod.className = "period-cell";
-      const periodValue = item.issue || item.period || item.issueNo || item.periodId || item.issueNumber || item.gameNo || item.drawNo || item.id;
+      const periodValue = String(item.issue || item.period || item.issueNo || item.periodId || item.issueNumber || item.gameNo || item.drawNo || item.id);
       tdPeriod.textContent = periodValue || "N/A";
       
       const resultNum = item.result || item.number || item.num || item.openResult || "?";
@@ -549,12 +549,12 @@ async function loadData() {
       tdNumber.className = "number-cell";
       const numSpan = document.createElement("span");
       
-      const color = item.color || item.colour || "";
-      if (color === 'red' || color === 'Red') {
+      const color = (item.color || item.colour || "").toLowerCase();
+      if (color === 'red') {
         numSpan.style.color = '#ff4444';
-      } else if (color === 'green' || color === 'Green') {
+      } else if (color === 'green') {
         numSpan.style.color = '#4CAF50';
-      } else if (color === 'violet' || color === 'Violet' || color === 'purple') {
+      } else if (color === 'violet' || color === 'purple') {
         numSpan.style.color = '#9C27B0';
       }
       
@@ -569,7 +569,7 @@ async function loadData() {
       tdColor.className = "color-cell";
       
       const numValue = parseInt(resultNum);
-      const colors = getColors(numValue, color.toLowerCase());
+      const colors = getColors(numValue, color);
       colors.forEach(c => {
         const dot = document.createElement("span");
         dot.className = `color-dot ${c}`;
