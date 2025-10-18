@@ -306,6 +306,7 @@
     color: #ffffff;
     margin-top: 8px;
     opacity: 0.9;
+    display: none;
   }
   
   .loading {
@@ -432,7 +433,6 @@
   <p class="update-time">
     <span class="time-display">
       <div class="current-time" id="realTime">00:00:00</div>
-      <div class="next-update-info" id="updateInfo">Waiting for :59...</div>
     </span>
   </p>
 </div>
@@ -456,27 +456,14 @@ function updateClock() {
   const seconds = String(now.getSeconds()).padStart(2, '0');
   
   const timeEl = document.getElementById('realTime');
-  const infoEl = document.getElementById('updateInfo');
   
   if (timeEl) {
-    // সেকেন্ডটা হাইলাইট করুন
     timeEl.innerHTML = `${hours}:${minutes}:<span class="seconds-highlight">${seconds}</span>`;
   }
   
-  // যখন 59 সেকেন্ড হবে
+  // গোপনে 59 সেকেন্ডে আপডেট (ইউজার বুঝবে না)
   if (now.getSeconds() === 59) {
-    if (infoEl) {
-      infoEl.textContent = '🔄 Updating now...';
-      infoEl.style.color = '#4CAF50';
-    }
     loadData();
-    console.log('⏰ Auto-refresh at :59 seconds -', now.toLocaleTimeString());
-  } else {
-    const secondsUntil59 = 59 - now.getSeconds();
-    if (infoEl) {
-      infoEl.textContent = `Next update in ${secondsUntil59}s (at :59)`;
-      infoEl.style.color = '#ffffff';
-    }
   }
 }
 
@@ -496,7 +483,6 @@ function manualRefresh() {
   }
   
   loadData();
-  console.log('🔄 Manual refresh at', new Date().toLocaleTimeString());
 }
 
 function getColors(number, color) {
@@ -740,9 +726,7 @@ async function loadData() {
 
 // সিস্টেম শুরু করুন
 loadData(); // প্রথম লোড
-startClock(); // রিয়েল টাইম ক্লক শুরু
-
-console.log('✅ System started - Will auto-refresh at every :59 seconds');
+startClock(); // রিয়েল টাইম ক্লক শুরু (গোপনে 59 সেকেন্ডে আপডেট হবে)
 </script>
 
 </body>
