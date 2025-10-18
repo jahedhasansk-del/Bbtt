@@ -471,7 +471,7 @@ async function loadData() {
         console.log(`   ✅ RESULT: ${isMatch ? '🎉 WIN!' : '❌ LOSS!'}`);
         
         const resultEntry = {
-          period: topPeriod,
+          period: String(topPeriod),
           predicted: previousPrediction.prediction,
           actual: topSize,
           result: isMatch ? 'win' : 'loss',
@@ -483,6 +483,9 @@ async function loadData() {
         if (resultHistory.length > 50) {
           resultHistory = resultHistory.slice(0, 50);
         }
+        
+        console.log(`\n💾 Result History Length: ${resultHistory.length}`);
+        console.log(`   Latest Entry: Period ${resultEntry.period} - ${resultEntry.result.toUpperCase()}`);
       } else {
         console.log(`\n⚠️ No previous prediction to check yet`);
       }
@@ -575,9 +578,10 @@ async function loadData() {
       
       const tdResult = document.createElement("td");
       
-      const matchedResult = resultHistory.find(r => r.period == periodValue);
+      const matchedResult = resultHistory.find(r => String(r.period) === String(periodValue));
       
       if (matchedResult) {
+        console.log(`✓ Match found for period ${periodValue}: ${matchedResult.result}`);
         if (matchedResult.result === 'win') {
           tdResult.className = "result-cell result-win";
           tdResult.textContent = "✅ WIN";
@@ -607,6 +611,13 @@ async function loadData() {
     document.getElementById('winRate').textContent = winRate + '%';
 
     document.getElementById("time").textContent = new Date().toLocaleTimeString();
+    
+    console.log(`\n📊 STATISTICS:`);
+    console.log(`   Win: ${winCount} | Loss: ${lossCount} | Total: ${total} | Win Rate: ${winRate}%`);
+    console.log(`   Result History has ${resultHistory.length} entries`);
+    if (resultHistory.length > 0) {
+      console.log(`   Stored Periods: ${resultHistory.slice(0, 3).map(r => r.period).join(', ')}...`);
+    }
     
   } catch (e) {
     console.error("❌ Error loading data:", e);
