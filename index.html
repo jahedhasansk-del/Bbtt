@@ -397,10 +397,15 @@ async function loadData() {
       // নতুন result এসেছে!
       console.log(`🆕 New period detected: ${currentLatestPeriod}`);
       
-      // আগের prediction ছিল কিনা এবং সেটা সেভ করা
-      if (nextPeriodPrediction && lastProcessedPeriod) {
+      // আগের prediction ছিল এবং সেটা এই নতুন period এর জন্যই ছিল
+      if (nextPeriodPrediction) {
+        // এই নতুন period এর actual result
+        const newResultNum = list[0].result || list[0].number || list[0].num || list[0].openResult;
+        const newActualSize = parseInt(newResultNum) >= 5 ? 'Big' : 'Small';
+        
+        // Prediction save করা
         predictionHistory[currentLatestPeriod] = nextPeriodPrediction;
-        console.log(`✅ Saved prediction for ${currentLatestPeriod}: ${nextPeriodPrediction}`);
+        console.log(`✅ Saved prediction for ${currentLatestPeriod}: ${nextPeriodPrediction}, Actual: ${newActualSize}`);
         savePredictionHistory(); // localStorage এ save করা
       }
     }
@@ -476,9 +481,15 @@ async function loadData() {
           tdResult.textContent = "✗ LOSS";
         }
       } else {
-        // এখনো prediction করা হয়নি বা result pending
-        tdResult.className = "result-cell result-pending";
-        tdResult.textContent = "-";
+        // প্রথম entry তে (সবচেয়ে নতুন) যদি prediction না থাকে তাহলে pending দেখাবে
+        if (index === 0) {
+          tdResult.className = "result-cell result-pending";
+          tdResult.textContent = "⏳ PENDING";
+        } else {
+          // পুরনো entries যেগুলার জন্য prediction ছিল না
+          tdResult.className = "result-cell result-pending";
+          tdResult.textContent = "-";
+        }
       }
       
       tr.appendChild(tdPeriod);
