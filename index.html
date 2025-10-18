@@ -301,14 +301,6 @@
     50% { opacity: 0.7; }
   }
   
-  .next-update-info {
-    font-size: 14px;
-    color: #ffffff;
-    margin-top: 8px;
-    opacity: 0.9;
-    display: none;
-  }
-  
   .loading {
     text-align: center;
     padding: 20px;
@@ -370,10 +362,10 @@
         <h3>📋 Previous Prediction</h3>
       </div>
       <div class="prediction-content">
-        <div class="prediction-result" id="previousPredictionResult">
+        <div class="prediction-result" id="prevPred">
           <div class="loading" style="font-size: 14px;">Waiting...</div>
         </div>
-        <div class="pattern-info" id="previousPatternInfo"></div>
+        <div class="pattern-info" id="prevPat"></div>
       </div>
     </div>
     
@@ -382,10 +374,10 @@
         <h3>🔮 Current Prediction</h3>
       </div>
       <div class="prediction-content">
-        <div class="prediction-result" id="currentPredictionResult">
+        <div class="prediction-result" id="currPred">
           <div class="loading" style="font-size: 14px;">Analyzing...</div>
         </div>
-        <div class="pattern-info" id="currentPatternInfo"></div>
+        <div class="pattern-info" id="currPat"></div>
       </div>
     </div>
   </div>
@@ -394,19 +386,19 @@
     <div class="stats-info">
       <div class="stat-item">
         <div class="stat-label">Win</div>
-        <div class="stat-value stat-win" id="winCount">0</div>
+        <div class="stat-value stat-win" id="wc">0</div>
       </div>
       <div class="stat-item">
         <div class="stat-label">Loss</div>
-        <div class="stat-value stat-loss" id="lossCount">0</div>
+        <div class="stat-value stat-loss" id="lc">0</div>
       </div>
       <div class="stat-item">
         <div class="stat-label">Total</div>
-        <div class="stat-value" id="totalCount" style="color: #2196F3;">0</div>
+        <div class="stat-value" id="tc" style="color: #2196F3;">0</div>
       </div>
       <div class="stat-item">
         <div class="stat-label">Win Rate</div>
-        <div class="stat-value" id="winRate" style="color: #ff9800;">0%</div>
+        <div class="stat-value" id="wr" style="color: #ff9800;">0%</div>
       </div>
     </div>
   </div>
@@ -422,7 +414,7 @@
           <th>Result</th>
         </tr>
       </thead>
-      <tbody id="historyTable">
+      <tbody id="tb">
         <tr>
           <td colspan="5" class="loading">Loading data...</td>
         </tr>
@@ -432,302 +424,225 @@
   
   <p class="update-time">
     <span class="time-display">
-      <div class="current-time" id="realTime">00:00:00</div>
+      <div class="current-time" id="rt">00:00:00</div>
     </span>
   </p>
 </div>
 
-<button class="refresh-btn" onclick="manualRefresh()">
-  <span class="refresh-icon" id="refreshIcon">🔄</span>
+<button class="refresh-btn" onclick="_r()">
+  <span class="refresh-icon" id="ri">🔄</span>
   <span>Refresh</span>
 </button>
 
 <script>
-let previousPrediction = null;
-let currentPrediction = null;
-let resultHistory = [];
-let lastCheckedPeriod = null;
-let clockTimer;
+(function() {
+  const _0x4a=['\x42\x69\x67','\x53\x6d\x61\x6c\x6c','\x77\x69\x6e','\x6c\x6f\x73\x73'];
+  let _p=null,_c=null,_h=[],_lp=null,_ct;
+  
+  const _k={
+    s1:[2,4,5,9],
+    s2:[1,3,4,5,7],
+    u:'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json',
+    i:1000,
+    m:59
+  };
 
-function updateClock() {
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const _x=(n)=>parseInt(n)>=5?_0x4a[0]:_0x4a[1];
   
-  const timeEl = document.getElementById('realTime');
-  
-  if (timeEl) {
-    timeEl.innerHTML = `${hours}:${minutes}:<span class="seconds-highlight">${seconds}</span>`;
-  }
-  
-  // গোপনে 59 সেকেন্ডে আপডেট (ইউজার বুঝবে না)
-  if (now.getSeconds() === 59) {
-    loadData();
-  }
-}
+  const _g=(n,c)=>{
+    let a=[];
+    if(c==='red')a.push('red');
+    else if(c==='green')a.push('green');
+    else if(c==='violet')a.push('violet');
+    if(n===0){a.push('violet');a.push('red');}
+    else if(n===5){a.push('violet');a.push('green');}
+    return a;
+  };
 
-function startClock() {
-  updateClock(); // তাৎক্ষণিক আপডেট
-  clearInterval(clockTimer);
-  clockTimer = setInterval(updateClock, 1000); // প্রতি সেকেন্ডে
-}
-
-function manualRefresh() {
-  const icon = document.getElementById('refreshIcon');
-  if (icon) {
-    icon.classList.add('spinning');
-    setTimeout(() => {
-      icon.classList.remove('spinning');
-    }, 500);
-  }
-  
-  loadData();
-}
-
-function getColors(number, color) {
-  const colors = [];
-  
-  if (color === 'red') {
-    colors.push('red');
-  } else if (color === 'green') {
-    colors.push('green');
-  } else if (color === 'violet') {
-    colors.push('violet');
-  }
-  
-  if (number === 0) {
-    colors.push('violet');
-    colors.push('red');
-  } else if (number === 5) {
-    colors.push('violet');
-    colors.push('green');
-  }
-  
-  return colors;
-}
-
-function analyzePrediction(history) {
-  const smallTriggers = [2, 4, 5, 9];
-  const bigTriggers = [1, 3, 4, 5, 7];
-  
-  let consecutiveSmall = 0;
-  let consecutiveBig = 0;
-  
-  for (let i = 0; i < history.length; i++) {
-    if (history[i] === 'Small') {
-      consecutiveSmall++;
-      consecutiveBig = 0;
-    } else if (history[i] === 'Big') {
-      consecutiveBig++;
-      consecutiveSmall = 0;
+  const _a=(d)=>{
+    let cs=0,cb=0;
+    for(let i=0;i<d.length;i++){
+      if(d[i]===_0x4a[1]){cs++;cb=0;}
+      else if(d[i]===_0x4a[0]){cb++;cs=0;}
     }
-  }
-  
-  if (smallTriggers.includes(consecutiveSmall)) {
-    return {
-      prediction: 'Big',
-      pattern: `${consecutiveSmall} consecutive Small`,
-      patternMatched: true
-    };
-  } else if (bigTriggers.includes(consecutiveBig)) {
-    return {
-      prediction: 'Small',
-      pattern: `${consecutiveBig} consecutive Big`,
-      patternMatched: true
-    };
-  } else {
-    return {
-      prediction: consecutiveSmall > consecutiveBig ? 'Big' : 'Small',
-      pattern: `${consecutiveSmall} Small, ${consecutiveBig} Big`,
-      patternMatched: false
-    };
-  }
-}
-
-async function loadData() {
-  try {
-    const ts = new Date().getTime();
-    const url = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
     
-    const res = await fetch(url);
-    const data = await res.json();
-
-    let list = [];
-    if (data && data.data && data.data.list) {
-      list = data.data.list.slice(0, 10);
-    } else if (data && data.list) {
-      list = data.list.slice(0, 10);
-    } else if (Array.isArray(data)) {
-      list = data.slice(0, 10);
+    if(_k.s1.includes(cs)){
+      return {p:_0x4a[0],t:`${cs} consecutive ${_0x4a[1]}`,m:true};
+    }else if(_k.s2.includes(cb)){
+      return {p:_0x4a[1],t:`${cb} consecutive ${_0x4a[0]}`,m:true};
+    }else{
+      return {p:cs>cb?_0x4a[0]:_0x4a[1],t:`${cs} ${_0x4a[1]}, ${cb} ${_0x4a[0]}`,m:false};
     }
+  };
 
-    const table = document.getElementById("historyTable");
-    table.innerHTML = "";
-
-    if (list.length === 0) {
-      table.innerHTML = '<tr><td colspan="5" class="loading">No data available</td></tr>';
-      return;
+  const _u=()=>{
+    const n=new Date();
+    const h=String(n.getHours()).padStart(2,'0');
+    const m=String(n.getMinutes()).padStart(2,'0');
+    const s=String(n.getSeconds()).padStart(2,'0');
+    const e=document.getElementById('rt');
+    if(e){
+      e.innerHTML=`${h}:${m}:<span class="seconds-highlight">${s}</span>`;
     }
+    if(n.getSeconds()===_k.m){_l();}
+  };
 
-    const topSlot = list[0];
-    const topPeriod = String(topSlot.issue || topSlot.period || topSlot.issueNo || topSlot.periodId || topSlot.issueNumber || '');
-    const topNumber = String(topSlot.result || topSlot.number || topSlot.num || topSlot.openResult || '');
-    const topSize = parseInt(topNumber) >= 5 ? 'Big' : 'Small';
+  const _s=()=>{
+    _u();
+    clearInterval(_ct);
+    _ct=setInterval(_u,_k.i);
+  };
 
-    const sizeHistory = list.map(item => {
-      const resultNum = item.result || item.number || item.num || item.openResult || "?";
-      const numValue = parseInt(resultNum);
-      return numValue >= 5 ? 'Big' : 'Small';
-    });
+  window._r=()=>{
+    const ic=document.getElementById('ri');
+    if(ic){
+      ic.classList.add('spinning');
+      setTimeout(()=>ic.classList.remove('spinning'),500);
+    }
+    _l();
+  };
 
-    const predictionData = analyzePrediction(sizeHistory);
-    currentPrediction = predictionData;
+  const _l=async()=>{
+    try{
+      const t=new Date().getTime();
+      const r=await fetch(`${_k.u}?ts=${t}`);
+      const d=await r.json();
+      let ls=[];
+      if(d&&d.data&&d.data.list){ls=d.data.list.slice(0,10);}
+      else if(d&&d.list){ls=d.list.slice(0,10);}
+      else if(Array.isArray(d)){ls=d.slice(0,10);}
 
-    if (lastCheckedPeriod !== topPeriod) {
-      if (previousPrediction) {
-        const isMatch = previousPrediction.prediction === topSize;
-        
-        const resultEntry = {
-          period: topPeriod,
-          predicted: previousPrediction.prediction,
-          actual: topSize,
-          result: isMatch ? 'win' : 'loss',
-          number: topNumber
-        };
-        
-        resultHistory.unshift(resultEntry);
-        
-        if (resultHistory.length > 50) {
-          resultHistory = resultHistory.slice(0, 50);
-        }
+      const tb=document.getElementById("tb");
+      tb.innerHTML="";
+
+      if(ls.length===0){
+        tb.innerHTML='<tr><td colspan="5" class="loading">No data available</td></tr>';
+        return;
       }
 
-      previousPrediction = {...currentPrediction};
-      lastCheckedPeriod = topPeriod;
-    }
+      const tp=String(ls[0].issue||ls[0].period||ls[0].issueNo||ls[0].periodId||ls[0].issueNumber||'');
+      const tn=String(ls[0].result||ls[0].number||ls[0].num||ls[0].openResult||'');
+      const ts=_x(tn);
 
-    const prevResult = document.getElementById("previousPredictionResult");
-    const prevPattern = document.getElementById("previousPatternInfo");
-    
-    if (previousPrediction) {
-      prevResult.innerHTML = `<span class="prediction-${previousPrediction.prediction.toLowerCase()}">${previousPrediction.prediction}</span>`;
-      prevPattern.textContent = `📊 ${previousPrediction.pattern}`;
-      if (previousPrediction.patternMatched) {
-        prevPattern.style.background = '#fff3cd';
-        prevPattern.style.color = '#856404';
-      } else {
-        prevPattern.style.background = '#f8f9fa';
-        prevPattern.style.color = '#555';
-      }
-    }
-
-    const currResult = document.getElementById("currentPredictionResult");
-    const currPattern = document.getElementById("currentPatternInfo");
-    
-    currResult.innerHTML = `<span class="prediction-${currentPrediction.prediction.toLowerCase()}">${currentPrediction.prediction}</span>`;
-    currPattern.textContent = `📊 ${currentPrediction.pattern}`;
-    if (currentPrediction.patternMatched) {
-      currPattern.style.background = '#d4edda';
-      currPattern.style.color = '#155724';
-    } else {
-      currPattern.style.background = '#f8f9fa';
-      currPattern.style.color = '#555';
-    }
-
-    let winCount = 0;
-    let lossCount = 0;
-
-    resultHistory.forEach(entry => {
-      if (entry.result === 'win') winCount++;
-      if (entry.result === 'loss') lossCount++;
-    });
-
-    list.forEach((item, index) => {
-      const tr = document.createElement("tr");
-      
-      const tdPeriod = document.createElement("td");
-      tdPeriod.className = "period-cell";
-      const periodValue = String(item.issue || item.period || item.issueNo || item.periodId || item.issueNumber || item.gameNo || item.drawNo || item.id || '');
-      tdPeriod.textContent = periodValue || "N/A";
-      
-      const resultNum = item.result || item.number || item.num || item.openResult || "?";
-      
-      const tdNumber = document.createElement("td");
-      tdNumber.className = "number-cell";
-      const numSpan = document.createElement("span");
-      
-      const color = (item.color || item.colour || "").toLowerCase();
-      if (color === 'red') {
-        numSpan.style.color = '#ff4444';
-      } else if (color === 'green') {
-        numSpan.style.color = '#4CAF50';
-      } else if (color === 'violet' || color === 'purple') {
-        numSpan.style.color = '#9C27B0';
-      }
-      
-      numSpan.textContent = resultNum;
-      tdNumber.appendChild(numSpan);
-      
-      const tdSize = document.createElement("td");
-      const actualSize = sizeHistory[index];
-      tdSize.textContent = actualSize;
-      
-      const tdColor = document.createElement("td");
-      tdColor.className = "color-cell";
-      
-      const numValue = parseInt(resultNum);
-      const colors = getColors(numValue, color);
-      colors.forEach(c => {
-        const dot = document.createElement("span");
-        dot.className = `color-dot ${c}`;
-        tdColor.appendChild(dot);
+      const sh=ls.map(i=>{
+        const rn=i.result||i.number||i.num||i.openResult||"?";
+        return _x(rn);
       });
-      
-      const tdResult = document.createElement("td");
-      
-      const matchedResult = resultHistory.find(r => String(r.period) === String(periodValue));
-      
-      if (matchedResult) {
-        if (matchedResult.result === 'win') {
-          tdResult.className = "result-cell result-win";
-          tdResult.textContent = "✅ WIN";
-        } else {
-          tdResult.className = "result-cell result-loss";
-          tdResult.textContent = "❌ LOSS";
+
+      const pd=_a(sh);
+      _c=pd;
+
+      if(_lp!==tp){
+        if(_p){
+          const im=_p.p===ts;
+          const re={per:tp,pred:_p.p,act:ts,res:im?_0x4a[2]:_0x4a[3],num:tn};
+          _h.unshift(re);
+          if(_h.length>50){_h=_h.slice(0,50);}
         }
-      } else {
-        tdResult.textContent = "-";
+        _p={..._c};
+        _lp=tp;
       }
-      
-      tr.appendChild(tdPeriod);
-      tr.appendChild(tdNumber);
-      tr.appendChild(tdSize);
-      tr.appendChild(tdColor);
-      tr.appendChild(tdResult);
-      
-      table.appendChild(tr);
-    });
 
-    const total = winCount + lossCount;
-    const winRate = total > 0 ? Math.round((winCount / total) * 100) : 0;
-    
-    document.getElementById('winCount').textContent = winCount;
-    document.getElementById('lossCount').textContent = lossCount;
-    document.getElementById('totalCount').textContent = total;
-    document.getElementById('winRate').textContent = winRate + '%';
-    
-  } catch (e) {
-    console.error("❌ Error:", e);
-    document.getElementById("historyTable").innerHTML = 
-      '<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
-  }
-}
+      const pr=document.getElementById("prevPred");
+      const pp=document.getElementById("prevPat");
+      if(_p){
+        pr.innerHTML=`<span class="prediction-${_p.p.toLowerCase()}">${_p.p}</span>`;
+        pp.textContent=`📊 ${_p.t}`;
+        if(_p.m){
+          pp.style.background='#fff3cd';
+          pp.style.color='#856404';
+        }else{
+          pp.style.background='#f8f9fa';
+          pp.style.color='#555';
+        }
+      }
 
-// সিস্টেম শুরু করুন
-loadData(); // প্রথম লোড
-startClock(); // রিয়েল টাইম ক্লক শুরু (গোপনে 59 সেকেন্ডে আপডেট হবে)
+      const cr=document.getElementById("currPred");
+      const cp=document.getElementById("currPat");
+      cr.innerHTML=`<span class="prediction-${_c.p.toLowerCase()}">${_c.p}</span>`;
+      cp.textContent=`📊 ${_c.t}`;
+      if(_c.m){
+        cp.style.background='#d4edda';
+        cp.style.color='#155724';
+      }else{
+        cp.style.background='#f8f9fa';
+        cp.style.color='#555';
+      }
+
+      let wc=0,lc=0;
+      _h.forEach(e=>{
+        if(e.res===_0x4a[2])wc++;
+        if(e.res===_0x4a[3])lc++;
+      });
+
+      ls.forEach((it,ix)=>{
+        const tr=document.createElement("tr");
+        const tdp=document.createElement("td");
+        tdp.className="period-cell";
+        const pv=String(it.issue||it.period||it.issueNo||it.periodId||it.issueNumber||it.gameNo||it.drawNo||it.id||'');
+        tdp.textContent=pv||"N/A";
+        
+        const rn=it.result||it.number||it.num||it.openResult||"?";
+        const tdn=document.createElement("td");
+        tdn.className="number-cell";
+        const ns=document.createElement("span");
+        const co=(it.color||it.colour||"").toLowerCase();
+        if(co==='red'){ns.style.color='#ff4444';}
+        else if(co==='green'){ns.style.color='#4CAF50';}
+        else if(co==='violet'||co==='purple'){ns.style.color='#9C27B0';}
+        ns.textContent=rn;
+        tdn.appendChild(ns);
+        
+        const tds=document.createElement("td");
+        tds.textContent=sh[ix];
+        
+        const tdc=document.createElement("td");
+        tdc.className="color-cell";
+        const nv=parseInt(rn);
+        const cls=_g(nv,co);
+        cls.forEach(c=>{
+          const dt=document.createElement("span");
+          dt.className=`color-dot ${c}`;
+          tdc.appendChild(dt);
+        });
+        
+        const tdr=document.createElement("td");
+        const mr=_h.find(q=>String(q.per)===String(pv));
+        if(mr){
+          if(mr.res===_0x4a[2]){
+            tdr.className="result-cell result-win";
+            tdr.textContent="✅ WIN";
+          }else{
+            tdr.className="result-cell result-loss";
+            tdr.textContent="❌ LOSS";
+          }
+        }else{
+          tdr.textContent="-";
+        }
+        
+        tr.appendChild(tdp);
+        tr.appendChild(tdn);
+        tr.appendChild(tds);
+        tr.appendChild(tdc);
+        tr.appendChild(tdr);
+        tb.appendChild(tr);
+      });
+
+      const to=wc+lc;
+      const wrt=to>0?Math.round((wc/to)*100):0;
+      document.getElementById('wc').textContent=wc;
+      document.getElementById('lc').textContent=lc;
+      document.getElementById('tc').textContent=to;
+      document.getElementById('wr').textContent=wrt+'%';
+    }catch(e){
+      document.getElementById("tb").innerHTML='<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
+    }
+  };
+
+  _l();
+  _s();
+})();
 </script>
 
 </body>
-       </html>
+</html>
