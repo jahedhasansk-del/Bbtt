@@ -232,6 +232,62 @@
     text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
   }
   
+  .refresh-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 50px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+    z-index: 1000;
+  }
+
+  .refresh-btn:hover {
+    transform: scale(1.05);
+  }
+
+  .refresh-btn:active {
+    transform: scale(0.95);
+  }
+
+  .refresh-icon {
+    font-size: 20px;
+    transition: transform 0.5s;
+  }
+  
+  .refresh-icon.spinning {
+    animation: spin 0.5s linear;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  .countdown-timer {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 25px;
+    display: inline-block;
+    margin-top: 10px;
+    backdrop-filter: blur(10px);
+  }
+  
+  .countdown-number {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffd700;
+  }
+  
   .loading {
     text-align: center;
     padding: 20px;
@@ -263,6 +319,21 @@
     
     .prediction-result {
       font-size: 28px;
+    }
+    
+    .refresh-btn {
+      bottom: 15px;
+      right: 15px;
+      padding: 12px 20px;
+      font-size: 14px;
+    }
+    
+    .countdown-timer {
+      padding: 8px 15px;
+    }
+    
+    .countdown-number {
+      font-size: 16px;
     }
   }
 </style>
@@ -338,14 +409,62 @@
     </table>
   </div>
   
-  <p class="update-time">Last update: <span id="time">--:--:--</span></p>
+  <p class="update-time">
+    Last update: <span id="time">--:--:--</span>
+    <br>
+    <span class="countdown-timer">
+      Next update in: <span class="countdown-number" id="countdown">59</span>s
+    </span>
+  </p>
 </div>
+
+<button class="refresh-btn" onclick="manualRefresh()">
+  <span class="refresh-icon" id="refreshIcon">🔄</span>
+  <span>Refresh</span>
+</button>
 
 <script>
 let previousPrediction = null;
 let currentPrediction = null;
 let resultHistory = [];
 let lastCheckedPeriod = null;
+let countdown = 59;
+let countdownTimer;
+let autoRefreshTimer;
+
+function updateCountdown() {
+  const countdownEl = document.getElementById('countdown');
+  if (countdownEl) {
+    countdownEl.textContent = countdown;
+  }
+  
+  if (countdown <= 0) {
+    countdown = 59;
+    loadData();
+  } else {
+    countdown--;
+  }
+}
+
+function startCountdown() {
+  countdown = 59;
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(updateCountdown, 1000);
+}
+
+function manualRefresh() {
+  const icon = document.getElementById('refreshIcon');
+  icon.classList.add('spinning');
+  
+  setTimeout(() => {
+    icon.classList.remove('spinning');
+  }, 500);
+  
+  countdown = 59;
+  loadData();
+  
+  console.log('🔄 Manual refresh triggered');
+}
 
 function getColors(number, color) {
   const colors = [];
@@ -650,19 +769,4 @@ async function loadData() {
     console.log(`   Win: ${winCount} | Loss: ${lossCount} | Total: ${total} | Win Rate: ${winRate}%`);
     console.log(`   Result History has ${resultHistory.length} entries`);
     if (resultHistory.length > 0) {
-      console.log(`   Stored Periods: ${resultHistory.slice(0, 3).map(r => r.period).join(', ')}...`);
-    }
-    
-  } catch (e) {
-    console.error("❌ Error loading data:", e);
-    document.getElementById("historyTable").innerHTML = 
-      '<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
-  }
-}
-
-loadData();
-setInterval(loadData, 15000);
-</script>
-
-</body>
- </html>
+      cons
