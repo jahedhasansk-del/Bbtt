@@ -580,7 +580,7 @@ async function loadData() {
       
       const tdResult = document.createElement("td");
       
-      const matchedResult = resultHistory.find(r => r.period === periodValue);
+      const matchedResult = resultHistory.find(r => r.period == periodValue);
       
       if (matchedResult) {
         if (matchedResult.result === 'win') {
