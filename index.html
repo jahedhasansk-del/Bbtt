@@ -1,284 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WinGo History Live</title>
 <style>
-  /* (আপনার আগের styles 그대로 রাখতে পারেন — এখানে আমি একই স্টাইল রেখে দিলাম) */
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh; padding: 20px; }
-  .container { max-width: 800px; margin: 0 auto; }
-  h2 { color: #ffffff; text-align: center; margin-bottom: 20px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-  .prediction-container { background: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 25px; }
-  .prediction-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; text-align: center; }
-  .prediction-header h3 { color: #ffffff; font-size: 20px; margin: 0; }
-  .prediction-content { padding: 25px; text-align: center; }
-  .prediction-result { font-size: 48px; font-weight: bold; margin-bottom: 15px; animation: pulse 2s ease-in-out infinite; }
-  .prediction-big { color: #ff4444; }
-  .prediction-small { color: #4CAF50; }
-  .pattern-info { font-size: 16px; color: #555; background: #f8f9fa; padding: 12px; border-radius: 8px; margin-top: 10px; }
-  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
-  .table-container { background: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-  table { width: 100%; border-collapse: collapse; }
-  thead { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
-  th { padding: 15px; text-align: center; font-weight: 600; color: #333; font-size: 16px; text-transform: capitalize; }
-  tbody tr { background: #ffffff; transition: all 0.3s ease; }
-  tbody tr:nth-child(even) { background: #f8f9fa; }
-  tbody tr:hover { background: #e3f2fd; transform: scale(1.01); }
-  td { padding: 12px; text-align: center; color: #333; font-size: 14px; border-bottom: 1px solid #e0e0e0; }
-  .period-cell { font-family: 'Courier New', monospace; font-size: 13px; color: #555; }
-  .number-cell { font-size: 24px; font-weight: bold; }
-  .color-cell { display: flex; justify-content: center; align-items: center; gap: 5px; }
-  .color-dot { width: 20px; height: 20px; border-radius: 50%; display: inline-block; border: 2px solid #ddd; }
-  .red { background: #ff4444; }
-  .green { background: #4CAF50; }
-  .violet { background: #9C27B0; }
-  .result-cell { font-weight: bold; font-size: 14px; padding: 8px 12px; border-radius: 5px; }
-  .result-win { color: #4CAF50; background: #e8f5e9; }
-  .result-loss { color: #ff4444; background: #ffebee; }
-  .result-pending { color: #ff9800; background: #fff3e0; }
-  .update-time { text-align: center; color: #ffffff; margin-top: 15px; font-size: 14px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
-  .loading { text-align: center; padding: 20px; color: #666; }
-  @media (max-width: 600px) {
-    th, td { padding: 8px 4px; font-size: 12px; }
-    .number-cell { font-size: 20px; }
-    .period-cell { font-size: 11px; }
-    .color-dot { width: 15px; height: 15px; }
-    .prediction-result { font-size: 36px; }
+  body {
+    background: #0b0b0b;
+    color: #00ffcc;
+    font-family: Arial, sans-serif;
+    text-align: center;
   }
+  h1 { color: #00ffcc; }
+  table {
+    margin: 10px auto;
+    border-collapse: collapse;
+    width: 90%;
+  }
+  th, td {
+    border: 1px solid #444;
+    padding: 8px;
+    font-size: 14px;
+  }
+  th { background: #111; }
+  tr:nth-child(even) { background: #1a1a1a; }
+  tr:nth-child(odd) { background: #141414; }
+  .win { color: #00ff66; font-weight: bold; }
+  .loss { color: #ff3333; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>🎯 WinGo 1 Minute - Latest 10 Results</h2>
+<h1>🎯 WinGo History Live</h1>
 
-  <!-- Prediction Box -->
-  <div class="prediction-container">
-    <div class="prediction-header">
-      <h3>🔮 Next Round Prediction</h3>
-    </div>
-    <div class="prediction-content">
-      <div class="prediction-result" id="predictionResult">
-        <div class="loading">Analyzing pattern...</div>
-      </div>
-      <div class="pattern-info" id="patternInfo"></div>
-    </div>
-  </div>
+<p id="status">Loading data...</p>
 
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Period</th>
-          <th>Number</th>
-          <th>Big Small</th>
-          <th>Color</th>
-          <th>Result</th>
-        </tr>
-      </thead>
-      <tbody id="historyTable">
-        <tr>
-          <td colspan="5" class="loading">Loading data...</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+<h3>🔹 Live Result</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Period</th>
+      <th>Number</th>
+      <th>Big/Small</th>
+      <th>Color</th>
+      <th>Prediction</th>
+      <th>Result</th>
+    </tr>
+  </thead>
+  <tbody id="live"></tbody>
+</table>
 
-  <p class="update-time">Last update: <span id="time">--:--:--</span></p>
-</div>
+<h3>📜 History (Win/Loss)</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Period</th>
+      <th>Number</th>
+      <th>Big/Small</th>
+      <th>Prediction</th>
+      <th>Result</th>
+    </tr>
+  </thead>
+  <tbody id="history"></tbody>
+</table>
 
 <script>
-// Prediction history মেমোরিতে save করার জন্য
-const predictionHistory = {}; // { periodString: 'Big'|'Small' }
-let lastProcessedPeriod = null; // পূর্বের API তে দেখা সর্বশেষ period
-let previousNextPrediction = null; // আগের রান-এ ক্যালকুলেট করা "prediction for next period"
+const API_URL = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json";
+let history = JSON.parse(localStorage.getItem("winGoHistory")) || [];
 
-/* helper */
-function getColors(number, color) {
-  const colors = [];
-  if (!color) color = "";
-  if (color.toLowerCase() === 'red') colors.push('red');
-  else if (color.toLowerCase() === 'green') colors.push('green');
-  else if (['violet','purple'].includes(color.toLowerCase())) colors.push('violet');
+// 👉 নিজের পছন্দ মতো Prediction এখানে বসাও
+let myPrediction = "Small";  // "Big" বা "Small" দিতে পারো
 
-  if (number === 0) { colors.push('violet'); colors.push('red'); }
-  else if (number === 5) { colors.push('violet'); colors.push('green'); }
-
-  return colors;
-}
-
-/* Prediction logic - unchanged */
-function analyzePrediction(history) {
-  const smallTriggers = [2, 4, 5, 9];
-  const bigTriggers = [1, 3, 4, 5, 7];
-
-  let consecutiveSmall = 0;
-  let consecutiveBig = 0;
-
-  for (let i = 0; i < history.length; i++) {
-    if (history[i] === 'Small') {
-      consecutiveSmall++;
-      consecutiveBig = 0;
-    } else if (history[i] === 'Big') {
-      consecutiveBig++;
-      consecutiveSmall = 0;
-    }
-  }
-
-  if (smallTriggers.includes(consecutiveSmall)) {
-    return { prediction: 'Big', pattern: `${consecutiveSmall} consecutive Small detected`, confidence: 'high' };
-  } else if (bigTriggers.includes(consecutiveBig)) {
-    return { prediction: 'Small', pattern: `${consecutiveBig} consecutive Big detected`, confidence: 'high' };
-  } else {
-    return { prediction: consecutiveSmall > consecutiveBig ? 'Big' : 'Small', pattern: `Current: ${consecutiveSmall} Small, ${consecutiveBig} Big`, confidence: 'low' };
-  }
-}
-
-async function loadData() {
+async function loadHistory() {
+  document.getElementById("status").innerText = "⏳ Updating...";
   try {
-    const ts = new Date().getTime();
-    const url = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
-    const res = await fetch(url);
-    const data = await res.json();
+    const res = await fetch(API_URL + "?ts=" + Date.now());
+    const json = await res.json();
+    const list = json?.data?.list || [];
 
-    console.log("API Response:", data);
+    let liveHtml = "";
+    if (list.length > 0) {
+      const latest = list[0]; // সর্বশেষ ডেটা
+      const { issue, number, bigSmall, color } = latest;
 
-    let list = [];
-    if (data && data.data && data.data.list) {
-      list = data.data.list.slice(0, 10);
-    } else if (data && data.list) {
-      list = data.list.slice(0, 10);
-    } else if (Array.isArray(data)) {
-      list = data.slice(0, 10);
+      // Win/Loss নির্ধারণ
+      const result = (myPrediction === bigSmall) ? "Win" : "Loss";
+
+      // টেবিলে দেখাও
+      liveHtml += `
+        <tr>
+          <td>${issue}</td>
+          <td>${number}</td>
+          <td>${bigSmall}</td>
+          <td>${color}</td>
+          <td>${myPrediction}</td>
+          <td class="${result.toLowerCase()}">${result}</td>
+        </tr>
+      `;
+      document.getElementById("live").innerHTML = liveHtml;
+
+      // হিস্ট্রি সেভ করো
+      saveResult(issue, number, bigSmall, myPrediction, result);
     }
-
-    const table = document.getElementById("historyTable");
-    table.innerHTML = "";
-
-    if (list.length === 0) {
-      table.innerHTML = '<tr><td colspan="5" class="loading">No data available</td></tr>';
-      return;
-    }
-
-    // sizeHistory: newest-first mapping (list[0] newest)
-    const sizeHistory = list.map(item => {
-      const resultNumRaw = item.result ?? item.number ?? item.num ?? item.openResult ?? "?";
-      const numValue = parseInt(resultNumRaw);
-      return (isNaN(numValue) ? "Small" : (numValue >= 5 ? 'Big' : 'Small'));
-    });
-
-    // Calculate prediction for the NEXT period based on current history (this run)
-    const nextPredictionData = analyzePrediction(sizeHistory);
-    const nextPrediction = nextPredictionData.prediction;
-    console.log("Calculated nextPrediction (for next unseen period):", nextPrediction, nextPredictionData);
-
-    // Detect if a new period/result arrived since last run
-    const currentLatestPeriodRaw = list[0].issue ?? list[0].period ?? list[0].issueNo ?? list[0].periodId ?? list[0].id ?? list[0].drawNo;
-    const currentLatestPeriod = String(currentLatestPeriodRaw ?? "");
-
-    if (lastProcessedPeriod && currentLatestPeriod !== lastProcessedPeriod) {
-      // A new period has arrived since lastProcessedPeriod.
-      // The prediction that we calculated in the previous run (previousNextPrediction)
-      // corresponds to this newly arrived period. Save it and we can evaluate win/loss.
-      if (previousNextPrediction) {
-        predictionHistory[currentLatestPeriod] = previousNextPrediction;
-        console.log(`🆕 New period ${currentLatestPeriod} arrived. Saved previousNextPrediction=${previousNextPrediction} for it.`);
-      }
-    }
-
-    // Update lastProcessedPeriod for next check
-    lastProcessedPeriod = currentLatestPeriod;
-
-    // Save current nextPrediction into previousNextPrediction so that on next load,
-    // if a new period has arrived, that prediction will be applied to that new period.
-    previousNextPrediction = nextPrediction;
-
-    // Build the table rows and compute results where possible
-    list.forEach((item, index) => {
-      const tr = document.createElement("tr");
-
-      const tdPeriod = document.createElement("td");
-      tdPeriod.className = "period-cell";
-      const periodValueRaw = item.issue ?? item.period ?? item.issueNo ?? item.periodId ?? item.issueNumber ?? item.gameNo ?? item.drawNo ?? item.id ?? item.Issue ?? item.Period;
-      const periodValue = String(periodValueRaw ?? "N/A");
-      tdPeriod.textContent = periodValue;
-
-      const resultNumRaw = item.result ?? item.number ?? item.num ?? item.openResult ?? "?";
-      const tdNumber = document.createElement("td");
-      tdNumber.className = "number-cell";
-      const numSpan = document.createElement("span");
-      // color handling
-      const colorRaw = item.color ?? item.colour ?? "";
-      if (String(colorRaw).toLowerCase() === 'red') numSpan.style.color = '#ff4444';
-      else if (String(colorRaw).toLowerCase() === 'green') numSpan.style.color = '#4CAF50';
-      else if (['violet','purple'].includes(String(colorRaw).toLowerCase())) numSpan.style.color = '#9C27B0';
-      numSpan.textContent = resultNumRaw;
-      tdNumber.appendChild(numSpan);
-
-      const tdSize = document.createElement("td");
-      const actualSize = sizeHistory[index];
-      tdSize.textContent = actualSize;
-
-      const tdColor = document.createElement("td");
-      tdColor.className = "color-cell";
-      const numValue = parseInt(resultNumRaw);
-      const colors = getColors(numValue, String(colorRaw));
-      colors.forEach(c => {
-        const dot = document.createElement("span");
-        dot.className = `color-dot ${c}`;
-        tdColor.appendChild(dot);
-      });
-
-      const tdResult = document.createElement("td");
-      // See if we have a saved prediction for this period
-      const savedPrediction = predictionHistory[periodValue];
-
-      if (savedPrediction) {
-        // Compare saved prediction with actual
-        if (savedPrediction === actualSize) {
-          tdResult.className = "result-cell result-win";
-          tdResult.textContent = "✓ WIN";
-        } else {
-          tdResult.className = "result-cell result-loss";
-          tdResult.textContent = "✗ LOSS";
-        }
-      } else {
-        tdResult.className = "result-cell result-pending";
-        tdResult.textContent = "-";
-      }
-
-      tr.appendChild(tdPeriod);
-      tr.appendChild(tdNumber);
-      tr.appendChild(tdSize);
-      tr.appendChild(tdColor);
-      tr.appendChild(tdResult);
-
-      table.appendChild(tr);
-    });
-
-    // Update prediction display (what we calculated for the next unseen period)
-    const predictionResult = document.getElementById("predictionResult");
-    const patternInfo = document.getElementById("patternInfo");
-
-    predictionResult.innerHTML = `<span class="prediction-${nextPrediction.toLowerCase()}">${nextPrediction}</span>`;
-    patternInfo.textContent = `📊 ${nextPredictionData.pattern} | Confidence: ${nextPredictionData.confidence}`;
-
-    document.getElementById("time").textContent = new Date().toLocaleTimeString();
-  } catch (e) {
-    console.error("Error loading data:", e);
-    document.getElementById("historyTable").innerHTML =
-      '<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
+    document.getElementById("status").innerText = "✅ Last update: " + new Date().toLocaleTimeString();
+  } catch (err) {
+    document.getElementById("status").innerText = "❌ Error loading data!";
+    console.error(err);
   }
 }
 
-// প্রথমবার লোড
-loadData();
+function saveResult(period, number, bigSmall, prediction, result) {
+  // ডুপ্লিকেট না হলে তবেই সেভ করো
+  if (!history.find(item => item.period === period)) {
+    history.unshift({ period, number, bigSmall, prediction, result });
+    history = history.slice(0, 50); // সর্বোচ্চ ৫০টা রাখো
+    localStorage.setItem("winGoHistory", JSON.stringify(history));
+    updateHistoryTable();
+  }
+}
 
-// প্রতি 60 সেকেন্ডে আপডেট
-setInterval(loadData, 60000);
+function updateHistoryTable() {
+  const table = history.map(item => `
+    <tr>
+      <td>${item.period}</td>
+      <td>${item.number}</td>
+      <td>${item.bigSmall}</td>
+      <td>${item.prediction}</td>
+      <td class="${item.result.toLowerCase()}">${item.result}</td>
+    </tr>
+  `).join("");
+  document.getElementById("history").innerHTML = table;
+}
+
+// প্রথমে লোড করো
+updateHistoryTable();
+loadHistory();
+
+// প্রতি ৬২ সেকেন্ডে রিফ্রেশ করো (১ মিনিট ২ সেকেন্ড)
+setInterval(loadHistory, 62000);
 </script>
-
 </body>
 </html>
