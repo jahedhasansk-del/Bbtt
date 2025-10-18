@@ -113,10 +113,6 @@
     color: #ff4444;
   }
   
-  .stat-pending {
-    color: #ff9800;
-  }
-  
   @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.8; transform: scale(1.05); }
@@ -216,11 +212,6 @@
     background: #ffebee;
   }
   
-  .result-pending {
-    color: #ff9800;
-    background: #fff3e0;
-  }
-  
   .update-time {
     text-align: center;
     color: #ffffff;
@@ -277,20 +268,20 @@
       <div class="pattern-info" id="patternInfo"></div>
       <div class="stats-info" id="statsInfo">
         <div class="stat-item">
-          <div class="stat-label">Success</div>
+          <div class="stat-label">Win</div>
           <div class="stat-value stat-win" id="winCount">0</div>
         </div>
         <div class="stat-item">
-          <div class="stat-label">Field</div>
+          <div class="stat-label">Loss</div>
           <div class="stat-value stat-loss" id="lossCount">0</div>
         </div>
         <div class="stat-item">
-          <div class="stat-label">Pending</div>
-          <div class="stat-value stat-pending" id="pendingCount">0</div>
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="totalCount" style="color: #2196F3;">0</div>
         </div>
         <div class="stat-item">
-          <div class="stat-label">Accuracy</div>
-          <div class="stat-value" id="accuracy" style="color: #2196F3;">0%</div>
+          <div class="stat-label">Win Rate</div>
+          <div class="stat-value" id="winRate" style="color: #ff9800;">0%</div>
         </div>
       </div>
     </div>
@@ -319,10 +310,9 @@
 </div>
 
 <script>
-// Memory তে prediction history save করা (localStorage ব্যবহার না করে)
-let predictionHistory = {};
-let lastProcessedPeriod = null;
-let currentPrediction = null;
+// Memory-based storage for results
+let resultHistory = [];
+let lastCheckedData = null;
 
 function getColors(number, color) {
   const colors = [];
@@ -370,21 +360,76 @@ function analyzePrediction(history) {
   if (smallTriggers.includes(consecutiveSmall)) {
     return {
       prediction: 'Big',
-      pattern: `${consecutiveSmall} consecutive Small detected`,
-      confidence: 'high'
+      pattern: `${consecutiveSmall} consecutive Small`,
+      patternMatched: true,
+      triggerType: 'small'
     };
   } else if (bigTriggers.includes(consecutiveBig)) {
     return {
       prediction: 'Small',
-      pattern: `${consecutiveBig} consecutive Big detected`,
-      confidence: 'high'
+      pattern: `${consecutiveBig} consecutive Big`,
+      patternMatched: true,
+      triggerType: 'big'
     };
   } else {
     return {
       prediction: consecutiveSmall > consecutiveBig ? 'Big' : 'Small',
       pattern: `Current: ${consecutiveSmall} Small, ${consecutiveBig} Big`,
-      confidence: 'low'
+      patternMatched: false,
+      triggerType: 'none'
     };
+  }
+}
+
+function checkAndRecordResult(list) {
+  if (list.length < 2) return;
+  
+  // দ্বিতীয় সর্বশেষ entry (index 1) থেকে pattern বের করা
+  const historyForPattern = list.slice(1).map(item => {
+    const resultNum = item.result || item.number || item.num || item.openResult || "?";
+    const numValue = parseInt(resultNum);
+    return numValue >= 5 ? 'Big' : 'Small';
+  });
+  
+  // Pattern analysis
+  const patternData = analyzePrediction(historyForPattern);
+  
+  // সর্বশেষ result (index 0)
+  const latestResult = list[0];
+  const latestNum = latestResult.result || latestResult.number || latestResult.num || latestResult.openResult;
+  const latestSize = parseInt(latestNum) >= 5 ? 'Big' : 'Small';
+  const latestPeriod = latestResult.issue || latestResult.period || latestResult.issueNo || latestResult.periodId;
+  
+  // Check করা এই entry আগে process হয়েছে কিনা
+  const alreadyProcessed = resultHistory.some(r => r.period === latestPeriod);
+  
+  if (!alreadyProcessed && patternData.patternMatched) {
+    // Pattern matched এবং নতুন entry
+    const isWin = patternData.prediction === latestSize;
+    
+    const resultEntry = {
+      period: latestPeriod,
+      predicted: patternData.prediction,
+      actual: latestSize,
+      pattern: patternData.pattern,
+      result: isWin ? 'win' : 'loss'
+    };
+    
+    resultHistory.unshift(resultEntry); // নতুন entry সামনে add
+    
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.log(`📝 NEW RESULT RECORDED`);
+    console.log(`Period: ${latestPeriod}`);
+    console.log(`Pattern: ${patternData.pattern}`);
+    console.log(`Predicted: ${patternData.prediction}`);
+    console.log(`Actual: ${latestSize} (Number: ${latestNum})`);
+    console.log(`Result: ${isWin ? '✅ WIN' : '❌ LOSS'}`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    
+    // শুধুমাত্র সর্বশেষ 50টি result রাখা
+    if (resultHistory.length > 50) {
+      resultHistory = resultHistory.slice(0, 50);
+    }
   }
 }
 
@@ -394,8 +439,6 @@ async function loadData() {
     const url = `https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${ts}`;
     const res = await fetch(url);
     const data = await res.json();
-
-    console.log("📡 API Response:", data);
 
     let list = [];
     if (data && data.data && data.data.list) {
@@ -414,57 +457,29 @@ async function loadData() {
       return;
     }
 
-    // সবচেয়ে নতুন period
-    const latestPeriod = list[0].issue || list[0].period || list[0].issueNo || list[0].periodId;
-    
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-    console.log(`🔍 Latest Period: ${latestPeriod}`);
-    console.log(`🔍 Last Processed: ${lastProcessedPeriod}`);
-    console.log(`🔍 Current Prediction Was: ${currentPrediction}`);
+    // Result check এবং record করা
+    checkAndRecordResult(list);
 
-    // নতুন period এসেছে কিনা check
-    if (lastProcessedPeriod && latestPeriod !== lastProcessedPeriod) {
-      console.log(`🆕 NEW PERIOD DETECTED! ${lastProcessedPeriod} -> ${latestPeriod}`);
-      
-      // আগের prediction এই নতুন period এর জন্যই ছিল
-      if (currentPrediction) {
-        predictionHistory[latestPeriod] = currentPrediction;
-        
-        // নতুন period এর actual result
-        const newResultNum = list[0].result || list[0].number || list[0].num || list[0].openResult;
-        const newActualSize = parseInt(newResultNum) >= 5 ? 'Big' : 'Small';
-        
-        const isSuccess = currentPrediction === newActualSize;
-        console.log(`💾 SAVED: Period ${latestPeriod}`);
-        console.log(`   Predicted: ${currentPrediction}`);
-        console.log(`   Actual: ${newActualSize} (Number: ${newResultNum})`);
-        console.log(`   Result: ${isSuccess ? '✅ SUCCESS' : '❌ FIELD'}`);
-      }
-    }
-
-    // Latest period update করা
-    lastProcessedPeriod = latestPeriod;
-
-    // প্রথমে সব data থেকে size history তৈরি করা
+    // সর্বশেষ data থেকে size history
     const sizeHistory = list.map(item => {
       const resultNum = item.result || item.number || item.num || item.openResult || "?";
       const numValue = parseInt(resultNum);
       return numValue >= 5 ? 'Big' : 'Small';
     });
 
-    // পরবর্তী period এর জন্য prediction করা
+    // পরবর্তী prediction
     const nextPredictionData = analyzePrediction(sizeHistory);
-    currentPrediction = nextPredictionData.prediction;
-    
-    console.log(`🔮 NEW PREDICTION: ${currentPrediction} (for next period after ${latestPeriod})`);
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
 
-    // Statistics calculate করা
+    // Statistics calculate
     let winCount = 0;
     let lossCount = 0;
-    let pendingCount = 0;
 
-    // Table এ data show করা
+    resultHistory.forEach(entry => {
+      if (entry.result === 'win') winCount++;
+      if (entry.result === 'loss') lossCount++;
+    });
+
+    // Table এ data show
     list.forEach((item, index) => {
       const tr = document.createElement("tr");
       
@@ -509,33 +524,20 @@ async function loadData() {
         tdColor.appendChild(dot);
       });
       
-      // Result column
+      // Result column - resultHistory থেকে match করা
       const tdResult = document.createElement("td");
-      const savedPrediction = predictionHistory[periodValue];
+      const matchedResult = resultHistory.find(r => r.period === periodValue);
       
-      if (savedPrediction) {
-        // Prediction ছিল, result check করা
-        if (savedPrediction === actualSize) {
+      if (matchedResult) {
+        if (matchedResult.result === 'win') {
           tdResult.className = "result-cell result-win";
-          tdResult.textContent = "Success";
-          winCount++;
-          console.log(`✅ ${periodValue}: Predicted=${savedPrediction}, Actual=${actualSize} => SUCCESS`);
+          tdResult.textContent = "✅ WIN";
         } else {
           tdResult.className = "result-cell result-loss";
-          tdResult.textContent = "Field";
-          lossCount++;
-          console.log(`❌ ${periodValue}: Predicted=${savedPrediction}, Actual=${actualSize} => FIELD`);
+          tdResult.textContent = "❌ LOSS";
         }
       } else {
-        // সবচেয়ে নতুন period (index 0) এর জন্য pending
-        if (index === 0) {
-          tdResult.className = "result-cell result-pending";
-          tdResult.textContent = "PENDING";
-          pendingCount = 1;
-        } else {
-          tdResult.className = "result-cell result-pending";
-          tdResult.textContent = "-";
-        }
+        tdResult.textContent = "-";
       }
       
       tr.appendChild(tdPeriod);
@@ -547,25 +549,34 @@ async function loadData() {
       table.appendChild(tr);
     });
 
-    // Prediction display করা
+    // Prediction display
     const predictionResult = document.getElementById("predictionResult");
     const patternInfo = document.getElementById("patternInfo");
     
     predictionResult.innerHTML = `<span class="prediction-${nextPredictionData.prediction.toLowerCase()}">${nextPredictionData.prediction}</span>`;
-    patternInfo.textContent = `📊 ${nextPredictionData.pattern} | Confidence: ${nextPredictionData.confidence}`;
+    
+    if (nextPredictionData.patternMatched) {
+      patternInfo.textContent = `🎯 Pattern: ${nextPredictionData.pattern} → Predicting ${nextPredictionData.prediction}`;
+      patternInfo.style.background = '#fff3cd';
+      patternInfo.style.color = '#856404';
+    } else {
+      patternInfo.textContent = `📊 ${nextPredictionData.pattern} (No pattern trigger)`;
+      patternInfo.style.background = '#f8f9fa';
+      patternInfo.style.color = '#555';
+    }
 
-    // Statistics update করা
+    // Statistics update
+    const total = winCount + lossCount;
+    const winRate = total > 0 ? Math.round((winCount / total) * 100) : 0;
+    
     document.getElementById('winCount').textContent = winCount;
     document.getElementById('lossCount').textContent = lossCount;
-    document.getElementById('pendingCount').textContent = pendingCount;
-    
-    const total = winCount + lossCount;
-    const accuracy = total > 0 ? Math.round((winCount / total) * 100) : 0;
-    document.getElementById('accuracy').textContent = accuracy + '%';
+    document.getElementById('totalCount').textContent = total;
+    document.getElementById('winRate').textContent = winRate + '%';
 
     document.getElementById("time").textContent = new Date().toLocaleTimeString();
     
-    console.log(`📊 Stats - Success: ${winCount}, Field: ${lossCount}, Pending: ${pendingCount}, Accuracy: ${accuracy}%`);
+    console.log(`📊 Overall Stats - Win: ${winCount}, Loss: ${lossCount}, Total: ${total}, Win Rate: ${winRate}%`);
     
   } catch (e) {
     console.error("❌ Error loading data:", e);
@@ -577,8 +588,8 @@ async function loadData() {
 // প্রথমবার লোড
 loadData();
 
-// প্রতি 30 সেকেন্ডে আপডেট
-setInterval(loadData, 30000);
+// প্রতি 60 সেকেন্ডে আপডেট
+setInterval(loadData, 60000);
 </script>
 
 </body>
