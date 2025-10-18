@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>WinGo Pro Signal</title>
+<title>WinGo Pro Signal - Enhanced</title>
 <style>
   * {
     margin: 0;
@@ -49,7 +49,6 @@
     text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff41;
     animation: glow 2s ease-in-out infinite;
     margin-bottom: 10px;
-    white-space: nowrap;
   }
   
   @keyframes glow {
@@ -62,7 +61,6 @@
     font-size: 16px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    white-space: nowrap;
   }
   
   .scan-line {
@@ -83,15 +81,14 @@
     border: 2px solid #00ff41;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 0 30px rgba(0,255,65,0.3), inset 0 0 30px rgba(0,255,65,0.1);
+    box-shadow: 0 0 30px rgba(0,255,65,0.3);
     margin-bottom: 25px;
-    position: relative;
     animation: borderPulse 2s ease-in-out infinite;
   }
   
   @keyframes borderPulse {
-    0%, 100% { box-shadow: 0 0 30px rgba(0,255,65,0.3), inset 0 0 30px rgba(0,255,65,0.1); }
-    50% { box-shadow: 0 0 50px rgba(0,255,65,0.5), inset 0 0 50px rgba(0,255,65,0.2); }
+    0%, 100% { box-shadow: 0 0 30px rgba(0,255,65,0.3); }
+    50% { box-shadow: 0 0 50px rgba(0,255,65,0.5); }
   }
   
   .prediction-header {
@@ -111,7 +108,6 @@
   .prediction-content {
     padding: 40px 20px;
     text-align: center;
-    position: relative;
   }
   
   .prediction-result {
@@ -121,7 +117,6 @@
     text-transform: uppercase;
     letter-spacing: 5px;
     animation: fadeInScale 1s ease-out;
-    white-space: nowrap;
   }
   
   @keyframes fadeInScale {
@@ -146,15 +141,18 @@
     border-radius: 5px;
     margin: 20px auto;
     overflow: hidden;
-    position: relative;
   }
   
   .confidence-fill {
     height: 100%;
     background: linear-gradient(90deg, #ff0055, #ffaa00, #00ff41);
     border-radius: 5px;
-    transition: width 0.5s ease-out;
+    animation: fillBar 2s ease-out;
     position: relative;
+  }
+  
+  @keyframes fillBar {
+    0% { width: 0%; }
   }
   
   .confidence-fill::after {
@@ -184,11 +182,6 @@
   .confidence-high {
     color: #00ff41;
     text-shadow: 0 0 10px #00ff41;
-  }
-  
-  .confidence-medium {
-    color: #ffaa00;
-    text-shadow: 0 0 10px #ffaa00;
   }
   
   .confidence-low {
@@ -428,7 +421,6 @@
 
   .refresh-icon {
     font-size: 22px;
-    transition: transform 0.5s;
   }
   
   .refresh-icon.spinning {
@@ -445,7 +437,6 @@
     padding: 20px;
     color: #00ff41;
     animation: blink 1s infinite;
-    white-space: nowrap;
   }
   
   @keyframes blink {
@@ -507,7 +498,7 @@
   <div class="header">
     <div class="scan-line"></div>
     <div class="logo">⚡ WINGO PRO</div>
-    <div class="title">SIGNAL ANALYZER v2.0</div>
+    <div class="title">SIGNAL ANALYZER v2.5 ENHANCED</div>
   </div>
   
   <div class="prediction-container">
@@ -578,7 +569,6 @@
 </button>
 
 <script>
-// Matrix Background Animation
 const c=document.getElementById('matrix');
 const ctx=c.getContext('2d');
 c.width=window.innerWidth;
@@ -602,9 +592,8 @@ function drawMatrix(){
 }
 setInterval(drawMatrix,50);
 
-// Main Application Logic
 (function() {
-  const _0x4a=['\x42\x69\x67','\x53\x6d\x61\x6c\x6c','\x77\x69\x6e','\x6c\x6f\x73\x73'];
+  const _0x4a=['Big','Small','win','loss'];
   let _p=null,_c=null,_h=[],_lp=null,_ct;
   
   const _d=h=>{let s='';for(let i=0;i<h.length;i+=2){s+=String.fromCharCode(parseInt(h.substr(i,2),16));}return s;};
@@ -631,42 +620,54 @@ setInterval(drawMatrix,50);
   };
 
   const _a=(d)=>{
-    let cs=0,cb=0,sc=0,bc=0;
-    
+    let cs=0,cb=0,lcs=0,lcb=0;
     for(let i=0;i<d.length;i++){
       if(d[i]===_0x4a[1]){
-        cs++;cb=0;sc++;
+        cs++;
+        if(cb>0){lcb=cb;}
+        cb=0;
       }else if(d[i]===_0x4a[0]){
-        cb++;cs=0;bc++;
+        cb++;
+        if(cs>0){lcs=cs;}
+        cs=0;
       }
     }
-    
     let conf=50;
     let pred='';
-    
-    if(cs>=3){
+    if(cs>=3&&cs<=5){
       pred=_0x4a[0];
-      conf=70+Math.min(cs*5,25);
-    }else if(cb>=3){
-      pred=_0x4a[1];
-      conf=70+Math.min(cb*5,25);
-    }else if(sc>=7){
+      conf=78+Math.min(cs*3,15);
+    }else if(cs>=6){
       pred=_0x4a[0];
-      conf=60+((sc-7)*5);
-    }else if(bc>=7){
+      conf=65+Math.random()*10;
+    }else if(cb>=3&&cb<=5){
       pred=_0x4a[1];
-      conf=60+((bc-7)*5);
+      conf=78+Math.min(cb*3,15);
+    }else if(cb>=6){
+      pred=_0x4a[1];
+      conf=65+Math.random()*10;
+    }else if(cs===1&&lcb>=2){
+      pred=_0x4a[0];
+      conf=70+Math.random()*8;
+    }else if(cb===1&&lcs>=2){
+      pred=_0x4a[1];
+      conf=70+Math.random()*8;
     }else if(cs===2){
       pred=_0x4a[0];
-      conf=55;
+      conf=62+Math.random()*10;
     }else if(cb===2){
       pred=_0x4a[1];
-      conf=55;
+      conf=62+Math.random()*10;
+    }else if(cs===1){
+      pred=_0x4a[1];
+      conf=50+Math.random()*10;
+    }else if(cb===1){
+      pred=_0x4a[0];
+      conf=50+Math.random()*10;
     }else{
-      pred=sc>bc?_0x4a[0]:_0x4a[1];
-      conf=45;
+      pred=cs>=cb?_0x4a[0]:_0x4a[1];
+      conf=45+Math.random()*15;
     }
-    
     return {p:pred,c:Math.round(conf)};
   };
 
@@ -757,8 +758,6 @@ setInterval(drawMatrix,50);
       
       if(_c.c>=70){
         cl.innerHTML='<span class="confidence-high">HIGH CONFIDENCE</span>';
-      }else if(_c.c>=55){
-        cl.innerHTML='<span class="confidence-medium">MEDIUM CONFIDENCE</span>';
       }else{
         cl.innerHTML='<span class="confidence-low">LOW CONFIDENCE</span>';
       }
@@ -818,4 +817,26 @@ setInterval(drawMatrix,50);
         tr.appendChild(tdn);
         tr.appendChild(tds);
         tr.appendChild(tdc);
-        tr.
+        tr.appendChild(tdr);
+        tb.appendChild(tr);
+      });
+
+      const to=wc+lc;
+      const wrt=to>0?Math.round((wc/to)*100):0;
+      document.getElementById('wc').textContent=wc;
+      document.getElementById('lc').textContent=lc;
+      document.getElementById('tc').textContent=to;
+      document.getElementById('wr').textContent=wrt+'%';
+    }catch(e){
+      const _em=_d('5b204552524f52205d');
+      document.getElementById("tb").innerHTML=`<tr><td colspan="5" class="loading">${_em}</td></tr>`;
+    }
+  };
+
+  _l();
+  _s();
+})();
+</script>
+
+</body>
+   </html>
