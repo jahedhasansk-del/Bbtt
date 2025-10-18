@@ -524,17 +524,22 @@ async function loadData() {
         tdColor.appendChild(dot);
       });
       
-      // Result column - resultHistory থেকে match করা
+      // Result column - শুধু সবচেয়ে নতুন result দেখানো
       const tdResult = document.createElement("td");
-      const matchedResult = resultHistory.find(r => r.period === periodValue);
       
-      if (matchedResult) {
-        if (matchedResult.result === 'win') {
-          tdResult.className = "result-cell result-win";
-          tdResult.textContent = "✅ WIN";
+      // শুধুমাত্র সবচেয়ে recent result (প্রথম entry যেখানে result আছে)
+      if (index === 0 && resultHistory.length > 0) {
+        const latestResult = resultHistory[0];
+        if (latestResult.period === periodValue) {
+          if (latestResult.result === 'win') {
+            tdResult.className = "result-cell result-win";
+            tdResult.textContent = "✅ WIN";
+          } else {
+            tdResult.className = "result-cell result-loss";
+            tdResult.textContent = "❌ LOSS";
+          }
         } else {
-          tdResult.className = "result-cell result-loss";
-          tdResult.textContent = "❌ LOSS";
+          tdResult.textContent = "-";
         }
       } else {
         tdResult.textContent = "-";
