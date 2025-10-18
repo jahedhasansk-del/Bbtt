@@ -5,221 +5,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>WinGo History Live</title>
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    min-height: 100vh;
-    padding: 20px;
-  }
-  
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
-  h2 {
-    color: #ffffff;
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 24px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-  }
-  
-  .prediction-container {
-    background: #ffffff;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    margin-bottom: 25px;
-  }
-  
-  .prediction-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 15px;
-    text-align: center;
-  }
-  
-  .prediction-header h3 {
-    color: #ffffff;
-    font-size: 20px;
-    margin: 0;
-  }
-  
-  .prediction-content {
-    padding: 25px;
-    text-align: center;
-  }
-  
-  .prediction-result {
-    font-size: 48px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    animation: pulse 2s ease-in-out infinite;
-  }
-  
-  .prediction-big {
-    color: #ff4444;
-  }
-  
-  .prediction-small {
-    color: #4CAF50;
-  }
-  
-  .pattern-info {
-    font-size: 16px;
-    color: #555;
-    background: #f8f9fa;
-    padding: 12px;
-    border-radius: 8px;
-    margin-top: 10px;
-  }
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.05); }
-  }
-  
-  .table-container {
-    background: #ffffff;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  thead {
-    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-  }
-  
-  th {
-    padding: 15px;
-    text-align: center;
-    font-weight: 600;
-    color: #333;
-    font-size: 16px;
-    text-transform: capitalize;
-  }
-  
-  tbody tr {
-    background: #ffffff;
-    transition: all 0.3s ease;
-  }
-  
-  tbody tr:nth-child(even) {
-    background: #f8f9fa;
-  }
-  
-  tbody tr:hover {
-    background: #e3f2fd;
-    transform: scale(1.01);
-  }
-  
-  td {
-    padding: 12px;
-    text-align: center;
-    color: #333;
-    font-size: 14px;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  
-  .period-cell {
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    color: #555;
-  }
-  
-  .number-cell {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .color-cell {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .color-dot {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: inline-block;
-    border: 2px solid #ddd;
-  }
-  
+  /* (আপনার আগের styles 그대로 রাখতে পারেন — এখানে আমি একই স্টাইল রেখে দিলাম) */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh; padding: 20px; }
+  .container { max-width: 800px; margin: 0 auto; }
+  h2 { color: #ffffff; text-align: center; margin-bottom: 20px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+  .prediction-container { background: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 25px; }
+  .prediction-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; text-align: center; }
+  .prediction-header h3 { color: #ffffff; font-size: 20px; margin: 0; }
+  .prediction-content { padding: 25px; text-align: center; }
+  .prediction-result { font-size: 48px; font-weight: bold; margin-bottom: 15px; animation: pulse 2s ease-in-out infinite; }
+  .prediction-big { color: #ff4444; }
+  .prediction-small { color: #4CAF50; }
+  .pattern-info { font-size: 16px; color: #555; background: #f8f9fa; padding: 12px; border-radius: 8px; margin-top: 10px; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+  .table-container { background: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+  th { padding: 15px; text-align: center; font-weight: 600; color: #333; font-size: 16px; text-transform: capitalize; }
+  tbody tr { background: #ffffff; transition: all 0.3s ease; }
+  tbody tr:nth-child(even) { background: #f8f9fa; }
+  tbody tr:hover { background: #e3f2fd; transform: scale(1.01); }
+  td { padding: 12px; text-align: center; color: #333; font-size: 14px; border-bottom: 1px solid #e0e0e0; }
+  .period-cell { font-family: 'Courier New', monospace; font-size: 13px; color: #555; }
+  .number-cell { font-size: 24px; font-weight: bold; }
+  .color-cell { display: flex; justify-content: center; align-items: center; gap: 5px; }
+  .color-dot { width: 20px; height: 20px; border-radius: 50%; display: inline-block; border: 2px solid #ddd; }
   .red { background: #ff4444; }
   .green { background: #4CAF50; }
   .violet { background: #9C27B0; }
-  
-  .result-cell {
-    font-weight: bold;
-    font-size: 14px;
-    padding: 8px 12px;
-    border-radius: 5px;
-  }
-  
-  .result-win {
-    color: #4CAF50;
-    background: #e8f5e9;
-  }
-  
-  .result-loss {
-    color: #ff4444;
-    background: #ffebee;
-  }
-  
-  .result-pending {
-    color: #ff9800;
-    background: #fff3e0;
-  }
-  
-  .update-time {
-    text-align: center;
-    color: #ffffff;
-    margin-top: 15px;
-    font-size: 14px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-  }
-  
-  .loading {
-    text-align: center;
-    padding: 20px;
-    color: #666;
-  }
-  
+  .result-cell { font-weight: bold; font-size: 14px; padding: 8px 12px; border-radius: 5px; }
+  .result-win { color: #4CAF50; background: #e8f5e9; }
+  .result-loss { color: #ff4444; background: #ffebee; }
+  .result-pending { color: #ff9800; background: #fff3e0; }
+  .update-time { text-align: center; color: #ffffff; margin-top: 15px; font-size: 14px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+  .loading { text-align: center; padding: 20px; color: #666; }
   @media (max-width: 600px) {
-    th, td {
-      padding: 8px 4px;
-      font-size: 12px;
-    }
-    
-    .number-cell {
-      font-size: 20px;
-    }
-    
-    .period-cell {
-      font-size: 11px;
-    }
-    
-    .color-dot {
-      width: 15px;
-      height: 15px;
-    }
-    
-    .prediction-result {
-      font-size: 36px;
-    }
+    th, td { padding: 8px 4px; font-size: 12px; }
+    .number-cell { font-size: 20px; }
+    .period-cell { font-size: 11px; }
+    .color-dot { width: 15px; height: 15px; }
+    .prediction-result { font-size: 36px; }
   }
 </style>
 </head>
@@ -227,7 +53,7 @@
 
 <div class="container">
   <h2>🎯 WinGo 1 Minute - Latest 10 Results</h2>
-  
+
   <!-- Prediction Box -->
   <div class="prediction-container">
     <div class="prediction-header">
@@ -240,7 +66,7 @@
       <div class="pattern-info" id="patternInfo"></div>
     </div>
   </div>
-  
+
   <div class="table-container">
     <table>
       <thead>
@@ -259,48 +85,38 @@
       </tbody>
     </table>
   </div>
-  
+
   <p class="update-time">Last update: <span id="time">--:--:--</span></p>
 </div>
 
 <script>
-// Prediction এবং result permanently save করার জন্য
-const savedData = {};
-let lastProcessedPeriod = null;
-let nextPeriodPrediction = null;
+// Prediction history মেমোরিতে save করার জন্য
+const predictionHistory = {}; // { periodString: 'Big'|'Small' }
+let lastProcessedPeriod = null; // পূর্বের API তে দেখা সর্বশেষ period
+let previousNextPrediction = null; // আগের রান-এ ক্যালকুলেট করা "prediction for next period"
 
+/* helper */
 function getColors(number, color) {
   const colors = [];
-  
-  if (color === 'red') {
-    colors.push('red');
-  } else if (color === 'green') {
-    colors.push('green');
-  } else if (color === 'violet') {
-    colors.push('violet');
-  }
-  
-  // 0 এবং 5 এর জন্য violet এবং red/green দুটোই
-  if (number === 0) {
-    colors.push('violet');
-    colors.push('red');
-  } else if (number === 5) {
-    colors.push('violet');
-    colors.push('green');
-  }
-  
+  if (!color) color = "";
+  if (color.toLowerCase() === 'red') colors.push('red');
+  else if (color.toLowerCase() === 'green') colors.push('green');
+  else if (['violet','purple'].includes(color.toLowerCase())) colors.push('violet');
+
+  if (number === 0) { colors.push('violet'); colors.push('red'); }
+  else if (number === 5) { colors.push('violet'); colors.push('green'); }
+
   return colors;
 }
 
+/* Prediction logic - unchanged */
 function analyzePrediction(history) {
-  // প্যাটার্ন ম্যাচিং রুলস
   const smallTriggers = [2, 4, 5, 9];
   const bigTriggers = [1, 3, 4, 5, 7];
-  
-  // সর্বশেষ থেকে শুরু করে Small এবং Big কাউন্ট করা
+
   let consecutiveSmall = 0;
   let consecutiveBig = 0;
-  
+
   for (let i = 0; i < history.length; i++) {
     if (history[i] === 'Small') {
       consecutiveSmall++;
@@ -310,26 +126,13 @@ function analyzePrediction(history) {
       consecutiveSmall = 0;
     }
   }
-  
-  // প্রেডিকশন লজিক
+
   if (smallTriggers.includes(consecutiveSmall)) {
-    return {
-      prediction: 'Big',
-      pattern: `${consecutiveSmall} consecutive Small detected`,
-      confidence: 'high'
-    };
+    return { prediction: 'Big', pattern: `${consecutiveSmall} consecutive Small detected`, confidence: 'high' };
   } else if (bigTriggers.includes(consecutiveBig)) {
-    return {
-      prediction: 'Small',
-      pattern: `${consecutiveBig} consecutive Big detected`,
-      confidence: 'high'
-    };
+    return { prediction: 'Small', pattern: `${consecutiveBig} consecutive Big detected`, confidence: 'high' };
   } else {
-    return {
-      prediction: consecutiveSmall > consecutiveBig ? 'Big' : 'Small',
-      pattern: `Current: ${consecutiveSmall} Small, ${consecutiveBig} Big`,
-      confidence: 'low'
-    };
+    return { prediction: consecutiveSmall > consecutiveBig ? 'Big' : 'Small', pattern: `Current: ${consecutiveSmall} Small, ${consecutiveBig} Big`, confidence: 'low' };
   }
 }
 
@@ -340,7 +143,7 @@ async function loadData() {
     const res = await fetch(url);
     const data = await res.json();
 
-    console.log("📥 API Response:", data);
+    console.log("API Response:", data);
 
     let list = [];
     if (data && data.data && data.data.list) {
@@ -352,184 +155,120 @@ async function loadData() {
     }
 
     const table = document.getElementById("historyTable");
+    table.innerHTML = "";
 
     if (list.length === 0) {
       table.innerHTML = '<tr><td colspan="5" class="loading">No data available</td></tr>';
       return;
     }
 
-    // প্রতিটি entry র complete data save করা
-    list.forEach((item, index) => {
-      const periodValue = item.issue || item.period || item.issueNo || item.periodId;
-      const resultNum = item.result || item.number || item.num || item.openResult || "?";
-      const numValue = parseInt(resultNum);
-      const actualSize = numValue >= 5 ? 'Big' : 'Small';
-      const color = item.color || item.colour || "";
-      
-      // যদি এই period এর data না থাকে, তাহলে সেভ করা
-      if (!savedData[periodValue]) {
-        savedData[periodValue] = {
-          period: periodValue,
-          number: resultNum,
-          actualSize: actualSize,
-          color: color,
-          prediction: null,
-          result: null
-        };
-        console.log(`💾 Saved period data: ${periodValue}`);
-      }
+    // sizeHistory: newest-first mapping (list[0] newest)
+    const sizeHistory = list.map(item => {
+      const resultNumRaw = item.result ?? item.number ?? item.num ?? item.openResult ?? "?";
+      const numValue = parseInt(resultNumRaw);
+      return (isNaN(numValue) ? "Small" : (numValue >= 5 ? 'Big' : 'Small'));
     });
 
-    // সব period এর জন্য prediction calculate করা (শুধু একবার)
-    const allPeriods = Object.keys(savedData).sort().reverse();
-    
-    allPeriods.forEach((period, index) => {
-      // যদি এই period এর prediction না থাকে
-      if (savedData[period] && !savedData[period].prediction) {
-        // পরের সব period এর actual size নিয়ে history তৈরি করা
-        const futureHistory = [];
-        for (let i = index + 1; i < allPeriods.length; i++) {
-          const futurePeriod = allPeriods[i];
-          if (savedData[futurePeriod]) {
-            futureHistory.push(savedData[futurePeriod].actualSize);
-          }
-        }
-        
-        // যদি future data থাকে তাহলে prediction করা
-        if (futureHistory.length > 0) {
-          const predData = analyzePrediction(futureHistory);
-          savedData[period].prediction = predData.prediction;
-          
-          // Result calculate করা
-          if (savedData[period].actualSize === savedData[period].prediction) {
-            savedData[period].result = 'WIN';
-          } else {
-            savedData[period].result = 'LOSS';
-          }
-          
-          console.log(`🎯 Period ${period}: Predicted=${savedData[period].prediction}, Actual=${savedData[period].actualSize}, Result=${savedData[period].result}`);
-        }
-      }
-    });
+    // Calculate prediction for the NEXT period based on current history (this run)
+    const nextPredictionData = analyzePrediction(sizeHistory);
+    const nextPrediction = nextPredictionData.prediction;
+    console.log("Calculated nextPrediction (for next unseen period):", nextPrediction, nextPredictionData);
 
-    // নতুন period detect করা
-    const currentLatestPeriod = list[0].issue || list[0].period || list[0].issueNo || list[0].periodId;
-    
+    // Detect if a new period/result arrived since last run
+    const currentLatestPeriodRaw = list[0].issue ?? list[0].period ?? list[0].issueNo ?? list[0].periodId ?? list[0].id ?? list[0].drawNo;
+    const currentLatestPeriod = String(currentLatestPeriodRaw ?? "");
+
     if (lastProcessedPeriod && currentLatestPeriod !== lastProcessedPeriod) {
-      console.log(`🆕 New period detected: ${currentLatestPeriod}`);
-      
-      // নতুন period এর জন্য আগের prediction সেভ করা
-      if (nextPeriodPrediction && savedData[currentLatestPeriod]) {
-        savedData[currentLatestPeriod].prediction = nextPeriodPrediction;
-        
-        // Result calculate করা
-        if (savedData[currentLatestPeriod].actualSize === nextPeriodPrediction) {
-          savedData[currentLatestPeriod].result = 'WIN';
-        } else {
-          savedData[currentLatestPeriod].result = 'LOSS';
-        }
-        
-        console.log(`✅ New result: ${currentLatestPeriod} = ${savedData[currentLatestPeriod].result}`);
+      // A new period has arrived since lastProcessedPeriod.
+      // The prediction that we calculated in the previous run (previousNextPrediction)
+      // corresponds to this newly arrived period. Save it and we can evaluate win/loss.
+      if (previousNextPrediction) {
+        predictionHistory[currentLatestPeriod] = previousNextPrediction;
+        console.log(`🆕 New period ${currentLatestPeriod} arrived. Saved previousNextPrediction=${previousNextPrediction} for it.`);
       }
     }
-    
+
+    // Update lastProcessedPeriod for next check
     lastProcessedPeriod = currentLatestPeriod;
 
-    // পরবর্তী prediction calculate করা (current history দিয়ে)
-    const currentHistory = list.map(item => {
-      const resultNum = item.result || item.number || item.num || item.openResult || "?";
-      const numValue = parseInt(resultNum);
-      return numValue >= 5 ? 'Big' : 'Small';
-    });
-    
-    const nextPredictionData = analyzePrediction(currentHistory);
-    nextPeriodPrediction = nextPredictionData.prediction;
-    console.log(`🔮 Next prediction: ${nextPeriodPrediction}`);
+    // Save current nextPrediction into previousNextPrediction so that on next load,
+    // if a new period has arrived, that prediction will be applied to that new period.
+    previousNextPrediction = nextPrediction;
 
-    // Table render করা
-    table.innerHTML = "";
-    
-    list.forEach((item) => {
-      const periodValue = item.issue || item.period || item.issueNo || item.periodId;
-      const itemData = savedData[periodValue];
-      
-      if (!itemData) return;
-      
+    // Build the table rows and compute results where possible
+    list.forEach((item, index) => {
       const tr = document.createElement("tr");
-      
-      // Period
+
       const tdPeriod = document.createElement("td");
       tdPeriod.className = "period-cell";
-      tdPeriod.textContent = itemData.period;
-      
-      // Number
+      const periodValueRaw = item.issue ?? item.period ?? item.issueNo ?? item.periodId ?? item.issueNumber ?? item.gameNo ?? item.drawNo ?? item.id ?? item.Issue ?? item.Period;
+      const periodValue = String(periodValueRaw ?? "N/A");
+      tdPeriod.textContent = periodValue;
+
+      const resultNumRaw = item.result ?? item.number ?? item.num ?? item.openResult ?? "?";
       const tdNumber = document.createElement("td");
       tdNumber.className = "number-cell";
       const numSpan = document.createElement("span");
-      
-      const color = itemData.color;
-      if (color === 'red' || color === 'Red') {
-        numSpan.style.color = '#ff4444';
-      } else if (color === 'green' || color === 'Green') {
-        numSpan.style.color = '#4CAF50';
-      } else if (color === 'violet' || color === 'Violet' || color === 'purple') {
-        numSpan.style.color = '#9C27B0';
-      }
-      
-      numSpan.textContent = itemData.number;
+      // color handling
+      const colorRaw = item.color ?? item.colour ?? "";
+      if (String(colorRaw).toLowerCase() === 'red') numSpan.style.color = '#ff4444';
+      else if (String(colorRaw).toLowerCase() === 'green') numSpan.style.color = '#4CAF50';
+      else if (['violet','purple'].includes(String(colorRaw).toLowerCase())) numSpan.style.color = '#9C27B0';
+      numSpan.textContent = resultNumRaw;
       tdNumber.appendChild(numSpan);
-      
-      // Big/Small
+
       const tdSize = document.createElement("td");
-      tdSize.textContent = itemData.actualSize;
-      
-      // Color
+      const actualSize = sizeHistory[index];
+      tdSize.textContent = actualSize;
+
       const tdColor = document.createElement("td");
       tdColor.className = "color-cell";
-      
-      const numValue = parseInt(itemData.number);
-      const colors = getColors(numValue, color.toLowerCase());
+      const numValue = parseInt(resultNumRaw);
+      const colors = getColors(numValue, String(colorRaw));
       colors.forEach(c => {
         const dot = document.createElement("span");
         dot.className = `color-dot ${c}`;
         tdColor.appendChild(dot);
       });
-      
-      // Result
+
       const tdResult = document.createElement("td");
-      
-      if (itemData.result === 'WIN') {
-        tdResult.className = "result-cell result-win";
-        tdResult.textContent = "✓ WIN";
-      } else if (itemData.result === 'LOSS') {
-        tdResult.className = "result-cell result-loss";
-        tdResult.textContent = "✗ LOSS";
+      // See if we have a saved prediction for this period
+      const savedPrediction = predictionHistory[periodValue];
+
+      if (savedPrediction) {
+        // Compare saved prediction with actual
+        if (savedPrediction === actualSize) {
+          tdResult.className = "result-cell result-win";
+          tdResult.textContent = "✓ WIN";
+        } else {
+          tdResult.className = "result-cell result-loss";
+          tdResult.textContent = "✗ LOSS";
+        }
       } else {
         tdResult.className = "result-cell result-pending";
         tdResult.textContent = "-";
       }
-      
+
       tr.appendChild(tdPeriod);
       tr.appendChild(tdNumber);
       tr.appendChild(tdSize);
       tr.appendChild(tdColor);
       tr.appendChild(tdResult);
-      
+
       table.appendChild(tr);
     });
 
-    // পরবর্তী round এর prediction display
+    // Update prediction display (what we calculated for the next unseen period)
     const predictionResult = document.getElementById("predictionResult");
     const patternInfo = document.getElementById("patternInfo");
-    
-    predictionResult.innerHTML = `<span class="prediction-${nextPredictionData.prediction.toLowerCase()}">${nextPredictionData.prediction}</span>`;
+
+    predictionResult.innerHTML = `<span class="prediction-${nextPrediction.toLowerCase()}">${nextPrediction}</span>`;
     patternInfo.textContent = `📊 ${nextPredictionData.pattern} | Confidence: ${nextPredictionData.confidence}`;
 
     document.getElementById("time").textContent = new Date().toLocaleTimeString();
-    
   } catch (e) {
-    console.error("❌ Error loading data:", e);
-    document.getElementById("historyTable").innerHTML = 
+    console.error("Error loading data:", e);
+    document.getElementById("historyTable").innerHTML =
       '<tr><td colspan="5" class="loading">Error loading data. Retrying...</td></tr>';
   }
 }
@@ -537,8 +276,8 @@ async function loadData() {
 // প্রথমবার লোড
 loadData();
 
-// প্রতি 62 সেকেন্ডে আপডেট
-setInterval(loadData, 62000);
+// প্রতি 60 সেকেন্ডে আপডেট
+setInterval(loadData, 60000);
 </script>
 
 </body>
