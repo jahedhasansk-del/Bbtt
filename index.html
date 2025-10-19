@@ -1,816 +1,640 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>WinGo Pro Signal - Enhanced</title>
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Courier New', monospace;
-    background: #0a0e27;
-    min-height: 100vh;
-    padding: 20px;
-    overflow-x: hidden;
-  }
-  
-  .matrix-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    opacity: 0.03;
-    pointer-events: none;
-  }
-  
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .header {
-    text-align: center;
-    margin-bottom: 30px;
-    position: relative;
-  }
-  
-  .logo {
-    font-size: 36px;
-    color: #00ff41;
-    text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff41;
-    animation: glow 2s ease-in-out infinite;
-    margin-bottom: 10px;
-  }
-  
-  @keyframes glow {
-    0%, 100% { text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff41; }
-    50% { text-shadow: 0 0 30px #00ff41, 0 0 60px #00ff41, 0 0 80px #00ff41; }
-  }
-  
-  .title {
-    color: #00ff41;
-    font-size: 16px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  
-  .scan-line {
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #00ff41, transparent);
-    animation: scan 3s linear infinite;
-  }
-  
-  @keyframes scan {
-    0% { top: 0; }
-    100% { top: 100%; }
-  }
-  
-  .prediction-container {
-    background: linear-gradient(135deg, rgba(0,255,65,0.1) 0%, rgba(0,100,255,0.1) 100%);
-    border: 2px solid #00ff41;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 0 30px rgba(0,255,65,0.3);
-    margin-bottom: 25px;
-    animation: borderPulse 2s ease-in-out infinite;
-  }
-  
-  @keyframes borderPulse {
-    0%, 100% { box-shadow: 0 0 30px rgba(0,255,65,0.3); }
-    50% { box-shadow: 0 0 50px rgba(0,255,65,0.5); }
-  }
-  
-  .prediction-header {
-    padding: 15px;
-    text-align: center;
-    background: linear-gradient(135deg, rgba(0,255,65,0.2) 0%, rgba(0,100,255,0.2) 100%);
-    border-bottom: 1px solid #00ff41;
-  }
-  
-  .prediction-header h3 {
-    color: #00ff41;
-    font-size: 18px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  
-  .prediction-content {
-    padding: 40px 20px;
-    text-align: center;
-  }
-  
-  .prediction-result {
-    font-size: 72px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 5px;
-    animation: fadeInScale 1s ease-out;
-  }
-  
-  @keyframes fadeInScale {
-    0% { opacity: 0; transform: scale(0.5); }
-    100% { opacity: 1; transform: scale(1); }
-  }
-  
-  .prediction-big {
-    color: #ff0055;
-    text-shadow: 0 0 20px #ff0055, 0 0 40px #ff0055;
-  }
-  
-  .prediction-small {
-    color: #00ff41;
-    text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff41;
-  }
-  
-  .confidence-bar {
-    width: 200px;
-    height: 10px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 5px;
-    margin: 20px auto;
-    overflow: hidden;
-  }
-  
-  .confidence-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #ff0055, #ffaa00, #00ff41);
-    border-radius: 5px;
-    animation: fillBar 2s ease-out;
-    position: relative;
-  }
-  
-  @keyframes fillBar {
-    0% { width: 0%; }
-  }
-  
-  .confidence-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    animation: shimmer 2s infinite;
-  }
-  
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-  
-  .confidence-label {
-    color: #00ff41;
-    font-size: 14px;
-    margin-top: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  
-  .confidence-high {
-    color: #00ff41;
-    text-shadow: 0 0 10px #00ff41;
-  }
-  
-  .confidence-low {
-    color: #ff0055;
-    text-shadow: 0 0 10px #ff0055;
-  }
-  
-  .stats-container {
-    background: linear-gradient(135deg, rgba(0,255,65,0.05) 0%, rgba(0,100,255,0.05) 100%);
-    border: 1px solid rgba(0,255,65,0.3);
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 0 20px rgba(0,255,65,0.2);
-  }
-  
-  .stats-info {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-  }
-  
-  .stat-item {
-    text-align: center;
-    padding: 15px;
-    background: rgba(0,255,65,0.05);
-    border: 1px solid rgba(0,255,65,0.2);
-    border-radius: 10px;
-    transition: all 0.3s ease;
-  }
-  
-  .stat-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 20px rgba(0,255,65,0.3);
-  }
-  
-  .stat-label {
-    font-size: 11px;
-    color: #00ff41;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.7;
-  }
-  
-  .stat-value {
-    font-size: 32px;
-    font-weight: bold;
-    color: #00ff41;
-    text-shadow: 0 0 10px #00ff41;
-  }
-  
-  .stat-win {
-    color: #00ff41;
-    text-shadow: 0 0 15px #00ff41;
-  }
-  
-  .stat-loss {
-    color: #ff0055;
-    text-shadow: 0 0 15px #ff0055;
-  }
-  
-  .table-container {
-    background: linear-gradient(135deg, rgba(0,255,65,0.05) 0%, rgba(0,100,255,0.05) 100%);
-    border: 1px solid rgba(0,255,65,0.3);
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 0 20px rgba(0,255,65,0.2);
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  thead {
-    background: linear-gradient(135deg, rgba(0,255,65,0.2) 0%, rgba(0,100,255,0.2) 100%);
-  }
-  
-  th {
-    padding: 15px 8px;
-    text-align: center;
-    font-weight: 600;
-    color: #00ff41;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 2px solid #00ff41;
-  }
-  
-  tbody tr {
-    background: rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
-    border-bottom: 1px solid rgba(0,255,65,0.1);
-  }
-  
-  tbody tr:hover {
-    background: rgba(0,255,65,0.1);
-    transform: scale(1.02);
-    box-shadow: 0 0 15px rgba(0,255,65,0.3);
-  }
-  
-  td {
-    padding: 12px 8px;
-    text-align: center;
-    color: #00ff41;
-    font-size: 13px;
-  }
-  
-  .period-cell {
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    opacity: 0.7;
-  }
-  
-  .number-cell {
-    font-size: 28px;
-    font-weight: bold;
-  }
-  
-  .color-cell {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .color-dot {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: inline-block;
-    border: 2px solid rgba(0,255,65,0.3);
-    animation: dotPulse 2s infinite;
-  }
-  
-  @keyframes dotPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-  }
-  
-  .red { 
-    background: #ff0055; 
-    box-shadow: 0 0 10px #ff0055;
-  }
-  .green { 
-    background: #00ff41;
-    box-shadow: 0 0 10px #00ff41;
-  }
-  .violet { 
-    background: #aa00ff;
-    box-shadow: 0 0 10px #aa00ff;
-  }
-  
-  .result-cell {
-    font-weight: bold;
-    font-size: 12px;
-    padding: 6px 10px;
-    border-radius: 5px;
-  }
-  
-  .result-win {
-    color: #00ff41;
-    background: rgba(0,255,65,0.2);
-    border: 1px solid #00ff41;
-    text-shadow: 0 0 5px #00ff41;
-  }
-  
-  .result-loss {
-    color: #ff0055;
-    background: rgba(255,0,85,0.2);
-    border: 1px solid #ff0055;
-    text-shadow: 0 0 5px #ff0055;
-  }
-  
-  .time-display {
-    background: rgba(0,255,65,0.1);
-    padding: 20px 40px;
-    border-radius: 15px;
-    display: inline-block;
-    margin-top: 20px;
-    border: 1px solid rgba(0,255,65,0.3);
-    box-shadow: 0 0 20px rgba(0,255,65,0.2);
-  }
-  
-  .current-time {
-    font-size: 36px;
-    font-weight: bold;
-    color: #00ff41;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 3px;
-    text-shadow: 0 0 20px #00ff41;
-  }
-  
-  .seconds-highlight {
-    color: #ff0055;
-    font-size: 40px;
-    animation: pulse 1s infinite;
-    text-shadow: 0 0 20px #ff0055;
-  }
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-  
-  .refresh-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: linear-gradient(135deg, #00ff41 0%, #00aaff 100%);
-    color: #0a0e27;
-    border: none;
-    padding: 18px 30px;
-    border-radius: 50px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 0 30px rgba(0,255,65,0.5);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s;
-    z-index: 1000;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
-
-  .refresh-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 50px rgba(0,255,65,0.8);
-  }
-
-  .refresh-btn:active {
-    transform: scale(0.95);
-  }
-
-  .refresh-icon {
-    font-size: 22px;
-  }
-  
-  .refresh-icon.spinning {
-    animation: spin 0.5s linear;
-  }
-  
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  
-  .loading {
-    text-align: center;
-    padding: 20px;
-    color: #00ff41;
-    animation: blink 1s infinite;
-  }
-  
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-  
-  .update-time {
-    text-align: center;
-    margin-top: 20px;
-  }
-  
-  @media (max-width: 600px) {
-    .logo {
-      font-size: 24px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Prediction App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    
-    .title {
-      font-size: 11px;
-      letter-spacing: 1px;
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0e27;
+      color: #00ff88;
+      padding: 20px;
     }
-    
-    .stats-info {
-      grid-template-columns: repeat(2, 1fr);
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
     }
-    
-    .prediction-result {
-      font-size: 48px;
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(0, 255, 136, 0.1);
+      border: 2px solid #00ff88;
+      border-radius: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-box {
+      background: rgba(0, 20, 40, 0.8);
+      border: 2px solid #00ff88;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #00ff88;
+      text-transform: uppercase;
       letter-spacing: 2px;
+      margin-bottom: 10px;
     }
-    
-    th, td {
-      padding: 8px 4px;
-      font-size: 11px;
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #fff;
     }
-    
-    .number-cell {
-      font-size: 20px;
+
+    .prediction-box {
+      background: rgba(0, 20, 40, 0.8);
+      border: 2px solid #00ff88;
+      border-radius: 10px;
+      padding: 25px;
+      margin-bottom: 30px;
     }
-    
-    .refresh-btn {
-      bottom: 20px;
-      right: 20px;
-      padding: 15px 25px;
+
+    .prediction-title {
+      font-size: 18px;
+      color: #00ff88;
+      margin-bottom: 20px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    .prediction-content {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .prediction-item {
+      text-align: center;
+    }
+
+    .prediction-item h4 {
+      color: #00ff88;
+      margin-bottom: 10px;
       font-size: 14px;
     }
-    
-    .current-time {
-      font-size: 28px;
+
+    .numbers-display {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
     }
-  }
-</style>
+
+    .number-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid #00ff88;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+      background: rgba(0, 255, 136, 0.2);
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+    }
+
+    .confidence-meter {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .confidence-bar {
+      width: 100%;
+      height: 30px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 15px;
+      overflow: hidden;
+      margin-top: 10px;
+      border: 2px solid #00ff88;
+    }
+
+    .confidence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff4757, #ffa502, #00ff88);
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .table-container {
+      background: rgba(0, 20, 40, 0.8);
+      border: 2px solid #00ff88;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: rgba(0, 255, 136, 0.2);
+      padding: 12px;
+      text-align: center;
+      color: #00ff88;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 1px;
+      border: 1px solid #00ff88;
+    }
+
+    td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      color: #fff;
+    }
+
+    tr:hover {
+      background: rgba(0, 255, 136, 0.1);
+    }
+
+    .color-dots {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+    }
+
+    .color-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .color-dot.violet {
+      background: #9b59b6;
+      box-shadow: 0 0 10px #9b59b6;
+    }
+
+    .color-dot.green {
+      background: #00ff88;
+      box-shadow: 0 0 10px #00ff88;
+    }
+
+    .color-dot.red {
+      background: #ff4757;
+      box-shadow: 0 0 10px #ff4757;
+    }
+
+    .result-win {
+      color: #00ff88;
+      font-weight: bold;
+      text-shadow: 0 0 5px #00ff88;
+    }
+
+    .result-loss {
+      color: #ff4757;
+      font-weight: bold;
+      text-shadow: 0 0 5px #ff4757;
+    }
+
+    .refresh-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #00ff88;
+      border: none;
+      color: #0a0e27;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 15px 30px;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 5px 20px rgba(0, 255, 136, 0.5);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .refresh-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 255, 136, 0.8);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #00ff88;
+      font-size: 18px;
+    }
+
+    .timer {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      font-size: 48px;
+      color: #00ff88;
+      text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+      font-weight: bold;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+  </style>
 </head>
 <body>
-
-<canvas class="matrix-bg" id="matrix"></canvas>
-
-<div class="container">
-  <div class="header">
-    <div class="scan-line"></div>
-    <div class="logo">⚡ WINGO PRO</div>
-    <div class="title">SIGNAL ANALYZER v2.5 ENHANCED</div>
-  </div>
-  
-  <div class="prediction-container">
-    <div class="prediction-header">
-      <h3>🔮 NEXT PREDICTION</h3>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 ADVANCED PREDICTION SYSTEM</h1>
+      <p>Multi-Algorithm Intelligence</p>
     </div>
-    <div class="prediction-content">
-      <div class="prediction-result" id="currPred">
-        <div class="loading" style="font-size: 18px;">[ SCANNING... ]</div>
-      </div>
-      <div class="confidence-bar">
-        <div class="confidence-fill" id="confBar" style="width: 0%"></div>
-      </div>
-      <div class="confidence-label" id="confLabel">ANALYZING</div>
-    </div>
-  </div>
-  
-  <div class="stats-container">
-    <div class="stats-info">
-      <div class="stat-item">
+
+    <div class="stats-grid">
+      <div class="stat-box">
         <div class="stat-label">Win</div>
-        <div class="stat-value stat-win" id="wc">0</div>
+        <div class="stat-value" id="wc">0</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-box">
         <div class="stat-label">Loss</div>
-        <div class="stat-value stat-loss" id="lc">0</div>
+        <div class="stat-value" id="lc">0</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-box">
         <div class="stat-label">Total</div>
         <div class="stat-value" id="tc">0</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-box">
         <div class="stat-label">Accuracy</div>
         <div class="stat-value" id="wr">0%</div>
       </div>
     </div>
-  </div>
-  
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Period</th>
-          <th>Number</th>
-          <th>Size</th>
-          <th>Color</th>
-          <th>Result</th>
-        </tr>
-      </thead>
-      <tbody id="tb">
-        <tr>
-          <td colspan="5" class="loading">[ LOADING DATA... ]</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  <p class="update-time">
-    <span class="time-display">
-      <div class="current-time" id="rt">00:00:00</div>
-    </span>
-  </p>
-</div>
 
-<button class="refresh-btn" onclick="_r()">
-  <span class="refresh-icon" id="ri">⟳</span>
-  <span>Refresh</span>
-</button>
+    <div class="prediction-box">
+      <div class="prediction-title">🔮 Next Prediction</div>
+      <div class="prediction-content">
+        <div class="prediction-item">
+          <h4>PREDICTED NUMBERS</h4>
+          <div class="numbers-display" id="predicted-numbers">
+            <div class="number-circle">?</div>
+          </div>
+        </div>
+        <div class="prediction-item">
+          <h4>SIZE</h4>
+          <div style="font-size: 24px; margin-top: 10px; color: #fff;" id="predicted-size">-</div>
+        </div>
+        <div class="prediction-item">
+          <h4>COLORS</h4>
+          <div class="color-dots" id="predicted-colors" style="margin-top: 10px;">
+            <div class="color-dot violet"></div>
+          </div>
+        </div>
+      </div>
+      <div class="confidence-meter">
+        <h4>CONFIDENCE LEVEL</h4>
+        <div class="confidence-bar">
+          <div class="confidence-fill" id="confidence-fill" style="width: 0%">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>PERIOD</th>
+            <th>NUMBER</th>
+            <th>SIZE</th>
+            <th>COLOR</th>
+            <th>RESULT</th>
+          </tr>
+        </thead>
+        <tbody id="tb">
+          <tr>
+            <td colspan="5" class="loading">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="timer" id="timer">00:00:00</div>
+  <button class="refresh-btn" onclick="location.reload()">🔄 REFRESH</button>
 
 <script>
-const c=document.getElementById('matrix');
-const ctx=c.getContext('2d');
-c.width=window.innerWidth;
-c.height=window.innerHeight;
-const chars='01';
-const fontSize=14;
-const cols=c.width/fontSize;
-const drops=[];
-for(let i=0;i<cols;i++)drops[i]=1;
-function drawMatrix(){
-  ctx.fillStyle='rgba(10,14,39,0.05)';
-  ctx.fillRect(0,0,c.width,c.height);
-  ctx.fillStyle='#00ff41';
-  ctx.font=fontSize+'px monospace';
-  for(let i=0;i<drops.length;i++){
-    const t=chars[Math.floor(Math.random()*chars.length)];
-    ctx.fillText(t,i*fontSize,drops[i]*fontSize);
-    if(drops[i]*fontSize>c.height&&Math.random()>0.975)drops[i]=0;
-    drops[i]++;
-  }
-}
-setInterval(drawMatrix,50);
-
 (function() {
-  const _0x4a=['Big','Small','win','loss'];
-  let _p=null,_c=null,_h=[],_lp=null,_ct;
-  
-  const _d=h=>{let s='';for(let i=0;i<h.length;i+=2){s+=String.fromCharCode(parseInt(h.substr(i,2),16));}return s;};
-  
-  const _k={
-    u1:_d('68747470733a2f2f647261772e61722d6c6f74746572793031'),
-    u2:_d('2e636f6d2f57696e476f2f57696e476f5f314d2f'),
-    u3:_d('476574486973746f7279497373756550616765'),
-    u4:_d('2e6a736f6e'),
-    i:1000,
-    m:59
-  };
+  'use strict';
 
-  const _x=(n)=>parseInt(n)>=5?_0x4a[0]:_0x4a[1];
-  
-  const _g=(n,c)=>{
-    let a=[];
-    if(c==='red')a.push('red');
-    else if(c==='green')a.push('green');
-    else if(c==='violet')a.push('violet');
-    if(n===0){a.push('violet');a.push('red');}
-    else if(n===5){a.push('violet');a.push('green');}
-    return a;
-  };
+  const _0x4a = ['per', 'number', 'win', 'loss'];
+  const _api = 'https://api.bdg88zf.com/api/webapi/GetNoaverageEmerdList';
+  let _h = [];
 
-  const _a=(d)=>{
-    let cs=0,cb=0,lcs=0,lcb=0;
-    for(let i=0;i<d.length;i++){
-      if(d[i]===_0x4a[1]){
-        cs++;
-        if(cb>0){lcb=cb;}
-        cb=0;
-      }else if(d[i]===_0x4a[0]){
-        cb++;
-        if(cs>0){lcs=cs;}
-        cs=0;
-      }
+  // ===== ADVANCED PREDICTION LOGIC =====
+
+  function analyzeFrequency(history, limit = 20) {
+    const recent = history.slice(-limit);
+    const freq = {};
+    
+    recent.forEach(item => {
+      const num = parseInt(item.number);
+      freq[num] = (freq[num] || 0) + 1;
+    });
+    
+    return freq;
+  }
+
+  function analyzeGaps(history) {
+    const gaps = {};
+    
+    for (let num = 0; num <= 9; num++) {
+      gaps[num] = 0;
     }
-    let conf=50;
-    let pred='';
-    if(cs>=3&&cs<=5){
-      pred=_0x4a[0];
-      conf=78+Math.min(cs*3,15);
-    }else if(cs>=6){
-      pred=_0x4a[0];
-      conf=65+Math.random()*10;
-    }else if(cb>=3&&cb<=5){
-      pred=_0x4a[1];
-      conf=78+Math.min(cb*3,15);
-    }else if(cb>=6){
-      pred=_0x4a[1];
-      conf=65+Math.random()*10;
-    }else if(cs===1&&lcb>=2){
-      pred=_0x4a[0];
-      conf=70+Math.random()*8;
-    }else if(cb===1&&lcs>=2){
-      pred=_0x4a[1];
-      conf=70+Math.random()*8;
-    }else if(cs===2){
-      pred=_0x4a[0];
-      conf=62+Math.random()*10;
-    }else if(cb===2){
-      pred=_0x4a[1];
-      conf=62+Math.random()*10;
-    }else if(cs===1){
-      pred=_0x4a[1];
-      conf=50+Math.random()*10;
-    }else if(cb===1){
-      pred=_0x4a[0];
-      conf=50+Math.random()*10;
-    }else{
-      pred=cs>=cb?_0x4a[0]:_0x4a[1];
-      conf=45+Math.random()*15;
-    }
-    return {p:pred,c:Math.round(conf)};
-  };
-
-  const _u=()=>{
-    const n=new Date();
-    const h=String(n.getHours()).padStart(2,'0');
-    const m=String(n.getMinutes()).padStart(2,'0');
-    const s=String(n.getSeconds()).padStart(2,'0');
-    const e=document.getElementById('rt');
-    if(e){
-      e.innerHTML=`${h}:${m}:<span class="seconds-highlight">${s}</span>`;
-    }
-    if(n.getSeconds()===_k.m){_l();}
-  };
-
-  const _s=()=>{
-    _u();
-    clearInterval(_ct);
-    _ct=setInterval(_u,_k.i);
-  };
-
-  window._r=()=>{
-    const ic=document.getElementById('ri');
-    if(ic){
-      ic.classList.add('spinning');
-      setTimeout(()=>ic.classList.remove('spinning'),500);
-    }
-    _l();
-  };
-
-  const _l=async()=>{
-    try{
-      const t=new Date().getTime();
-      const _u=_k.u1+_k.u2+_k.u3+_k.u4;
-      const _q=`?${_d('7473')}=${t}`;
-      const _f=_u+_q;
-      const r=await fetch(_f);
-      const d=await r.json();
-      let ls=[];
-      const _pk=['data','list'];
-      const _sk=['list'];
-      if(d&&d[_pk[0]]&&d[_pk[0]][_pk[1]]){ls=d[_pk[0]][_pk[1]].slice(0,10);}
-      else if(d&&d[_sk[0]]){ls=d[_sk[0]].slice(0,10);}
-      else if(Array.isArray(d)){ls=d.slice(0,10);}
-
-      const tb=document.getElementById("tb");
-      tb.innerHTML="";
-
-      if(ls.length===0){
-        tb.innerHTML='<tr><td colspan="5" class="loading">[ NO DATA ]</td></tr>';
-        return;
-      }
-
-      const _f1=['issue','period','issueNo','periodId','issueNumber'];
-      const _f2=['result','number','num','openResult'];
-      const _f3=['color','colour'];
-      const _f4=['gameNo','drawNo','id'];
+    
+    for (let i = history.length - 1; i >= 0; i--) {
+      const num = parseInt(history[i].number);
       
-      const tp=String(ls[0][_f1[0]]||ls[0][_f1[1]]||ls[0][_f1[2]]||ls[0][_f1[3]]||ls[0][_f1[4]]||'');
-      const tn=String(ls[0][_f2[0]]||ls[0][_f2[1]]||ls[0][_f2[2]]||ls[0][_f2[3]]||'');
-      const ts=_x(tn);
-
-      const sh=ls.map(i=>{
-        const rn=i[_f2[0]]||i[_f2[1]]||i[_f2[2]]||i[_f2[3]]||"?";
-        return _x(rn);
-      });
-
-      const pd=_a(sh);
-      _c=pd;
-
-      if(_lp!==tp){
-        if(_p){
-          const im=_p.p===ts;
-          const re={per:tp,pred:_p.p,act:ts,res:im?_0x4a[2]:_0x4a[3],num:tn};
-          _h.unshift(re);
-          if(_h.length>50){_h=_h.slice(0,50);}
+      for (let n = 0; n <= 9; n++) {
+        if (n === num) {
+          gaps[n] = 0;
+        } else {
+          gaps[n]++;
         }
-        _p={..._c};
-        _lp=tp;
       }
+    }
+    
+    return gaps;
+  }
 
-      const cr=document.getElementById("currPred");
-      const cb=document.getElementById("confBar");
-      const cl=document.getElementById("confLabel");
+  function analyzeStreak(history, limit = 10) {
+    const recent = history.slice(-limit);
+    let bigCount = 0;
+    let smallCount = 0;
+    let redCount = 0;
+    let greenCount = 0;
+    let violetCount = 0;
+    
+    recent.forEach(item => {
+      const num = parseInt(item.number);
       
-      cr.innerHTML=`<span class="prediction-${_c.p.toLowerCase()}">${_c.p}</span>`;
-      cb.style.width=_c.c+'%';
+      if (num >= 5) bigCount++;
+      else smallCount++;
       
-      if(_c.c>=70){
-        cl.innerHTML='<span class="confidence-high">HIGH CONFIDENCE</span>';
-      }else{
-        cl.innerHTML='<span class="confidence-low">LOW CONFIDENCE</span>';
+      if ([1, 3, 7, 9].includes(num)) greenCount++;
+      if ([2, 4, 6, 8].includes(num)) redCount++;
+      if ([0, 5].includes(num)) violetCount++;
+    });
+    
+    return { bigCount, smallCount, redCount, greenCount, violetCount };
+  }
+
+  function findHotColdNumbers(frequency, gaps) {
+    const hotNumbers = [];
+    const coldNumbers = [];
+    
+    for (let num = 0; num <= 9; num++) {
+      const freq = frequency[num] || 0;
+      const gap = gaps[num] || 0;
+      
+      if (freq >= 3 && gap <= 5) {
+        hotNumbers.push(num);
       }
+      
+      if (freq <= 1 && gap >= 8) {
+        coldNumbers.push(num);
+      }
+    }
+    
+    return { hotNumbers, coldNumbers };
+  }
 
-      let wc=0,lc=0;
-      _h.forEach(e=>{
-        if(e.res===_0x4a[2])wc++;
-        if(e.res===_0x4a[3])lc++;
+  function calculateWeightedScores(history) {
+    const scores = {};
+    
+    const frequency = analyzeFrequency(history, 20);
+    const gaps = analyzeGaps(history);
+    const streak = analyzeStreak(history, 10);
+    const { hotNumbers, coldNumbers } = findHotColdNumbers(frequency, gaps);
+    
+    for (let num = 0; num <= 9; num++) {
+      let score = 50;
+      
+      const freq = frequency[num] || 0;
+      if (freq >= 4) score -= 15;
+      else if (freq <= 1) score += 15;
+      
+      const gap = gaps[num] || 0;
+      if (gap >= 10) score += 20;
+      else if (gap <= 2) score -= 10;
+      
+      if (coldNumbers.includes(num)) score += 15;
+      if (hotNumbers.includes(num)) score += 10;
+      
+      if (num >= 5 && streak.bigCount >= 3) score -= 10;
+      if (num < 5 && streak.smallCount >= 3) score -= 10;
+      if (num >= 5 && streak.smallCount >= 3) score += 15;
+      if (num < 5 && streak.bigCount >= 3) score += 15;
+      
+      if ([1, 3, 7, 9].includes(num) && streak.greenCount >= 4) score -= 8;
+      if ([2, 4, 6, 8].includes(num) && streak.redCount >= 4) score -= 8;
+      if ([1, 3, 7, 9].includes(num) && streak.redCount >= 3) score += 10;
+      if ([2, 4, 6, 8].includes(num) && streak.greenCount >= 3) score += 10;
+      
+      scores[num] = Math.max(0, Math.min(100, score));
+    }
+    
+    return scores;
+  }
+
+  function generateAdvancedPrediction(history) {
+    if (!history || history.length < 5) {
+      return {
+        numbers: [0, 5],
+        size: 'Small',
+        colors: ['violet', 'green'],
+        confidence: 50
+      };
+    }
+    
+    const scores = calculateWeightedScores(history);
+    const streak = analyzeStreak(history, 10);
+    
+    const sortedPredictions = Object.entries(scores)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+    
+    const predictedNumbers = sortedPredictions.map(p => parseInt(p[0]));
+    const avgConfidence = Math.round(sortedPredictions.reduce((sum, p) => sum + p[1], 0) / 3);
+    
+    const predictedSize = predictedNumbers[0] >= 5 ? 'Big' : 'Small';
+    
+    const predictedColors = [];
+    predictedNumbers.forEach(num => {
+      if ([1, 3, 7, 9].includes(num) && !predictedColors.includes('green')) {
+        predictedColors.push('green');
+      }
+      if ([2, 4, 6, 8].includes(num) && !predictedColors.includes('red')) {
+        predictedColors.push('red');
+      }
+      if ([0, 5].includes(num) && !predictedColors.includes('violet')) {
+        predictedColors.push('violet');
+      }
+    });
+    
+    return {
+      numbers: predictedNumbers,
+      size: predictedSize,
+      colors: predictedColors,
+      confidence: avgConfidence
+    };
+  }
+
+  // ===== UTILITY FUNCTIONS =====
+
+  const _g = (n, c) => {
+    const cl = [];
+    if ([1, 3, 7, 9].includes(n)) cl.push('green');
+    if ([2, 4, 6, 8].includes(n)) cl.push('red');
+    if ([0, 5].includes(n)) cl.push('violet');
+    return cl;
+  };
+
+  const _d = (h) => {
+    let r = '';
+    for (let i = 0; i < h.length; i += 2) {
+      r += String.fromCharCode(parseInt(h.substr(i, 2), 16));
+    }
+    return r;
+  };
+
+  // ===== LOAD DATA =====
+
+  const _l = async () => {
+    try {
+      const response = await fetch(_api, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ typeId: 1, language: 0 })
       });
 
-      ls.forEach((it,ix)=>{
-        const tr=document.createElement("tr");
-        const tdp=document.createElement("td");
-        tdp.className="period-cell";
-        const pv=String(it[_f1[0]]||it[_f1[1]]||it[_f1[2]]||it[_f1[3]]||it[_f1[4]]||it[_f4[0]]||it[_f4[1]]||it[_f4[2]]||'');
-        tdp.textContent=pv||"N/A";
+      const data = await response.json();
+      
+      if (data && data.data && data.data.list) {
+        _h = data.data.list.slice(0, 10);
+        _u();
+        _up();
+      }
+    } catch (e) {
+      console.error('Error loading data:', e);
+    }
+  };
+
+  // ===== UPDATE PREDICTION =====
+
+  const _up = () => {
+    const prediction = generateAdvancedPrediction(_h);
+    
+    const numbersContainer = document.getElementById('predicted-numbers');
+    numbersContainer.innerHTML = '';
+    prediction.numbers.forEach(num => {
+      const circle = document.createElement('div');
+      circle.className = 'number-circle pulse';
+      circle.textContent = num;
+      numbersContainer.appendChild(circle);
+    });
+    
+    document.getElementById('predicted-size').textContent = prediction.size;
+    
+    const colorsContainer = document.getElementById('predicted-colors');
+    colorsContainer.innerHTML = '';
+    prediction.colors.forEach(color => {
+      const dot = document.createElement('div');
+      dot.className = `color-dot ${color}`;
+      colorsContainer.appendChild(dot);
+    });
+    
+    const confidenceFill = document.getElementById('confidence-fill');
+    confidenceFill.style.width = prediction.confidence + '%';
+    confidenceFill.textContent = prediction.confidence + '%';
+  };
+
+  // ===== UPDATE TABLE =====
+
+  const _u = () => {
+    try {
+      const tb = document.getElementById('tb');
+      tb.innerHTML = '';
+
+      let wc = 0;
+      let lc = 0;
+
+      _h.forEach(item => {
+        const tr = document.createElement('tr');
         
-        const rn=it[_f2[0]]||it[_f2[1]]||it[_f2[2]]||it[_f2[3]]||"?";
-        const tdn=document.createElement("td");
-        tdn.className="number-cell";
-        const ns=document.createElement("span");
-        const co=(it[_f3[0]]||it[_f3[1]]||"").toLowerCase();
-        if(co==='red'){ns.style.color='#ff0055';ns.style.textShadow='0 0 10px #ff0055';}
-        else if(co==='green'){ns.style.color='#00ff41';ns.style.textShadow='0 0 10px #00ff41';}
-        else if(co==='violet'||co==='purple'){ns.style.color='#aa00ff';ns.style.textShadow='0 0 10px #aa00ff';}
-        ns.textContent=rn;
-        tdn.appendChild(ns);
+        const pv = item[_0x4a[0]];
+        const rn = item[_0x4a[1]];
+        const co = item.colour || '';
+
+        const tdp = document.createElement('td');
+        tdp.textContent = pv;
         
-        const tds=document.createElement("td");
-        tds.textContent=sh[ix];
+        const tdn = document.createElement('td');
+        tdn.textContent = rn;
+        tdn.style.fontSize = '24px';
+        tdn.style.fontWeight = 'bold';
+        tdn.style.color = '#00ff88';
         
-        const tdc=document.createElement("td");
-        tdc.className="color-cell";
-        const nv=parseInt(rn);
-        const cls=_g(nv,co);
-        cls.forEach(c=>{
-          const dt=document.createElement("span");
-          dt.className=`color-dot ${c}`;
+        const tds = document.createElement('td');
+        tds.textContent = parseInt(rn) >= 5 ? 'Big' : 'Small';
+        
+        const tdc = document.createElement('td');
+        tdc.className = 'color-dots';
+        
+        const nv = parseInt(rn);
+        const cls = _g(nv, co);
+        cls.forEach(c => {
+          const dt = document.createElement('span');
+          dt.className = `color-dot ${c}`;
           tdc.appendChild(dt);
         });
         
-        const tdr=document.createElement("td");
-        const mr=_h.find(q=>String(q.per)===String(pv));
-        if(mr){
-          if(mr.res===_0x4a[2]){
-            tdr.className="result-cell result-win";
-            tdr.textContent="✓ WIN";
-          }else{
-            tdr.className="result-cell result-loss";
-            tdr.textContent="✗ LOSS";
+        const tdr = document.createElement('td');
+        const mr = _h.find(q => String(q.per) === String(pv));
+        if (mr) {
+          if (mr.res === _0x4a[2]) {
+            tdr.className = 'result-win';
+            tdr.textContent = '✓ WIN';
+            wc++;
+          } else {
+            tdr.className = 'result-loss';
+            tdr.textContent = '✗ LOSS';
+            lc++;
           }
-        }else{
-          tdr.textContent="-";
+        } else {
+          tdr.textContent = '-';
         }
         
         tr.appendChild(tdp);
@@ -821,22 +645,37 @@ setInterval(drawMatrix,50);
         tb.appendChild(tr);
       });
 
-      const to=wc+lc;
-      const wrt=to>0?Math.round((wc/to)*100):0;
-      document.getElementById('wc').textContent=wc;
-      document.getElementById('lc').textContent=lc;
-      document.getElementById('tc').textContent=to;
-      document.getElementById('wr').textContent=wrt+'%';
-    }catch(e){
-      const _em=_d('5b204552524f52205d');
-      document.getElementById("tb").innerHTML=`<tr><td colspan="5" class="loading">${_em}</td></tr>`;
+      const to = wc + lc;
+      const wrt = to > 0 ? Math.round((wc / to) * 100) : 0;
+      document.getElementById('wc').textContent = wc;
+      document.getElementById('lc').textContent = lc;
+      document.getElementById('tc').textContent = to;
+      document.getElementById('wr').textContent = wrt + '%';
+    } catch (e) {
+      console.error('Error updating table:', e);
+      document.getElementById('tb').innerHTML = '<tr><td colspan="5" class="loading">[ ERROR ]</td></tr>';
     }
   };
 
+  // ===== TIMER =====
+
+  const _t = () => {
+    setInterval(() => {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('timer').textContent = `${h}:${m}:${s}`;
+    }, 1000);
+  };
+
+  // ===== INITIALIZE =====
+
   _l();
-  _s();
+  _t();
+  setInterval(_l, 60000); // Refresh every minute
 })();
 </script>
 
 </body>
-   </html>
+</html>
