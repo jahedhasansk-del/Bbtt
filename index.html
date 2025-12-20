@@ -50,6 +50,7 @@ th{padding:18px 12px;text-align:center;font-weight:700;color:white;font-size:13p
 tbody tr{transition:all .3s ease;border-bottom:1px solid #f0f0f0}
 tbody tr:hover{background:linear-gradient(135deg,rgba(102,126,234,.1) 0%,rgba(118,75,162,.1) 100%);transform:scale(1.01)}
 td{padding:16px 12px;text-align:center;color:#333;font-size:13px;font-weight:600}
+.period-cell{font-family:'Courier New',monospace;font-size:12px;color:#666}
 .num-cell{font-size:28px;font-weight:900}
 .size-badge{display:inline-block;padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
 .size-big{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);color:white}
@@ -157,10 +158,10 @@ let predictionHistory = [];
 let currentPrediction = null;
 let lastPeriod = null;
 let consecutiveLoss = 0;
-let lastCorrectPrediction = null;
 
 function getSize(num) {
-  return parseInt(num) >= 5 ? 'Big' : 'Small';
+  const n = parseInt(num);
+  return n >= 5 ? 'Big' : 'Small';
 }
 
 function getColors(num) {
@@ -173,13 +174,13 @@ function getColors(num) {
   return colors;
 }
 
-function calculateNewPrediction(last10) {
-  if (last10.length < 10) return { prediction: 'Big', confidence: 50 };
+function calculateNewPrediction(last10Sizes) {
+  if (last10Sizes.length < 10) return { prediction: 'Big', confidence: 50 };
   
   let bigCount = 0;
   let smallCount = 0;
   
-  last10.forEach(size => {
+  last10Sizes.forEach(size => {
     if (size === 'Big') bigCount++;
     else smallCount++;
   });
@@ -187,12 +188,13 @@ function calculateNewPrediction(last10) {
   let prediction;
   let confidence;
   
-  // যদি ২টা পরপর লস হয়ে যায়, তাহলে উল্টো দিকে প্রেডিকশন দিবে
+  // যদি ২টা পরপর লস হয়ে যায়, তাহলে উল্টো দিকে
   if (consecutiveLoss >= 2) {
-    prediction = lastCorrectPrediction === 'Big' ? 'Small' : 'Big';
+    // উল্টো দিকে প্রেডিকশন
+    prediction = bigCount > smallCount ? 'Small' : 'Big';
     confidence = 75 + Math.min(consecutiveLoss * 5, 20);
   } else {
-    // স্বাভাবিক প্রেডিকশন: যেটা বেশি আছে সেটাই
+    // স্বাভাবিক: যেটা বেশি আছে সেটাই
     prediction = bigCount > smallCount ? 'Big' : 'Small';
     
     const diff = Math.abs(bigCount - smallCount);
@@ -211,18 +213,22 @@ async function loadData() {
     const data = await response.json();
     
     let gameList = [];
-    if (data && data.data && data.data.list) gameList = data.data.list.slice(0, 15);
-    else if (data && data.list) gameList = data.list.slice(0, 15);
-    else if (Array.isArray(data)) gameList = data.slice(0, 15);
+    if (data && data.data && data.data.list) {
+      gameList = data.data.list.slice(0, 20);
+    } else if (data && data.list) {
+      gameList = data.list.slice(0, 20);
+    } else if (Array.isArray(data)) {
+      gameList = data.slice(0, 20);
+    }
     
     if (gameList.length === 0) {
       document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" class="loading">No data available</td></tr>';
       return;
     }
     
-    // সর্বশেষ ১০টা হিস্টিতে Big/Small কাউন্ট
+    // সর্বশেষ ১০টা হিস্টরির Big/Small বের করা
     const last10Sizes = gameList.slice(0, 10).map(item => {
-      const num = String(item.result || item.number || item.num || '0');
+      const num = String(item.result || item.number || item.num || item.openResult || '0');
       return getSize(num);
     });
     
@@ -239,15 +245,28 @@ async function loadData() {
       patternContainer.appendChild(div);
     });
     
-    // নতুন প্রেডিকশন ক্যালকুলেট করা
-    const currentPeriod = String(gameList[0].issue || gameList[0].period || '');
-    const currentNum = String(gameList[0].result || gameList[0].number || '0');
+    // বর্তমান পিরিয়ড এবং নাম্বার
+    const currentPeriod = String(
+      gameList[0].issue || 
+      gameList[0].period || 
+      gameList[0].issueNo || 
+      gameList[0].periodId || 
+      gameList[0].issueNumber || 
+      ''
+    );
+    const currentNum = String(
+      gameList[0].result || 
+      gameList[0].number || 
+      gameList[0].num || 
+      gameList[0].openResult || 
+      '0'
+    );
     const currentSize = getSize(currentNum);
     
     // নতুন পিরিয়ড চেক করা
-    if (lastPeriod !== currentPeriod) {
-      // যদি আগের প্রেডিকশন থাকে, তাহলে রেজাল্ট চেক করা
-      if (currentPrediction && lastPeriod) {
+    if (lastPeriod && lastPeriod !== currentPeriod) {
+      // আগের প্রেডিকশন চেক করা
+      if (currentPrediction) {
         const isCorrect = currentPrediction.prediction === currentSize;
         
         predictionHistory.unshift({
@@ -258,21 +277,24 @@ async function loadData() {
           number: currentNum
         });
         
-        if (predictionHistory.length > 50) predictionHistory = predictionHistory.slice(0, 50);
+        if (predictionHistory.length > 100) {
+          predictionHistory = predictionHistory.slice(0, 100);
+        }
         
         // লস স্ট্রিক আপডেট
         if (isCorrect) {
           consecutiveLoss = 0;
-          lastCorrectPrediction = currentPrediction.prediction;
         } else {
           consecutiveLoss++;
         }
       }
-      
-      // নতুন প্রেডিকশন
-      currentPrediction = calculateNewPrediction(last10Sizes);
-      lastPeriod = currentPeriod;
     }
+    
+    // পিরিয়ড সেভ করা
+    lastPeriod = currentPeriod;
+    
+    // নতুন প্রেডিকশন ক্যালকুলেট করা
+    currentPrediction = calculateNewPrediction(last10Sizes);
     
     // প্রেডিকশন দেখানো
     const predResult = document.getElementById('predResult');
@@ -297,7 +319,7 @@ async function loadData() {
     let lossCount = 0;
     predictionHistory.forEach(h => {
       if (h.result === 'Win') winCount++;
-      else lossCount++;
+      else if (h.result === 'Loss') lossCount++;
     });
     
     const totalGames = winCount + lossCount;
@@ -313,33 +335,76 @@ async function loadData() {
     tbody.innerHTML = '';
     
     gameList.forEach(item => {
-      const period = String(item.issue || item.period || item.issueNo || '');
-      const num = String(item.result || item.number || item.num || '0');
+      const period = String(
+        item.issue || 
+        item.period || 
+        item.issueNo || 
+        item.periodId || 
+        item.issueNumber || 
+        item.gameNo || 
+        item.drawNo || 
+        'N/A'
+      );
+      const num = String(
+        item.result || 
+        item.number || 
+        item.num || 
+        item.openResult || 
+        '0'
+      );
       const size = getSize(num);
-      const colors = getColors(num);
+      const colors = getColors(parseInt(num));
       
       const matchedHistory = predictionHistory.find(h => String(h.period) === period);
       
       const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${period}</td>
-        <td class="num-cell">${num}</td>
-        <td><span class="size-badge size-${size.toLowerCase()}">${size}</span></td>
-        <td>
-          <div class="color-dots">
-            ${colors.map(c => `<span class="dot dot-${c}"></span>`).join('')}
-          </div>
-        </td>
-        <td>
-          ${matchedHistory ? 
-            `<span class="result-badge result-${matchedHistory.result.toLowerCase()}">${matchedHistory.result === 'Win' ? '✓ WIN' : '✗ LOSS'}</span>` 
-            : '-'}
-        </td>
-      `;
+      
+      // Period column
+      const tdPeriod = document.createElement('td');
+      tdPeriod.className = 'period-cell';
+      tdPeriod.textContent = period;
+      
+      // Number column
+      const tdNum = document.createElement('td');
+      tdNum.className = 'num-cell';
+      tdNum.textContent = num;
+      
+      // Size column
+      const tdSize = document.createElement('td');
+      tdSize.innerHTML = `<span class="size-badge size-${size.toLowerCase()}">${size}</span>`;
+      
+      // Color column
+      const tdColor = document.createElement('td');
+      tdColor.className = 'color-dots';
+      colors.forEach(c => {
+        const dot = document.createElement('span');
+        dot.className = `dot dot-${c}`;
+        tdColor.appendChild(dot);
+      });
+      
+      // Result column
+      const tdResult = document.createElement('td');
+      if (matchedHistory) {
+        if (matchedHistory.result === 'Win') {
+          tdResult.innerHTML = '<span class="result-badge result-win">✓ WIN</span>';
+        } else {
+          tdResult.innerHTML = '<span class="result-badge result-loss">✗ LOSS</span>';
+        }
+      } else {
+        tdResult.textContent = '-';
+      }
+      
+      tr.appendChild(tdPeriod);
+      tr.appendChild(tdNum);
+      tr.appendChild(tdSize);
+      tr.appendChild(tdColor);
+      tr.appendChild(tdResult);
+      
       tbody.appendChild(tr);
     });
     
   } catch (error) {
+    console.error('Error:', error);
     document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" class="loading">Error loading data</td></tr>';
   }
 }
@@ -351,7 +416,10 @@ function updateTime() {
   const s = String(now.getSeconds()).padStart(2, '0');
   document.getElementById('currentTime').textContent = `${h}:${m}:${s}`;
   
-  if (now.getSeconds() === 59) loadData();
+  // প্রতি মিনিটে ডেটা লোড করা
+  if (now.getSeconds() === 0) {
+    loadData();
+  }
 }
 
 function refreshData() {
@@ -361,6 +429,7 @@ function refreshData() {
   loadData();
 }
 
+// শুরুতে ডেটা লোড করা
 loadData();
 setInterval(updateTime, 1000);
 updateTime();
