@@ -188,11 +188,13 @@ function calculateNewPrediction(last10Sizes) {
   let prediction;
   let confidence;
   
-  // যদি ২টা পরপর লস হয়ে যায়, তাহলে উল্টো দিকে
-  if (consecutiveLoss >= 2) {
+  // নতুন লজিক: ২ লস = উল্টো, ৩ লস = আবার নরমাল, ৪ লস = আবার উল্টো...
+  const shouldReverse = consecutiveLoss >= 2 && (Math.floor(consecutiveLoss / 2) % 2 === 1);
+  
+  if (shouldReverse) {
     // উল্টো দিকে প্রেডিকশন
     prediction = bigCount > smallCount ? 'Small' : 'Big';
-    confidence = 75 + Math.min(consecutiveLoss * 5, 20);
+    confidence = 75 + Math.min(consecutiveLoss * 3, 20);
   } else {
     // স্বাভাবিক: যেটা বেশি আছে সেটাই
     prediction = bigCount > smallCount ? 'Big' : 'Small';
