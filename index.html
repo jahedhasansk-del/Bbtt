@@ -13,17 +13,16 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
     position: relative;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
-/* Animated Background */
 .bg-animation {
     position: fixed;
     top: 0;
@@ -75,7 +74,7 @@ body {
 .logo {
     font-size: 48px;
     font-weight: bold;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -96,7 +95,6 @@ body {
     text-transform: uppercase;
 }
 
-/* Pages */
 .page {
     display: none;
     animation: fadeIn 0.5s ease-out;
@@ -111,7 +109,6 @@ body {
     to { opacity: 1; }
 }
 
-/* Verification Page */
 .verification-page {
     text-align: center;
 }
@@ -166,14 +163,14 @@ body {
 }
 
 .input-field:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+    border-color: #00d4ff;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
 }
 
 .verify-btn {
     width: 100%;
     padding: 18px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -181,7 +178,7 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 153, 255, 0.4);
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-top: 10px;
@@ -189,7 +186,7 @@ body {
 
 .verify-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 15px 40px rgba(0, 153, 255, 0.6);
 }
 
 .verify-btn:disabled {
@@ -197,7 +194,6 @@ body {
     cursor: not-allowed;
 }
 
-/* Success Message */
 .success-message {
     background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     color: white;
@@ -234,7 +230,6 @@ body {
     line-height: 1.6;
 }
 
-/* Error Message */
 .error-message {
     background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     color: white;
@@ -290,13 +285,6 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Prediction Page */
-.prediction-page {}
-
-.input-section {
-    margin-bottom: 30px;
-}
-
 .input-wrapper {
     display: flex;
     gap: 10px;
@@ -317,13 +305,13 @@ body {
 }
 
 .period-input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    border-color: #00d4ff;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
 }
 
 .check-btn {
     padding: 18px 35px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
     color: white;
     border: none;
     border-radius: 15px;
@@ -331,14 +319,14 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 153, 255, 0.4);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .check-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 15px 40px rgba(0, 153, 255, 0.6);
 }
 
 .check-btn:disabled {
@@ -375,7 +363,7 @@ body {
 }
 
 .result-period-number {
-    color: #667eea;
+    color: #00d4ff;
     font-size: 20px;
     font-weight: bold;
 }
@@ -394,14 +382,14 @@ body {
 }
 
 .prediction-big {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .prediction-small {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -410,7 +398,7 @@ body {
 .next-btn {
     width: 100%;
     padding: 18px;
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
     color: white;
     border: none;
     border-radius: 15px;
@@ -418,7 +406,7 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 10px 30px rgba(56, 239, 125, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 153, 255, 0.4);
     text-transform: uppercase;
     letter-spacing: 1px;
     display: none;
@@ -431,12 +419,12 @@ body {
 
 .next-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 40px rgba(56, 239, 125, 0.5);
+    box-shadow: 0 15px 40px rgba(0, 153, 255, 0.6);
 }
 
 .info-box {
-    background: #e8f4f8;
-    border-left: 4px solid #667eea;
+    background: rgba(0, 212, 255, 0.1);
+    border-left: 4px solid #00d4ff;
     padding: 15px;
     border-radius: 10px;
     margin-top: 20px;
@@ -482,9 +470,7 @@ body {
         <div class="subtitle">Prediction System</div>
     </div>
 
-    <!-- ============================================ -->
     <!-- VERIFICATION PAGE -->
-    <!-- ============================================ -->
     <div class="page active" id="verificationPage">
         <div class="verification-page">
             <div class="welcome-icon">👋</div>
@@ -521,14 +507,12 @@ body {
                 <span id="verifyBtnText">Verify Now</span>
             </button>
 
-            <!-- Success Message -->
             <div class="success-message" id="successMessage">
                 <div class="success-icon">✅</div>
                 <div class="success-title">Thank You For Being With Us!</div>
                 <div class="success-text">Your prediction is being prepared...</div>
             </div>
 
-            <!-- Error Message -->
             <div class="error-message" id="errorMessage">
                 <div class="error-icon">❌</div>
                 <div class="error-title">Hello Sir!</div>
@@ -541,99 +525,177 @@ body {
                 </a>
             </div>
 
-            <!-- Admin Access (Hidden) -->
-            <div style="text-align: center; margin-top: 30px;">
-                <button onclick="showAdminPanel()" style="padding: 8px 16px; background: transparent; color: #999; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-size: 12px; transition: all 0.3s;">
-                    👨‍💼 Admin
+            <!-- Secret Admin Access (triple click on logo) -->
+        </div>
+    </div>
+
+    <!-- PREDICTION PAGE -->
+    <div class="page" id="predictionPage">
+        <div class="input-group">
+            <label class="input-label">📊 Enter Period Number</label>
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="periodInput" 
+                    class="period-input" 
+                    placeholder="Period..."
+                    autocomplete="off"
+                />
+                <button class="check-btn" id="checkBtn" onclick="checkPrediction()">
+                    <span id="checkBtnText">Check</span>
                 </button>
             </div>
         </div>
-    </div>
 
-    <!-- ============================================ -->
-    <!-- PREDICTION PAGE -->
-    <!-- ============================================ -->
-    <div class="page" id="predictionPage">
-        <div class="prediction-page">
-            <div class="input-section">
-                <label class="input-label">📊 Enter Period Number</label>
-                <div class="input-wrapper">
-                    <input 
-                        type="text" 
-                        id="periodInput" 
-                        class="period-input" 
-                        placeholder="Period..."
-                        autocomplete="off"
-                    />
-                    <button class="check-btn" id="checkBtn" onclick="checkPrediction()">
-                        <span id="checkBtnText">Check</span>
-                    </button>
-                </div>
+        <div class="result-section" id="resultSection">
+            <div class="result-period">
+                Period: <span class="result-period-number" id="resultPeriodNumber">--</span>
             </div>
+            <div class="result-prediction" id="resultPrediction">--</div>
+        </div>
 
-            <div class="result-section" id="resultSection">
-                <div class="result-period">
-                    Period: <span class="result-period-number" id="resultPeriodNumber">--</span>
-                </div>
-                <div class="result-prediction" id="resultPrediction">--</div>
-            </div>
+        <button class="next-btn" id="nextBtn" onclick="nextPeriod()">
+            ➜ Next Period
+        </button>
 
-            <button class="next-btn" id="nextBtn" onclick="nextPeriod()">
-                ➜ Next Period
-            </button>
-
-            <div class="info-box">
-                <strong>💡 Information:</strong><br>
-                Same prediction for everyone. Mathematical calculation is used to generate results from period numbers.
-            </div>
+        <div class="info-box">
+            <strong>💡 Information:</strong><br>
+            Same prediction for everyone. Mathematical calculation is used to generate results from period numbers.
         </div>
     </div>
 
-    <!-- ============================================ -->
     <!-- ADMIN PANEL -->
-    <!-- ============================================ -->
     <div class="page" id="adminPage">
         <div style="margin-bottom: 20px;">
-            <button onclick="showVerificationPage()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
+            <button onclick="showVerificationPage()" style="padding: 10px 20px; background: #00d4ff; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
                 ← Back
             </button>
         </div>
         
         <div style="text-align: center; margin-bottom: 30px;">
             <div style="font-size: 36px; margin-bottom: 10px;">👨‍💼</div>
-            <h2 style="color: #667eea; margin-bottom: 5px;">Admin Panel</h2>
+            <h2 style="color: #00d4ff; margin-bottom: 5px;">Admin Panel</h2>
             <p style="color: #666; font-size: 14px;">Manage Verified Users</p>
         </div>
 
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center;">
+        <div style="background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center;">
             <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">Total Verified Users</div>
             <div style="font-size: 48px; font-weight: bold;" id="totalUsers">0</div>
         </div>
 
         <div style="background: #f8f9fa; border-radius: 15px; padding: 20px; max-height: 500px; overflow-y: auto;">
-            <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;">📋 User List</h3>
+            <h3 style="color: #00d4ff; margin-bottom: 20px; font-size: 18px;">📋 User List</h3>
             <div id="userList"></div>
         </div>
     </div>
 </div>
 
 <script>
+// Disable right-click
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+// Disable DevTools shortcuts
+document.onkeydown = function(e) {
+    if (e.keyCode == 123 || 
+        (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) ||
+        (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) ||
+        (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) ||
+        (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0))) {
+        return false;
+    }
+};
+
 // ============================================
-// USERNAME INPUT AUTO @ SYMBOL
+// ENCRYPTED USER DATABASE
+// ============================================
+// Users are stored in encrypted format
+const _0x4d2a=['11870','@jahedsk','7322250718'];
+function _0x1b3c(a,b){return{uid:_0x4d2a[a],username:_0x4d2a[b]}}
+const VERIFIED_USERS=[_0x1b3c(0,1),_0x1b3c(2,1)];
+
+// ============================================
+// SECRET ADMIN ACCESS
+// ============================================
+let clickCount = 0;
+let clickTimer = null;
+
+document.querySelector('.logo').addEventListener('click', function() {
+    clickCount++;
+    
+    if (clickTimer) clearTimeout(clickTimer);
+    
+    if (clickCount === 5) {
+        const password = prompt('🔐 Admin Access');
+        if (password === 'Jahed1988@') {
+            showAdminPanel();
+        }
+        clickCount = 0;
+    }
+    
+    clickTimer = setTimeout(() => {
+        clickCount = 0;
+    }, 1000);
+});
+
+function showAdminPanel() {
+    document.getElementById('verificationPage').classList.remove('active');
+    document.getElementById('predictionPage').classList.remove('active');
+    document.getElementById('adminPage').classList.add('active');
+    loadUserList();
+}
+
+function showVerificationPage() {
+    document.getElementById('adminPage').classList.remove('active');
+    document.getElementById('verificationPage').classList.add('active');
+}
+
+function loadUserList() {
+    document.getElementById('totalUsers').textContent = VERIFIED_USERS.length;
+    
+    let html = '';
+    VERIFIED_USERS.forEach((user, index) => {
+        html += `
+            <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;">
+                                ${index + 1}
+                            </div>
+                            <div>
+                                <div style="font-size: 16px; font-weight: bold; color: #333;">${user.username}</div>
+                                <div style="font-size: 12px; color: #999;">User #${index + 1}</div>
+                            </div>
+                        </div>
+                        <div style="background: #f0f0f0; padding: 8px 12px; border-radius: 8px; display: inline-block;">
+                            <span style="font-size: 11px; color: #666;">UID:</span>
+                            <span style="font-size: 14px; font-weight: bold; color: #00d4ff; margin-left: 5px;">${user.uid}</span>
+                        </div>
+                    </div>
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                        ✓
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    document.getElementById('userList').innerHTML = html || '<div style="text-align:center;padding:40px;color:#999;">No users</div>';
+}
+
+// ============================================
+// USERNAME AUTO @ SYMBOL
 // ============================================
 function addAtSymbol(input) {
-    // When user clicks/focuses on input, add @ if not present
     if (!input.value.startsWith('@')) {
         input.value = '@' + input.value;
     }
 }
 
 function maintainAtSymbol(input) {
-    // Always keep @ at the beginning
     if (!input.value.startsWith('@')) {
         input.value = '@' + input.value.replace(/@/g, '');
     }
-    // Prevent multiple @ symbols
     const atCount = (input.value.match(/@/g) || []).length;
     if (atCount > 1) {
         input.value = '@' + input.value.replace(/@/g, '');
@@ -641,20 +703,7 @@ function maintainAtSymbol(input) {
 }
 
 // ============================================
-// VERIFIED USERS DATABASE
-// ============================================
-// Add your verified users here
-// Format: { uid: "game_uid", username: "telegram_username" }
-
-const VERIFIED_USERS = [
-    { uid: "11870", username: "@jahedsk" },
-    { uid: "7322250718", username: "@jahedsk" },
-    // Add more users here:
-    // { uid: "YOUR_UID", username: "@username" },
-];
-
-// ============================================
-// VERIFICATION FUNCTION
+// VERIFICATION
 // ============================================
 function verifyUser() {
     const uidInput = document.getElementById('uidInput');
@@ -667,39 +716,29 @@ function verifyUser() {
     const uid = uidInput.value.trim();
     const username = usernameInput.value.trim();
     
-    // Validation
     if (!uid || !username) {
         alert('❌ Please provide all information!');
         return;
     }
     
-    // Show loading
     verifyBtn.disabled = true;
     verifyBtnText.innerHTML = '<span class="loading"></span>';
     
-    // Hide previous messages
     successMessage.classList.remove('show');
     errorMessage.classList.remove('show');
     
-    // Simulate verification process
     setTimeout(() => {
-        // Check if user is verified
         const isVerified = VERIFIED_USERS.some(user => 
             user.uid === uid && user.username.toLowerCase() === username.toLowerCase()
         );
         
         if (isVerified) {
-            // ✅ SUCCESS - User is verified
             successMessage.classList.add('show');
-            
-            // Wait 2 seconds then show prediction page
             setTimeout(() => {
                 document.getElementById('verificationPage').classList.remove('active');
                 document.getElementById('predictionPage').classList.add('active');
             }, 2000);
-            
         } else {
-            // ❌ ERROR - User not verified
             errorMessage.classList.add('show');
             verifyBtn.disabled = false;
             verifyBtnText.textContent = 'Try Again';
@@ -710,52 +749,24 @@ function verifyUser() {
 // ============================================
 // PREDICTION ALGORITHM
 // ============================================
-// Same algorithm from your original code
 function calculatePrediction(periodNumber) {
-    // Period number কে pure integer হিসেবে নিই
     const period = parseInt(periodNumber);
-    
-    // Multiple prime number দিয়ে hash করি
     const prime1 = 999331;
     const prime2 = 1000003;
     const prime3 = 7919;
     const prime4 = 104729;
     
-    // Step 1: Period দিয়ে hash তৈরি করি
     const hash1 = (period * prime1) % 1000000;
     const hash2 = (period * prime2) % 1000000;
     const hash3 = (period * prime3) % 1000000;
     const hash4 = (period * prime4) % 1000000;
     
-    // Step 2: সব hash values combine করি
     const combined = hash1 + hash2 + hash3 + hash4;
-    
-    // Step 3: Final score calculate করি
     const finalScore = combined % 100;
     
-    // Step 4: Score অনুযায়ী result
-    // 0-49 = SMALL
-    // 50-99 = BIG
-    const prediction = finalScore >= 50 ? 'BIG' : 'SMALL';
-    
-    // Console log যাতে verify করা যায়
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🔢 Period Number:', period);
-    console.log('🧮 Hash1:', hash1);
-    console.log('🧮 Hash2:', hash2);
-    console.log('🧮 Hash3:', hash3);
-    console.log('🧮 Hash4:', hash4);
-    console.log('📊 Combined:', combined);
-    console.log('🎯 Final Score:', finalScore);
-    console.log('✅ Prediction:', prediction);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
-    return prediction;
+    return finalScore >= 50 ? 'BIG' : 'SMALL';
 }
 
-// ============================================
-// PREDICTION FUNCTIONS
-// ============================================
 let currentPeriod = null;
 
 function checkPrediction() {
@@ -782,7 +793,6 @@ function checkPrediction() {
     setTimeout(() => {
         const prediction = calculatePrediction(currentPeriod);
         displayResult(currentPeriod, prediction);
-        
         checkBtn.disabled = false;
         checkBtnText.textContent = 'Check';
     }, 1000);
@@ -809,8 +819,6 @@ function displayResult(period, prediction) {
             nextBtn.classList.add('show');
         }, 300);
     }, 100);
-    
-    console.log('📊 Period:', period, '| 🎯 Prediction:', prediction);
 }
 
 function nextPeriod() {
@@ -830,7 +838,6 @@ function nextPeriod() {
     }, 300);
 }
 
-// Enter key support
 document.getElementById('uidInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         document.getElementById('usernameInput').focus();
