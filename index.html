@@ -3,54 +3,852 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>WinGo Pattern Pro</title>
+<title>Signal Predictor Pro</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:15px}body::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");z-index:0;opacity:.3}.container{max-width:1200px;margin:0 auto;position:relative;z-index:1}.header{text-align:center;margin-bottom:20px;background:rgba(255,255,255,.95);padding:25px;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)}.logo{font-size:36px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;margin-bottom:8px;letter-spacing:2px}.subtitle{color:#666;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:600}.data-count{color:#888;font-size:12px;margin-top:8px}.progress-bar{width:100%;height:6px;background:rgba(102,126,234,.2);border-radius:10px;overflow:hidden;margin-top:8px}.progress-fill{height:100%;background:linear-gradient(90deg,#667eea,#764ba2);transition:width .3s}.pred-box{background:rgba(255,255,255,.95);border-radius:20px;padding:30px;margin-bottom:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}.pred-title{color:#764ba2;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:20px}.pred-result{font-size:64px;font-weight:900;margin-bottom:15px;letter-spacing:6px;animation:popIn .6s cubic-bezier(0.68,-0.55,0.265,1.55)}@keyframes popIn{0%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:scale(1)}}.pred-big{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.pred-small{background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.pred-wait{color:#ff9800;font-size:18px;font-weight:700}.conf-info{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:15px}.conf-badge{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:10px 25px;border-radius:50px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:1px;box-shadow:0 8px 20px rgba(102,126,234,.4)}.pattern-badge{background:linear-gradient(135deg,#00f2fe 0%,#4facfe 100%);color:white;padding:8px 18px;border-radius:50px;font-weight:700;font-size:12px}.rating-badge{background:linear-gradient(135deg,#ffd700 0%,#ffed4e 100%);color:#333;padding:8px 18px;border-radius:50px;font-weight:700;font-size:12px}.pattern-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px;margin-bottom:20px}.pattern-card{background:rgba(255,255,255,.95);border-radius:15px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.2)}.pattern-card h3{color:#764ba2;font-size:14px;margin-bottom:12px;text-align:center;font-weight:700;text-transform:uppercase}.pattern-list{display:flex;flex-direction:column;gap:8px}.pattern-item{background:linear-gradient(135deg,#f8f9ff 0%,#e8ecff 100%);padding:10px 15px;border-radius:10px;font-size:12px;font-weight:600;border-left:4px solid #667eea}.pattern-match{background:linear-gradient(135deg,#fff9e6 0%,#ffe8a3 100%);border-left:4px solid #ffd700}.zigzag-visual{display:flex;justify-content:center;gap:8px;margin:15px 0;flex-wrap:wrap}.zigzag-item{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;border:2px solid transparent;transition:all .3s}.zigzag-big{background:linear-gradient(135deg,#f093fb,#f5576c);color:white}.zigzag-small{background:linear-gradient(135deg,#4facfe,#00f2fe);color:white}.zigzag-active{border-color:#ffd700;box-shadow:0 0 15px rgba(255,215,0,.5);transform:scale(1.1)}.table-wrapper{background:rgba(255,255,255,.95);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);margin-bottom:20px}table{width:100%;border-collapse:collapse}thead{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)}th{padding:15px 10px;text-align:center;font-weight:700;color:white;font-size:12px;text-transform:uppercase;letter-spacing:1px}tbody tr{transition:all .3s;border-bottom:1px solid #f0f0f0}tbody tr:hover{background:linear-gradient(135deg,rgba(102,126,234,.1) 0%,rgba(118,75,162,.1) 100%)}tbody tr.match-row{background:linear-gradient(135deg,rgba(255,215,0,.15) 0%,rgba(255,215,0,.25) 100%);border-left:5px solid #ffd700}tbody tr.trap-row{background:linear-gradient(135deg,rgba(245,87,108,.15) 0%,rgba(245,87,108,.25) 100%);border-left:5px solid #f5576c}td{padding:14px 10px;text-align:center;color:#333;font-size:12px;font-weight:600}.period-cell{font-family:'Courier New',monospace;font-size:11px;color:#666}.num-cell{font-size:24px;font-weight:900}.size-badge{display:inline-block;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px}.size-big{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);color:white}.size-small{background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);color:white}.match-badge{background:#ffd700;color:#333;padding:3px 8px;border-radius:12px;font-size:9px;font-weight:700;margin-left:4px}.refresh-btn{position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:15px 30px;border-radius:50px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(102,126,234,.5);display:flex;align-items:center;gap:8px;transition:all .3s;z-index:1000;text-transform:uppercase;letter-spacing:1px}.refresh-btn:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(102,126,234,.7)}.refresh-icon{font-size:18px;transition:transform .5s}.refresh-icon.spin{animation:rotate .5s linear}@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}.time-display{text-align:center;margin-top:15px;padding:12px;background:rgba(255,255,255,.2);border-radius:15px;backdrop-filter:blur(10px)}.current-time{font-size:28px;font-weight:900;color:white;text-shadow:0 2px 10px rgba(0,0,0,.3);letter-spacing:2px}.loading{text-align:center;padding:15px;color:#764ba2;font-size:15px;font-weight:600}@media (max-width:768px){.logo{font-size:28px}.pred-result{font-size:48px;letter-spacing:4px}.pattern-grid{grid-template-columns:1fr}.refresh-btn{bottom:15px;right:15px;padding:12px 20px;font-size:13px}th,td{padding:10px 6px;font-size:11px}.num-cell{font-size:20px}}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Animated Background */
+.bg-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.bg-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: float 20s infinite ease-in-out;
+}
+
+.circle1 { width: 300px; height: 300px; top: 10%; left: 10%; animation-delay: 0s; }
+.circle2 { width: 200px; height: 200px; top: 60%; left: 70%; animation-delay: 5s; }
+.circle3 { width: 150px; height: 150px; top: 30%; left: 80%; animation-delay: 10s; }
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(50px, 50px) scale(1.1); }
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 30px;
+    padding: 40px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo {
+    font-size: 48px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #666;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Pages */
+.page {
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Verification Page */
+.verification-page {
+    text-align: center;
+}
+
+.welcome-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.welcome-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.welcome-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 600;
+}
+
+.input-field {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s;
+    background: white;
+}
+
+.input-field:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+}
+
+.verify-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+}
+
+.verify-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+}
+
+.verify-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Success Message */
+.success-message {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+    text-align: center;
+    display: none;
+    animation: scaleIn 0.5s ease-out;
+}
+
+.success-message.show {
+    display: block;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.success-icon {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+.success-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.success-text {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Error Message */
+.error-message {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+    text-align: center;
+    display: none;
+    animation: shake 0.5s ease-out;
+}
+
+.error-message.show {
+    display: block;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.error-icon {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+.error-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.error-text {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.contact-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: white;
+    color: #f5576c;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.contact-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Prediction Page */
+.prediction-page {}
+
+.input-section {
+    margin-bottom: 30px;
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.period-input {
+    flex: 1;
+    padding: 18px 20px;
+    font-size: 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    outline: none;
+    transition: all 0.3s;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.period-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+}
+
+.check-btn {
+    padding: 18px 35px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.check-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+}
+
+.check-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.result-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 20px;
+    display: none;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.result-section.show {
+    display: block;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.result-period {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.result-period-number {
+    color: #667eea;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.result-prediction {
+    font-size: 72px;
+    font-weight: bold;
+    margin: 20px 0;
+    animation: scaleInPrediction 0.6s ease-out;
+}
+
+@keyframes scaleInPrediction {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.prediction-big {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.prediction-small {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.next-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 30px rgba(56, 239, 125, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: none;
+}
+
+.next-btn.show {
+    display: block;
+    animation: fadeInUp 0.5s ease-out 0.3s both;
+}
+
+.next-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(56, 239, 125, 0.5);
+}
+
+.info-box {
+    background: #e8f4f8;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+    .container { padding: 30px 20px; }
+    .logo { font-size: 36px; }
+    .result-prediction { font-size: 56px; }
+    .input-wrapper { flex-direction: column; }
+    .check-btn { width: 100%; }
+}
 </style>
 </head>
 <body>
+
+<div class="bg-animation">
+    <div class="bg-circle circle1"></div>
+    <div class="bg-circle circle2"></div>
+    <div class="bg-circle circle3"></div>
+</div>
+
 <div class="container">
-<div class="header">
-<div class="logo">⚡ WINGO PATTERN PRO</div>
-<div class="subtitle">Advanced AI Prediction System</div>
-<div class="data-count" id="dataCount">Loading...</div>
-<div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+    <div class="header">
+        <div class="logo">🎯 SIGNAL</div>
+        <div class="subtitle">Prediction System</div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- VERIFICATION PAGE -->
+    <!-- ============================================ -->
+    <div class="page active" id="verificationPage">
+        <div class="verification-page">
+            <div class="welcome-icon">👋</div>
+            <div class="welcome-title">Welcome!</div>
+            <div class="welcome-subtitle">
+                Please verify your information to get predictions
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">🎮 Game Account UID</label>
+                <input 
+                    type="text" 
+                    id="uidInput" 
+                    class="input-field" 
+                    placeholder="Enter your UID..."
+                    autocomplete="off"
+                />
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">📱 Telegram Username</label>
+                <input 
+                    type="text" 
+                    id="usernameInput" 
+                    class="input-field" 
+                    placeholder="your_username"
+                    autocomplete="off"
+                    onfocus="addAtSymbol(this)"
+                    oninput="maintainAtSymbol(this)"
+                />
+            </div>
+
+            <button class="verify-btn" id="verifyBtn" onclick="verifyUser()">
+                <span id="verifyBtnText">Verify Now</span>
+            </button>
+
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage">
+                <div class="success-icon">✅</div>
+                <div class="success-title">Thank You For Being With Us!</div>
+                <div class="success-text">Your prediction is being prepared...</div>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage">
+                <div class="error-icon">❌</div>
+                <div class="error-title">Hello Sir!</div>
+                <div class="error-text">
+                    You are not in our team. Please contact our agent.
+                    <br>Thank you!
+                </div>
+                <a href="https://t.me/Jahedsk" target="_blank" class="contact-btn">
+                    📞 Contact Agent
+                </a>
+            </div>
+
+            <!-- Admin Access (Hidden) -->
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="showAdminPanel()" style="padding: 8px 16px; background: transparent; color: #999; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-size: 12px; transition: all 0.3s;">
+                    👨‍💼 Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- PREDICTION PAGE -->
+    <!-- ============================================ -->
+    <div class="page" id="predictionPage">
+        <div class="prediction-page">
+            <div class="input-section">
+                <label class="input-label">📊 Enter Period Number</label>
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="periodInput" 
+                        class="period-input" 
+                        placeholder="Period..."
+                        autocomplete="off"
+                    />
+                    <button class="check-btn" id="checkBtn" onclick="checkPrediction()">
+                        <span id="checkBtnText">Check</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <div class="result-period">
+                    Period: <span class="result-period-number" id="resultPeriodNumber">--</span>
+                </div>
+                <div class="result-prediction" id="resultPrediction">--</div>
+            </div>
+
+            <button class="next-btn" id="nextBtn" onclick="nextPeriod()">
+                ➜ Next Period
+            </button>
+
+            <div class="info-box">
+                <strong>💡 Information:</strong><br>
+                Same prediction for everyone. Mathematical calculation is used to generate results from period numbers.
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ADMIN PANEL -->
+    <!-- ============================================ -->
+    <div class="page" id="adminPage">
+        <div style="margin-bottom: 20px;">
+            <button onclick="showVerificationPage()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
+                ← Back
+            </button>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="font-size: 36px; margin-bottom: 10px;">👨‍💼</div>
+            <h2 style="color: #667eea; margin-bottom: 5px;">Admin Panel</h2>
+            <p style="color: #666; font-size: 14px;">Manage Verified Users</p>
+        </div>
+
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center;">
+            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">Total Verified Users</div>
+            <div style="font-size: 48px; font-weight: bold;" id="totalUsers">0</div>
+        </div>
+
+        <div style="background: #f8f9fa; border-radius: 15px; padding: 20px; max-height: 500px; overflow-y: auto;">
+            <h3 style="color: #667eea; margin-bottom: 20px; font-size: 18px;">📋 User List</h3>
+            <div id="userList"></div>
+        </div>
+    </div>
 </div>
-<div class="pred-box">
-<div class="pred-title">🎯 SPECIAL PREDICTION</div>
-<div class="pred-result" id="predResult"><div class="loading">Analyzing patterns...</div></div>
-<div class="conf-info">
-<div class="conf-badge" id="confBadge" style="display:none">Calculating...</div>
-<div class="pattern-badge" id="patternBadge" style="display:none"></div>
-<div class="rating-badge" id="ratingBadge" style="display:none"></div>
-</div>
-</div>
-<div class="pattern-grid">
-<div class="pattern-card">
-<h3>📊 Pattern Group-A (35%)</h3>
-<div class="pattern-list" id="groupA"></div>
-</div>
-<div class="pattern-card">
-<h3>📈 Pattern Group-B (70%)</h3>
-<div class="pattern-list" id="groupB"></div>
-</div>
-<div class="pattern-card">
-<h3>🎯 Zig-Zag Trap Pattern</h3>
-<div class="zigzag-visual" id="zigzagVis"></div>
-<div class="pattern-list" id="zigzagInfo"></div>
-</div>
-</div>
-<div class="table-wrapper">
-<table>
-<thead><tr><th>Period</th><th>Number</th><th>Size</th><th>Pattern</th></tr></thead>
-<tbody id="tableBody"><tr><td colspan="4" class="loading">Loading...</td></tr></tbody>
-</table>
-</div>
-<div class="time-display"><div class="current-time" id="currentTime">00:00:00</div></div>
-</div>
-<button class="refresh-btn" onclick="refreshData()"><span class="refresh-icon" id="refreshIcon">↻</span><span>Refresh</span></button>
+
 <script>
-const API='https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';let allData=[];function getSize(n){return parseInt(n)>=5?'B':'S'}async function loadData(){try{const res=await fetch(`${API}?ts=${Date.now()}`);const data=await res.json();let list=[];if(data?.data?.list)list=data.data.list;else if(data?.list)list=data.list;else if(Array.isArray(data))list=data;if(list.length===0){document.getElementById('tableBody').innerHTML='<tr><td colspan="4" class="loading">No data</td></tr>';return}allData=list.slice(0,300).map(i=>({period:String(i.issue||i.period||i.issueNo||''),num:String(i.result||i.number||i.num||'0'),size:getSize(String(i.result||i.number||i.num||'0'))}));const progress=Math.min(100,Math.round((allData.length/300)*100));document.getElementById('dataCount').textContent=`Periods: ${allData.length}/300 (${progress}%)`;document.getElementById('progressBar').style.width=progress+'%';analyzePrediction();displayTable()}catch(err){console.error('Error:',err);document.getElementById('tableBody').innerHTML='<tr><td colspan="4" class="loading">Error loading data</td></tr>'}}function analyzePrediction(){if(allData.length<5){document.getElementById('predResult').innerHTML='<div class="pred-wait">WAIT FOR SPECIAL PREDICTION</div>';return}const sizes=allData.map(d=>d.size);let pred=null,pattern='',rating=0,matchedIndices=new Set();const groupA1=checkPattern(sizes,'BSB','S',35);const groupA2=checkPattern(sizes,'SBS','B',35);const groupB1=checkPattern(sizes,'BSBBS','S',70);const groupB2=checkPattern(sizes,'SBSSB','B',70);const zigzag=analyzeZigzag(sizes);if(groupB1.match){pred=groupB1.pred;pattern='Pattern B1: BIG→SMALL→BIG→BIG→SMALL';rating=70;groupB1.indices.forEach(i=>matchedIndices.add(i))}else if(groupB2.match){pred=groupB2.pred;pattern='Pattern B2: SMALL→BIG→SMALL→SMALL→BIG';rating=70;groupB2.indices.forEach(i=>matchedIndices.add(i))}else if(groupA1.match){pred=groupA1.pred;pattern='Pattern A1: BIG→SMALL→BIG';rating=35;groupA1.indices.forEach(i=>matchedIndices.add(i))}else if(groupA2.match){pred=groupA2.pred;pattern='Pattern A2: SMALL→BIG→SMALL';rating=35;groupA2.indices.forEach(i=>matchedIndices.add(i))}else if(zigzag.shouldBet){pred=zigzag.pred;pattern=zigzag.pattern;rating=zigzag.rating;zigzag.indices.forEach(i=>matchedIndices.add(i))}const groupADiv=document.getElementById('groupA');groupADiv.innerHTML='';groupADiv.innerHTML+=`<div class="pattern-item${groupA1.match?' pattern-match':''}">1️⃣ BSB → SMALL ${groupA1.match?'✓':''}</div>`;groupADiv.innerHTML+=`<div class="pattern-item${groupA2.match?' pattern-match':''}">2️⃣ SBS → BIG ${groupA2.match?'✓':''}</div>`;const groupBDiv=document.getElementById('groupB');groupBDiv.innerHTML='';groupBDiv.innerHTML+=`<div class="pattern-item${groupB1.match?' pattern-match':''}">3️⃣ BSBBS → SMALL ${groupB1.match?'✓':''}</div>`;groupBDiv.innerHTML+=`<div class="pattern-item${groupB2.match?' pattern-match':''}">4️⃣ SBSSB → BIG ${groupB2.match?'✓':''}</div>`;const zigzagVis=document.getElementById('zigzagVis');zigzagVis.innerHTML='';sizes.slice(0,10).forEach((s,i)=>{const div=document.createElement('div');div.className=`zigzag-item zigzag-${s==='B'?'big':'small'}${i===0?' zigzag-active':''}`;div.textContent=s;zigzagVis.appendChild(div)});const zigzagInfoDiv=document.getElementById('zigzagInfo');zigzagInfoDiv.innerHTML='';if(zigzag.shouldBet){zigzagInfoDiv.innerHTML+=`<div class="pattern-item pattern-match">5️⃣ ${zigzag.type} Trap → ${zigzag.pred==='B'?'BIG':'SMALL'} ✓</div>`}else{zigzagInfoDiv.innerHTML+=`<div class="pattern-item">Monitoring: ${zigzag.consecutive} consecutive</div>`}if(pred){const predText=pred==='B'?'BIG':'SMALL';document.getElementById('predResult').innerHTML=`<span class="pred-${predText.toLowerCase()}">${predText}</span>`;document.getElementById('confBadge').style.display='block';document.getElementById('confBadge').textContent=`Confidence: ${rating}%`;document.getElementById('patternBadge').style.display='block';document.getElementById('patternBadge').textContent=pattern.split(':')[0];document.getElementById('ratingBadge').style.display='block';document.getElementById('ratingBadge').textContent=`Rating: ${rating}%`}else{document.getElementById('predResult').innerHTML='<div class="pred-wait">WAIT FOR SPECIAL PREDICTION</div>';document.getElementById('confBadge').style.display='none';document.getElementById('patternBadge').style.display='none';document.getElementById('ratingBadge').style.display='none'}window.matchedIndices=matchedIndices}function checkPattern(sizes,pattern,pred,rating){const pArr=pattern.split('');if(sizes.length<pArr.length)return{match:false,pred:pred,indices:[]};for(let i=0;i<pArr.length;i++){if(sizes[i]!==pArr[i])return{match:false,pred:pred,indices:[]}}return{match:true,pred:pred,indices:Array.from({length:pArr.length},(v,i)=>i)}}function analyzeZigzag(sizes){let consecutive=0,lastSize='';for(let i=0;i<sizes.length;i++){if(sizes[i]===lastSize){consecutive++;lastSize=sizes[i]}else{break}}if(consecutive>=3&&lastSize==='B'){const targetIndices=[];for(let i=0;i<sizes.length&&targetIndices.length<10;i++){if(sizes[i]==='S')targetIndices.push(i)}return{shouldBet:true,pred:'B',type:'BIG Long',pattern:'Zig-Zag Trap: BIG Long',rating:65,consecutive:consecutive,indices:targetIndices}}else if(consecutive>=3&&lastSize==='S'){const targetIndices=[];for(let i=0;i<sizes.length&&targetIndices.length<10;i++){if(sizes[i]==='B')targetIndices.push(i)}return{shouldBet:true,pred:'S',type:'SMALL Long',pattern:'Zig-Zag Trap: SMALL Long',rating:65,consecutive:consecutive,indices:targetIndices}}return{shouldBet:false,consecutive:consecutive}}function displayTable(){const tbody=document.getElementById('tableBody');tbody.innerHTML='';allData.slice(0,50).forEach((item,idx)=>{const isMatched=window.matchedIndices&&window.matchedIndices.has(idx);const tr=document.createElement('tr');if(isMatched)tr.className='match-row';const tdPeriod=document.createElement('td');tdPeriod.className='period-cell';tdPeriod.textContent=item.period.slice(-6);if(isMatched){const badge=document.createElement('span');badge.className='match-badge';badge.textContent='★';tdPeriod.appendChild(badge)}const tdNum=document.createElement('td');tdNum.className='num-cell';tdNum.textContent=item.num;const tdSize=document.createElement('td');tdSize.innerHTML=`<span class="size-badge size-${item.size==='B'?'big':'small'}">${item.size==='B'?'BIG':'SMALL'}</span>`;const tdPattern=document.createElement('td');tdPattern.textContent=isMatched?'Match':'-';tr.appendChild(tdPeriod);tr.appendChild(tdNum);tr.appendChild(tdSize);tr.appendChild(tdPattern);tbody.appendChild(tr)})}function updateTime(){const now=new Date(),h=String(now.getHours()).padStart(2,'0'),m=String(now.getMinutes()).padStart(2,'0'),s=String(now.getSeconds()).padStart(2,'0');document.getElementById('currentTime').textContent=`${h}:${m}:${s}`;if(s==='00'||s==='30')setTimeout(loadData,1000)}function refreshData(){const icon=document.getElementById('refreshIcon');icon.classList.add('spin');setTimeout(()=>icon.classList.remove('spin'),500);loadData()}loadData();setInterval(updateTime,1000);updateTime();
+// ============================================
+// USERNAME INPUT AUTO @ SYMBOL
+// ============================================
+function addAtSymbol(input) {
+    // When user clicks/focuses on input, add @ if not present
+    if (!input.value.startsWith('@')) {
+        input.value = '@' + input.value;
+    }
+}
+
+function maintainAtSymbol(input) {
+    // Always keep @ at the beginning
+    if (!input.value.startsWith('@')) {
+        input.value = '@' + input.value.replace(/@/g, '');
+    }
+    // Prevent multiple @ symbols
+    const atCount = (input.value.match(/@/g) || []).length;
+    if (atCount > 1) {
+        input.value = '@' + input.value.replace(/@/g, '');
+    }
+}
+
+// ============================================
+// VERIFIED USERS DATABASE
+// ============================================
+// Add your verified users here
+// Format: { uid: "game_uid", username: "telegram_username" }
+
+const VERIFIED_USERS = [
+    { uid: "11870", username: "@jahedsk" },
+    { uid: "7322250718", username: "@jahedsk" },
+    // Add more users here:
+    // { uid: "YOUR_UID", username: "@username" },
+];
+
+// ============================================
+// VERIFICATION FUNCTION
+// ============================================
+function verifyUser() {
+    const uidInput = document.getElementById('uidInput');
+    const usernameInput = document.getElementById('usernameInput');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const verifyBtnText = document.getElementById('verifyBtnText');
+    const successMessage = document.getElementById('successMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    const uid = uidInput.value.trim();
+    const username = usernameInput.value.trim();
+    
+    // Validation
+    if (!uid || !username) {
+        alert('❌ Please provide all information!');
+        return;
+    }
+    
+    // Show loading
+    verifyBtn.disabled = true;
+    verifyBtnText.innerHTML = '<span class="loading"></span>';
+    
+    // Hide previous messages
+    successMessage.classList.remove('show');
+    errorMessage.classList.remove('show');
+    
+    // Simulate verification process
+    setTimeout(() => {
+        // Check if user is verified
+        const isVerified = VERIFIED_USERS.some(user => 
+            user.uid === uid && user.username.toLowerCase() === username.toLowerCase()
+        );
+        
+        if (isVerified) {
+            // ✅ SUCCESS - User is verified
+            successMessage.classList.add('show');
+            
+            // Wait 2 seconds then show prediction page
+            setTimeout(() => {
+                document.getElementById('verificationPage').classList.remove('active');
+                document.getElementById('predictionPage').classList.add('active');
+            }, 2000);
+            
+        } else {
+            // ❌ ERROR - User not verified
+            errorMessage.classList.add('show');
+            verifyBtn.disabled = false;
+            verifyBtnText.textContent = 'Try Again';
+        }
+    }, 1500);
+}
+
+// ============================================
+// PREDICTION ALGORITHM
+// ============================================
+// Same algorithm from your original code
+function calculatePrediction(periodNumber) {
+    // Period number কে pure integer হিসেবে নিই
+    const period = parseInt(periodNumber);
+    
+    // Multiple prime number দিয়ে hash করি
+    const prime1 = 999331;
+    const prime2 = 1000003;
+    const prime3 = 7919;
+    const prime4 = 104729;
+    
+    // Step 1: Period দিয়ে hash তৈরি করি
+    const hash1 = (period * prime1) % 1000000;
+    const hash2 = (period * prime2) % 1000000;
+    const hash3 = (period * prime3) % 1000000;
+    const hash4 = (period * prime4) % 1000000;
+    
+    // Step 2: সব hash values combine করি
+    const combined = hash1 + hash2 + hash3 + hash4;
+    
+    // Step 3: Final score calculate করি
+    const finalScore = combined % 100;
+    
+    // Step 4: Score অনুযায়ী result
+    // 0-49 = SMALL
+    // 50-99 = BIG
+    const prediction = finalScore >= 50 ? 'BIG' : 'SMALL';
+    
+    // Console log যাতে verify করা যায়
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔢 Period Number:', period);
+    console.log('🧮 Hash1:', hash1);
+    console.log('🧮 Hash2:', hash2);
+    console.log('🧮 Hash3:', hash3);
+    console.log('🧮 Hash4:', hash4);
+    console.log('📊 Combined:', combined);
+    console.log('🎯 Final Score:', finalScore);
+    console.log('✅ Prediction:', prediction);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    return prediction;
+}
+
+// ============================================
+// PREDICTION FUNCTIONS
+// ============================================
+let currentPeriod = null;
+
+function checkPrediction() {
+    const input = document.getElementById('periodInput');
+    const period = input.value.trim();
+    
+    if (!period) {
+        alert('❌ Please enter period number!');
+        return;
+    }
+    
+    if (!/^\d+$/.test(period)) {
+        alert('❌ Please enter valid period number!');
+        return;
+    }
+    
+    currentPeriod = parseInt(period);
+    
+    const checkBtn = document.getElementById('checkBtn');
+    const checkBtnText = document.getElementById('checkBtnText');
+    checkBtn.disabled = true;
+    checkBtnText.innerHTML = '<span class="loading"></span>';
+    
+    setTimeout(() => {
+        const prediction = calculatePrediction(currentPeriod);
+        displayResult(currentPeriod, prediction);
+        
+        checkBtn.disabled = false;
+        checkBtnText.textContent = 'Check';
+    }, 1000);
+}
+
+function displayResult(period, prediction) {
+    const resultSection = document.getElementById('resultSection');
+    const resultPeriodNumber = document.getElementById('resultPeriodNumber');
+    const resultPrediction = document.getElementById('resultPrediction');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    resultSection.classList.remove('show');
+    nextBtn.classList.remove('show');
+    
+    resultPeriodNumber.textContent = period;
+    resultPrediction.textContent = prediction;
+    
+    resultPrediction.className = 'result-prediction ' + 
+        (prediction === 'BIG' ? 'prediction-big' : 'prediction-small');
+    
+    setTimeout(() => {
+        resultSection.classList.add('show');
+        setTimeout(() => {
+            nextBtn.classList.add('show');
+        }, 300);
+    }, 100);
+    
+    console.log('📊 Period:', period, '| 🎯 Prediction:', prediction);
+}
+
+function nextPeriod() {
+    if (!currentPeriod) return;
+    
+    const nextPeriodNum = currentPeriod + 1;
+    const input = document.getElementById('periodInput');
+    input.value = nextPeriodNum;
+    
+    const resultSection = document.getElementById('resultSection');
+    const nextBtn = document.getElementById('nextBtn');
+    resultSection.classList.remove('show');
+    nextBtn.classList.remove('show');
+    
+    setTimeout(() => {
+        checkPrediction();
+    }, 300);
+}
+
+// Enter key support
+document.getElementById('uidInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('usernameInput').focus();
+    }
+});
+
+document.getElementById('usernameInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        verifyUser();
+    }
+});
+
+document.getElementById('periodInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        checkPrediction();
+    }
+});
 </script>
+
 </body>
 </html>
